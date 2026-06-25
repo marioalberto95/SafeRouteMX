@@ -9,297 +9,371 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
-    <style>
-        body {
-            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
-            font-family: Arial, sans-serif;
-        }
+<style>
+    body {
+        background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+        font-family: Arial, sans-serif;
+    }
 
-        .navbar {
-            background: #dc3545;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+    .navbar {
+        background: #dc3545;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
+    .hero-card {
+        background: white;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+
+    .title {
+        font-weight: 800;
+        color: #222;
+    }
+
+    .subtitle {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+
+    .stats-box {
+        border-radius: 18px;
+        padding: 22px;
+        background: white;
+        text-align: center;
+        font-weight: bold;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        transition: 0.3s ease;
+        min-height: 120px;
+    }
+
+    .stats-box:hover {
+        transform: translateY(-6px);
+    }
+
+    .icon-risk {
+        font-size: 32px;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .risk-number {
+        font-size: 28px;
+        font-weight: 900;
+    }
+
+    .risk-text {
+        font-size: 15px;
+    }
+
+    .alto {
+        border-top: 5px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .medio {
+        border-top: 5px solid #ffc107;
+        color: #d39e00;
+    }
+
+    .bajo {
+        border-top: 5px solid #198754;
+        color: #198754;
+    }
+
+    .map-card {
+        background: white;
+        padding: 16px;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    #map {
+        height: 72vh;
+        width: 100%;
+        border-radius: 16px;
+    }
+
+    .legend {
+        background: white;
+        padding: 12px 14px;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .pulse-soft {
+        animation: pulseSoft 1.8s infinite;
+    }
+
+    @keyframes pulseSoft {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.04); }
+        100% { transform: scale(1); }
+    }
+
+    .fade-up {
+        animation: fadeUp 0.8s ease;
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* =========================
+       REPORTES DE LA COMUNIDAD
+    ========================= */
+
+    .community-reports {
+        margin-top: 40px;
+        margin-bottom: 50px;
+    }
+
+    .community-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .community-badge {
+        display: inline-block;
+        background: rgba(220, 53, 69, 0.12);
+        color: #dc3545;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .community-header h3 {
+        font-size: 30px;
+        font-weight: 900;
+        color: #222;
+        margin-bottom: 8px;
+    }
+
+    .community-header p {
+        color: #6c757d;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .report-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .sr-report-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+        transition: 0.3s ease;
+        border-top: 6px solid #dc3545;
+        min-height: 280px;
+    }
+
+    .sr-report-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 14px 34px rgba(0,0,0,0.16);
+    }
+
+    .sr-report-card.risk-high {
+        border-top-color: #dc3545;
+    }
+
+    .sr-report-card.risk-medium {
+        border-top-color: #ffc107;
+    }
+
+    .sr-report-card.risk-low {
+        border-top-color: #198754;
+    }
+
+    .sr-user-row {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 18px;
+    }
+
+    .sr-avatar-img {
+        width: 56px !important;
+        height: 56px !important;
+        min-width: 56px !important;
+        max-width: 56px !important;
+        min-height: 56px !important;
+        max-height: 56px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        display: block !important;
+        border: 3px solid #f1f1f1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .sr-avatar-letter {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        border-radius: 50%;
+        background: #dc3545;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 900;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .sr-user-row h5 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 900;
+        color: #222;
+    }
+
+    .sr-user-row small {
+        color: #6c757d;
+        font-size: 13px;
+    }
+
+    .sr-report-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .sr-report-top h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+        color: #222;
+    }
+
+    .sr-risk {
+        white-space: nowrap;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .sr-risk-high {
+        background: rgba(220, 53, 69, 0.12);
+        color: #dc3545;
+    }
+
+    .sr-risk-medium {
+        background: rgba(255, 193, 7, 0.20);
+        color: #b88600;
+    }
+
+    .sr-risk-low {
+        background: rgba(25, 135, 84, 0.12);
+        color: #198754;
+    }
+
+    .sr-description {
+        color: #555;
+        font-size: 15px;
+        line-height: 1.5;
+        margin-bottom: 16px;
+    }
+
+    .sr-info-box {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 14px;
+    }
+
+    .sr-info-box p {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .sr-info-box p:last-child {
+        margin-bottom: 0;
+    }
+
+    .sr-empty {
+        background: white;
+        border-radius: 22px;
+        padding: 35px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    @media (max-width: 992px) {
+        .report-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
         .hero-card {
-            background: white;
-            border-radius: 18px;
-            padding: 24px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
+            padding: 18px;
+            text-align: center;
         }
 
         .title {
-            font-weight: 800;
-            color: #222;
-        }
-
-        .subtitle {
-            color: #6c757d;
-            margin-bottom: 0;
+            font-size: 22px;
         }
 
         .stats-box {
-            border-radius: 18px;
-            padding: 22px;
-            background: white;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            transition: 0.3s ease;
-            min-height: 120px;
-        }
-
-        .stats-box:hover {
-            transform: translateY(-6px);
-        }
-
-        .icon-risk {
-            font-size: 32px;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .risk-number {
-            font-size: 28px;
-            font-weight: 900;
-        }
-
-        .risk-text {
-            font-size: 15px;
-        }
-
-        .alto {
-            border-top: 5px solid #dc3545;
-            color: #dc3545;
-        }
-
-        .medio {
-            border-top: 5px solid #ffc107;
-            color: #d39e00;
-        }
-
-        .bajo {
-            border-top: 5px solid #198754;
-            color: #198754;
-        }
-
-        .map-card {
-            background: white;
-            padding: 16px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            padding: 18px;
+            min-height: 105px;
         }
 
         #map {
-            height: 72vh;
-            width: 100%;
-            border-radius: 16px;
+            height: 60vh;
         }
 
-        .legend {
-            background: white;
-            padding: 12px 14px;
-            border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-            font-size: 14px;
-            line-height: 1.7;
+        .navbar .container {
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .pulse-soft {
-            animation: pulseSoft 1.8s infinite;
+        .report-grid {
+            grid-template-columns: 1fr;
         }
 
-        @keyframes pulseSoft {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-            100% { transform: scale(1); }
+        .community-header h3 {
+            font-size: 24px;
         }
 
-        .fade-up {
-            animation: fadeUp 0.8s ease;
+        .sr-report-top {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #map {
+            height: 55vh;
         }
 
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .risk-number {
+            font-size: 24px;
         }
 
-        @media (max-width: 768px) {
-            .hero-card {
-                padding: 18px;
-                text-align: center;
-            }
-
-            .title {
-                font-size: 22px;
-            }
-
-            .stats-box {
-                padding: 18px;
-                min-height: 105px;
-            }
-
-            #map {
-                height: 60vh;
-            }
-
-            .navbar .container {
-                flex-direction: column;
-                gap: 10px;
-            }
+        .icon-risk {
+            font-size: 28px;
         }
-
-        @media (max-width: 480px) {
-            #map {
-                height: 55vh;
-            }
-
-            .risk-number {
-                font-size: 24px;
-            }
-
-            .icon-risk {
-                font-size: 28px;
-            }
-            .reportes-section {
-    margin-top: 35px;
-}
-
-.section-title {
-    font-weight: 900;
-    color: #222;
-}
-
-.section-subtitle {
-    color: #6c757d;
-    margin-bottom: 25px;
-}
-
-.reporte-card {
-    background: white;
-    border-radius: 22px;
-    padding: 22px;
-    height: 100%;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-    transition: 0.3s ease;
-    border-left: 7px solid #dc3545;
-}
-
-.reporte-card:hover {
-    transform: translateY(-7px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.16);
-}
-
-.reporte-card.alta-card {
-    border-left-color: #dc3545;
-}
-
-.reporte-card.media-card {
-    border-left-color: #ffc107;
-}
-
-.reporte-card.baja-card {
-    border-left-color: #198754;
-}
-
-.user-box {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.user-photo {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #f1f1f1;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.user-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: #dc3545;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 22px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.user-name {
-    font-weight: 800;
-    color: #222;
-    margin-bottom: 0;
-}
-
-.user-label {
-    font-size: 13px;
-    color: #6c757d;
-}
-
-.reporte-title {
-    font-weight: 900;
-    color: #222;
-    margin-bottom: 10px;
-}
-
-.reporte-description {
-    color: #555;
-    font-size: 15px;
-    min-height: 45px;
-}
-
-.reporte-meta {
-    background: #f8f9fa;
-    border-radius: 14px;
-    padding: 12px;
-    margin-top: 14px;
-    font-size: 14px;
-}
-
-.badge-risk {
-    border-radius: 20px;
-    padding: 7px 12px;
-    font-weight: 800;
-    font-size: 13px;
-}
-
-.badge-alta {
-    background: rgba(220,53,69,0.12);
-    color: #dc3545;
-}
-
-.badge-media {
-    background: rgba(255,193,7,0.18);
-    color: #b88600;
-}
-
-.badge-baja {
-    background: rgba(25,135,84,0.12);
-    color: #198754;
-}
-
-.empty-reportes {
-    background: white;
-    border-radius: 20px;
-    padding: 35px;
-    text-align: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-}
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body>
@@ -343,81 +417,75 @@
                 <div class="risk-text">Bajo riesgo</div>
             </div>
         </div>
-<div class="reportes-section fade-up">
 
-    <div class="text-center">
-        <h3 class="section-title">🚨 Reportes recientes de la comunidad</h3>
-        <p class="section-subtitle">
-            Consulta los incidentes registrados por otros usuarios para evitar zonas de riesgo.
+    </div>
+
+    <div class="map-card fade-up">
+        <div id="map"></div>
+    </div>
+<section class="community-reports fade-up">
+
+    <div class="community-header">
+        <span class="community-badge">🚨 Comunidad SafeRoute</span>
+        <h3>Reportes recientes de la comunidad</h3>
+        <p>
+            Consulta incidentes registrados por otros usuarios para identificar zonas que conviene evitar.
         </p>
     </div>
 
     {% if reportes %}
 
-    <div class="row g-4">
+    <div class="report-grid">
 
         {% for reporte in reportes %}
 
-        <div class="col-12 col-md-6 col-lg-4">
+        <article class="sr-report-card 
+            {% if reporte.gravedad == 'Alta' %}risk-high
+            {% elif reporte.gravedad == 'Media' %}risk-medium
+            {% else %}risk-low
+            {% endif %}">
 
-            {% if reporte.gravedad == "Alta" %}
-                <div class="reporte-card alta-card">
-            {% elif reporte.gravedad == "Media" %}
-                <div class="reporte-card media-card">
-            {% else %}
-                <div class="reporte-card baja-card">
-            {% endif %}
+            <div class="sr-user-row">
 
-                <div class="user-box">
-
-                    {% if reporte.foto_usuario %}
-                        <img src="{{ reporte.foto_usuario }}" class="user-photo" alt="Foto de perfil">
-                    {% else %}
-                        <div class="user-avatar">
-                            {{ reporte.nombre_usuario[0] if reporte.nombre_usuario else "U" }}
-                        </div>
-                    {% endif %}
-
-                    <div>
-                        <p class="user-name">{{ reporte.nombre_usuario or "Usuario SafeRoute" }}</p>
-                        <span class="user-label">Reportó este incidente</span>
+                {% if reporte.foto_usuario %}
+                    <img class="sr-avatar-img" src="{{ reporte.foto_usuario }}" alt="Foto de usuario">
+                {% else %}
+                    <div class="sr-avatar-letter">
+                        {{ reporte.nombre_usuario[0] if reporte.nombre_usuario else "U" }}
                     </div>
+                {% endif %}
 
-                </div>
-
-                <h5 class="reporte-title">
-                    🚨 {{ reporte.tipo or "Reporte" }}
-                </h5>
-
-                <p class="reporte-description">
-                    {{ reporte.descripcion or "Sin descripción disponible." }}
-                </p>
-
-                <div class="reporte-meta">
-                    <div class="mb-2">
-                        📍 <strong>Ubicación:</strong> {{ reporte.ubicacion or "Sin ubicación" }}
-                    </div>
-
-                    <div class="mb-2">
-                        📅 <strong>Fecha:</strong> {{ reporte.fecha or "Sin fecha" }}
-                    </div>
-
-                    <div>
-                        ⚠️ <strong>Riesgo:</strong>
-
-                        {% if reporte.gravedad == "Alta" %}
-                            <span class="badge-risk badge-alta">Alto riesgo</span>
-                        {% elif reporte.gravedad == "Media" %}
-                            <span class="badge-risk badge-media">Medio riesgo</span>
-                        {% else %}
-                            <span class="badge-risk badge-baja">Bajo riesgo</span>
-                        {% endif %}
-                    </div>
+                <div>
+                    <h5>{{ reporte.nombre_usuario or "Usuario SafeRoute" }}</h5>
+                    <small>Reportó este incidente</small>
                 </div>
 
             </div>
 
-        </div>
+            <div class="sr-report-main">
+                <div class="sr-report-top">
+                    <h4>🚨 {{ reporte.tipo or "Reporte" }}</h4>
+
+                    {% if reporte.gravedad == "Alta" %}
+                        <span class="sr-risk sr-risk-high">Alto riesgo</span>
+                    {% elif reporte.gravedad == "Media" %}
+                        <span class="sr-risk sr-risk-medium">Medio riesgo</span>
+                    {% else %}
+                        <span class="sr-risk sr-risk-low">Bajo riesgo</span>
+                    {% endif %}
+                </div>
+
+                <p class="sr-description">
+                    {{ reporte.descripcion or "Sin descripción disponible." }}
+                </p>
+
+                <div class="sr-info-box">
+                    <p>📍 <strong>Ubicación:</strong> {{ reporte.ubicacion or "Sin ubicación" }}</p>
+                    <p>📅 <strong>Fecha:</strong> {{ reporte.fecha or "Sin fecha" }}</p>
+                </div>
+            </div>
+
+        </article>
 
         {% endfor %}
 
@@ -425,22 +493,14 @@
 
     {% else %}
 
-    <div class="empty-reportes">
-        <h4 class="fw-bold">🗺️ Aún no hay reportes visibles</h4>
-        <p class="text-muted mb-0">
-            Cuando los usuarios registren incidentes con ubicación, aparecerán aquí.
-        </p>
+    <div class="sr-empty">
+        <h4>🗺️ Aún no hay reportes visibles</h4>
+        <p>Cuando los usuarios registren incidentes con ubicación, aparecerán aquí.</p>
     </div>
 
     {% endif %}
 
-</div>
-    </div>
-
-    <div class="map-card fade-up">
-        <div id="map"></div>
-    </div>
-
+</section>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
