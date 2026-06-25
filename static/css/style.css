@@ -1,0 +1,161 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    background:#f4f6f9;
+    color:#0D1B2A;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar{
+    background:#0D1B2A;
+    padding:16px 0;
+}
+
+.navbar-brand{
+    font-size:1.4rem;
+}
+
+.hero{
+    padding:90px 0;
+}
+
+.hero h1{
+    color:#0D1B2A;
+}
+
+.btn{
+    border-radius:12px;
+    padding:12px 18px;
+    font-weight:600;
+}
+
+.btn-primary{
+    background:#1B98E0;
+    border:none;
+}
+
+.btn-danger{
+    background:#E63946;
+    border:none;
+}
+
+.card{
+    border:none;
+    border-radius:18px;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+}
+
+.form-control,
+.form-select{
+    border-radius:12px;
+    padding:12px;
+}
+
+#map{
+    height:700px;
+    width:100%;
+    border-radius:18px;
+    margin-bottom:40px;
+}
+
+/* Diseño móvil tipo aplicación */
+@media (max-width: 768px){
+
+    body{
+        background:#eef2f7;
+    }
+
+    .container{
+        width:100%;
+        padding-left:18px;
+        padding-right:18px;
+    }
+
+    .navbar{
+        padding:14px 0;
+        position:sticky;
+        top:0;
+        z-index:1000;
+    }
+
+    .navbar .container{
+        flex-direction:row;
+        gap:0;
+    }
+
+    .navbar-brand{
+        font-size:1.15rem;
+    }
+
+    .hero{
+        padding:50px 0 35px;
+        text-align:left;
+    }
+
+    .hero .container{
+        text-align:left !important;
+    }
+
+    .hero h1{
+        font-size:2rem;
+        line-height:1.15;
+    }
+
+    .hero p{
+        font-size:1rem;
+    }
+
+    .hero .btn{
+        width:100%;
+        margin-bottom:12px;
+    }
+
+    .row{
+        row-gap:16px;
+    }
+
+    .card{
+        border-radius:20px;
+        padding:20px !important;
+        margin-bottom:12px;
+        box-shadow:0 10px 25px rgba(0,0,0,.08) !important;
+    }
+
+    .card h2{
+        font-size:1.6rem;
+    }
+
+    .card h3,
+    .card h4{
+        font-size:1.25rem;
+    }
+
+    input,
+    select,
+    textarea{
+        font-size:16px !important;
+    }
+
+    .form-control,
+    .form-select{
+        padding:14px;
+        border-radius:14px;
+    }
+
+    .btn{
+        width:100%;
+        border-radius:14px;
+        padding:14px;
+    }
+
+    #map{
+        height:520px;
+        border-radius:20px;
+    }
+}

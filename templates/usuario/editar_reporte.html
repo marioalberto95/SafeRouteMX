@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Reporte - SafeRoute MX</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #dc3545;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .hero-card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .title-app {
+            font-weight: 800;
+            color: #222;
+        }
+
+        .subtitle {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .report-card {
+            border-radius: 22px;
+            border: none;
+            background: white;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+        }
+
+        .section-box {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            border-left: 5px solid #dc3545;
+            transition: 0.3s ease;
+        }
+
+        .section-box:hover {
+            background: white;
+            transform: translateX(4px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.20rem rgba(220,53,69,0.15);
+        }
+
+        #miniMapa {
+            height: 330px;
+            width: 100%;
+            border-radius: 16px;
+            border: 2px solid #ddd;
+            box-shadow: 0 5px 16px rgba(0,0,0,0.10);
+        }
+
+        .btn-custom {
+            border-radius: 12px;
+            padding: 11px;
+            font-weight: bold;
+        }
+
+        .btn-location {
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .fade-up {
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-card {
+                text-align: center;
+                padding: 18px;
+            }
+
+            .title-app {
+                font-size: 24px;
+            }
+
+            .report-card {
+                padding: 18px !important;
+            }
+
+            .section-box {
+                padding: 15px;
+            }
+
+            #miniMapa {
+                height: 280px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #miniMapa {
+                height: 240px;
+            }
+
+            .container {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">🚨 SafeRoute MX</a>
+        <a href="/dashboard" class="btn btn-outline-light btn-sm">Volver</a>
+    </div>
+</nav>
+
+<div class="container my-4 mb-5">
+
+    <div class="hero-card fade-up">
+        <h2 class="title-app">✏️ Editar Incidente</h2>
+        <p class="subtitle">Modifica la información de tu reporte y guarda los cambios</p>
+    </div>
+
+    <div class="card report-card p-4 fade-up">
+
+        <form method="POST">
+
+            <div class="section-box">
+                <label class="form-label fw-bold">Tipo de incidente</label>
+                <select name="tipo" class="form-select">
+                    <option value="Asalto" {% if reporte.tipo == "Asalto" %}selected{% endif %}>Asalto</option>
+                    <option value="Robo" {% if reporte.tipo == "Robo" %}selected{% endif %}>Robo</option>
+                    <option value="Accidente" {% if reporte.tipo == "Accidente" %}selected{% endif %}>Accidente</option>
+                    <option value="Vandalismo" {% if reporte.tipo == "Vandalismo" %}selected{% endif %}>Vandalismo</option>
+                    <option value="Alumbrado dañado" {% if reporte.tipo == "Alumbrado dañado" %}selected{% endif %}>Alumbrado dañado</option>
+                    <option value="Zona peligrosa" {% if reporte.tipo == "Zona peligrosa" %}selected{% endif %}>Zona peligrosa</option>
+                </select>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">Descripción</label>
+                <textarea name="descripcion" class="form-control" rows="3">{{ reporte.descripcion }}</textarea>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">Fecha</label>
+                <input name="fecha" type="date" class="form-control" value="{{ reporte.fecha }}">
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">Ubicación</label>
+                <input type="text" class="form-control" name="ubicacion" id="ubicacion" value="{{ reporte.ubicacion }}">
+
+                <button type="button" class="btn btn-primary btn-sm mt-3 btn-location"
+                    onclick="obtenerUbicacion()">
+                    📍 Usar mi ubicación actual
+                </button>
+
+                <small class="text-muted d-block mt-2" id="mensajeUbicacion">
+                    Puedes mantener la ubicación actual o seleccionar una nueva en el mapa.
+                </small>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">Selecciona en el mapa</label>
+                <div id="miniMapa"></div>
+            </div>
+
+            <div class="row section-box">
+                <div class="col-12 col-md-6 mb-3 mb-md-0">
+                    <label class="form-label fw-bold">Latitud</label>
+                    <input type="number" step="any" class="form-control" name="latitud" id="latitud" value="{{ reporte.latitud }}" required>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold">Longitud</label>
+                    <input type="number" step="any" class="form-control" name="longitud" id="longitud" value="{{ reporte.longitud }}" required>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">Gravedad</label>
+                <select name="gravedad" class="form-select">
+                    <option value="Baja" {% if reporte.gravedad == "Baja" %}selected{% endif %}>Baja</option>
+                    <option value="Media" {% if reporte.gravedad == "Media" %}selected{% endif %}>Media</option>
+                    <option value="Alta" {% if reporte.gravedad == "Alta" %}selected{% endif %}>Alta</option>
+                </select>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-danger btn-lg btn-custom">
+                    Guardar Cambios
+                </button>
+
+                <a href="/dashboard" class="btn btn-secondary btn-custom">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var latInicial = Number("{{ reporte.latitud }}");
+    var lngInicial = Number("{{ reporte.longitud }}");
+
+    if (!latInicial || !lngInicial) {
+        latInicial = 19.4326;
+        lngInicial = -99.1332;
+    }
+
+    var miniMapa = L.map('miniMapa').setView([latInicial, lngInicial], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(miniMapa);
+
+    var marcador = L.marker([latInicial, lngInicial]).addTo(miniMapa);
+
+    miniMapa.on('click', function(e){
+
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        document.getElementById("latitud").value = lat.toFixed(6);
+        document.getElementById("longitud").value = lng.toFixed(6);
+
+        if(marcador){
+            miniMapa.removeLayer(marcador);
+        }
+
+        marcador = L.marker([lat, lng]).addTo(miniMapa);
+        miniMapa.setView([lat, lng], 15);
+
+        document.getElementById("mensajeUbicacion").innerText =
+        "📍 Nueva ubicación seleccionada correctamente";
+    });
+
+    function obtenerUbicacion(){
+
+        const mensaje = document.getElementById("mensajeUbicacion");
+
+        if(navigator.geolocation){
+
+            mensaje.innerText = "Obteniendo ubicación...";
+
+            navigator.geolocation.getCurrentPosition(function(position){
+
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+
+                document.getElementById("latitud").value = lat.toFixed(6);
+                document.getElementById("longitud").value = lng.toFixed(6);
+
+                if(marcador){
+                    miniMapa.removeLayer(marcador);
+                }
+
+                marcador = L.marker([lat, lng]).addTo(miniMapa);
+                miniMapa.setView([lat, lng], 16);
+
+                mensaje.innerText = "📍 Ubicación actual obtenida correctamente";
+
+            }, function(){
+
+                mensaje.innerText = "No se pudo obtener ubicación";
+            });
+
+        } else {
+            mensaje.innerText = "Tu navegador no soporta geolocalización";
+        }
+    }
+</script>
+
+</body>
+</html>

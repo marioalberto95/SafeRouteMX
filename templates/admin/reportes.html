@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - SafeRoute MX</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #dc3545;
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        }
+
+        .hero-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,.08);
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.08);
+            transition: .3s;
+            border-left: 8px solid #dc3545;
+            height: 100%;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.12);
+        }
+
+        .alta { border-left-color: #dc3545; }
+        .media { border-left-color: #ffc107; }
+        .baja { border-left-color: #198754; }
+
+        .title {
+            font-weight: 800;
+        }
+
+        .badge-custom {
+            font-size: .9rem;
+            padding: 8px 12px;
+        }
+
+        .btn-delete {
+            border-radius: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/admin">
+            🚨 SafeRoute MX | Administración
+        </a>
+
+        <a href="/admin" class="btn btn-light text-danger fw-bold">
+            ⬅ Volver
+        </a>
+    </div>
+</nav>
+
+<div class="container my-4">
+
+    <div class="hero-card mb-4">
+        <h2 class="title">📋 Reportes registrados</h2>
+        <p class="text-muted mb-0">
+            Visualiza y administra todos los incidentes reportados por los usuarios.
+        </p>
+    </div>
+
+    {% if reportes %}
+
+        <div class="row g-4">
+
+            {% for reporte in reportes %}
+
+            <div class="col-12 col-md-6">
+                <div class="report-card
+                    {% if reporte.gravedad == 'Alta' %}alta
+                    {% elif reporte.gravedad == 'Media' %}media
+                    {% else %}baja
+                    {% endif %}
+                ">
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 class="fw-bold mb-0">
+                            🚨 {{ reporte.tipo }}
+                        </h4>
+
+                        {% if reporte.gravedad == 'Alta' %}
+                            <span class="badge bg-danger badge-custom">Riesgo Alto</span>
+                        {% elif reporte.gravedad == 'Media' %}
+                            <span class="badge bg-warning text-dark badge-custom">Riesgo Medio</span>
+                        {% else %}
+                            <span class="badge bg-success badge-custom">Riesgo Bajo</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="mb-2">
+                        <strong>📍 Ubicación:</strong> {{ reporte.ubicacion }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>📅 Fecha:</strong> {{ reporte.fecha }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>📝 Descripción:</strong> {{ reporte.descripcion }}
+                    </p>
+
+                    {% if reporte.usuario %}
+                    <p class="mb-3">
+                        <strong>👤 Usuario:</strong> {{ reporte.usuario }}
+                    </p>
+                    {% endif %}
+
+                    <button type="button"
+        class="btn btn-danger btn-sm btn-delete"
+        data-bs-toggle="modal"
+        data-bs-target="#modalEliminarReporte"
+        data-url="/admin/reportes/eliminar/{{ reporte.id }}">
+    🗑️ Eliminar reporte
+</button>
+                    </form>
+
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="hero-card text-center">
+            <h4>No hay reportes registrados</h4>
+            <p class="text-muted">
+                Los incidentes aparecerán aquí cuando los usuarios comiencen a reportar.
+            </p>
+        </div>
+
+    {% endif %}
+
+</div>
+<div class="modal fade" id="modalEliminarReporte" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">🗑️ Eliminar reporte</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                ¿Seguro que deseas eliminar este reporte? Esta acción no se puede deshacer.
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <form method="POST" id="formEliminarReporte">
+                    <button type="submit" class="btn btn-danger">
+                        Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const modalReporte = document.getElementById('modalEliminarReporte');
+
+    modalReporte.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const url = button.getAttribute('data-url');
+        document.getElementById('formEliminarReporte').action = url;
+    });
+</script>
+</body>
+</html>

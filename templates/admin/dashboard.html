@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador - SafeRoute MX</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #dc3545;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            border-radius: 25px;
+            padding: 34px;
+            box-shadow: 0 10px 28px rgba(220,53,69,.25);
+            margin-bottom: 24px;
+        }
+
+        .hero-card h1 {
+            font-weight: 900;
+        }
+
+        .hero-card p {
+            margin-bottom: 0;
+            opacity: .95;
+        }
+
+        .stats-box {
+            border-radius: 18px;
+            padding: 24px;
+            background: white;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            transition: 0.3s ease;
+            min-height: 130px;
+        }
+
+        .stats-box:hover {
+            transform: translateY(-6px);
+        }
+
+        .stats-number {
+            font-size: 38px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .stats-text {
+            font-size: 15px;
+            color: #555;
+        }
+
+        .total {
+            border-top: 6px solid #0d6efd;
+            color: #0d6efd;
+        }
+
+        .usuarios {
+            border-top: 6px solid #198754;
+            color: #198754;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 22px;
+            padding: 26px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-weight: 900;
+            color: #222;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 20px;
+            padding: 26px;
+            height: 100%;
+            box-shadow: 0 7px 20px rgba(0,0,0,0.08);
+            transition: 0.3s ease;
+            border-left: 7px solid #dc3545;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.13);
+        }
+
+        .action-card h4 {
+            font-weight: 900;
+            margin-top: 10px;
+        }
+
+        .action-card p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .icon {
+            font-size: 42px;
+        }
+
+        .reportes-card {
+            border-left-color: #dc3545;
+        }
+
+        .usuarios-card {
+            border-left-color: #198754;
+        }
+
+        .estadisticas-card {
+            border-left-color: #0d6efd;
+        }
+
+        .mapa-card {
+            border-left-color: #ffc107;
+        }
+
+        .ia-card {
+            border-left-color: #6f42c1;
+        }
+
+        .fade-up {
+            animation: fadeUp .8s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .hero-card {
+                text-align: center;
+                padding: 24px;
+            }
+
+            .hero-card h1 {
+                font-size: 28px;
+            }
+
+            .stats-box {
+                min-height: 115px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold" href="/admin">
+            🚨 SafeRoute MX | Administración
+        </a>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/" class="btn btn-outline-light btn-sm">
+                Inicio
+            </a>
+
+            <a href="/logout" class="btn btn-light btn-sm text-danger fw-bold">
+                Cerrar sesión
+            </a>
+        </div>
+
+    </div>
+</nav>
+
+<div class="container my-4">
+
+    <div class="hero-card fade-up">
+        <h1>🛡️ Panel Administrativo</h1>
+        <p>Control general de reportes, usuarios, mapa y análisis del sistema.</p>
+    </div>
+
+    <div class="row g-4 mb-4 fade-up">
+
+        <div class="col-12 col-md-6">
+            <div class="stats-box total">
+                <div class="stats-number">{{ total_reportes }}</div>
+                <div class="stats-text">Reportes registrados</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="stats-box usuarios">
+                <div class="stats-number">{{ total_usuarios }}</div>
+                <div class="stats-text">Usuarios registrados</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="admin-section fade-up">
+        <h3 class="section-title">Accesos administrativos</h3>
+        <p class="text-muted mb-0">
+            Administra las áreas principales de SafeRoute MX.
+        </p>
+    </div>
+
+    <div class="row g-4 mb-5 fade-up">
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="/admin/reportes" class="text-decoration-none text-dark">
+                <div class="action-card reportes-card">
+                    <div class="icon">📋</div>
+                    <h4>Reportes</h4>
+                    <p>Consultar, revisar y eliminar incidentes registrados.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="/admin/usuarios" class="text-decoration-none text-dark">
+                <div class="action-card usuarios-card">
+                    <div class="icon">👥</div>
+                    <h4>Usuarios</h4>
+                    <p>Gestionar usuarios registrados dentro del sistema.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="/admin/estadisticas" class="text-decoration-none text-dark">
+                <div class="action-card estadisticas-card">
+                    <div class="icon">📊</div>
+                    <h4>Estadísticas</h4>
+                    <p>Visualizar métricas, riesgos y análisis general.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="/admin/mapa" class="text-decoration-none text-dark">
+                <div class="action-card mapa-card">
+                    <div class="icon">🗺️</div>
+                    <h4>Mapa General</h4>
+                    <p>Visualizar todos los reportes en un mapa general.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+    <a href="/chatbot" class="text-decoration-none text-dark">
+        <div class="action-card ia-card">
+            <div class="icon">🤖</div>
+            <h4>Asistente IA</h4>
+            <p>Consultar dudas sobre seguridad, reportes y riesgos.</p>
+        </div>
+    </a>
+</div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
