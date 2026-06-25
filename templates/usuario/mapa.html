@@ -167,6 +167,137 @@
             .icon-risk {
                 font-size: 28px;
             }
+            .reportes-section {
+    margin-top: 35px;
+}
+
+.section-title {
+    font-weight: 900;
+    color: #222;
+}
+
+.section-subtitle {
+    color: #6c757d;
+    margin-bottom: 25px;
+}
+
+.reporte-card {
+    background: white;
+    border-radius: 22px;
+    padding: 22px;
+    height: 100%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+    transition: 0.3s ease;
+    border-left: 7px solid #dc3545;
+}
+
+.reporte-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.16);
+}
+
+.reporte-card.alta-card {
+    border-left-color: #dc3545;
+}
+
+.reporte-card.media-card {
+    border-left-color: #ffc107;
+}
+
+.reporte-card.baja-card {
+    border-left-color: #198754;
+}
+
+.user-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.user-photo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f1f1f1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.user-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.user-name {
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 0;
+}
+
+.user-label {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.reporte-title {
+    font-weight: 900;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+.reporte-description {
+    color: #555;
+    font-size: 15px;
+    min-height: 45px;
+}
+
+.reporte-meta {
+    background: #f8f9fa;
+    border-radius: 14px;
+    padding: 12px;
+    margin-top: 14px;
+    font-size: 14px;
+}
+
+.badge-risk {
+    border-radius: 20px;
+    padding: 7px 12px;
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.badge-alta {
+    background: rgba(220,53,69,0.12);
+    color: #dc3545;
+}
+
+.badge-media {
+    background: rgba(255,193,7,0.18);
+    color: #b88600;
+}
+
+.badge-baja {
+    background: rgba(25,135,84,0.12);
+    color: #198754;
+}
+
+.empty-reportes {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
         }
     </style>
 </head>
@@ -212,7 +343,98 @@
                 <div class="risk-text">Bajo riesgo</div>
             </div>
         </div>
+<div class="reportes-section fade-up">
 
+    <div class="text-center">
+        <h3 class="section-title">🚨 Reportes recientes de la comunidad</h3>
+        <p class="section-subtitle">
+            Consulta los incidentes registrados por otros usuarios para evitar zonas de riesgo.
+        </p>
+    </div>
+
+    {% if reportes %}
+
+    <div class="row g-4">
+
+        {% for reporte in reportes %}
+
+        <div class="col-12 col-md-6 col-lg-4">
+
+            {% if reporte.gravedad == "Alta" %}
+                <div class="reporte-card alta-card">
+            {% elif reporte.gravedad == "Media" %}
+                <div class="reporte-card media-card">
+            {% else %}
+                <div class="reporte-card baja-card">
+            {% endif %}
+
+                <div class="user-box">
+
+                    {% if reporte.foto_usuario %}
+                        <img src="{{ reporte.foto_usuario }}" class="user-photo" alt="Foto de perfil">
+                    {% else %}
+                        <div class="user-avatar">
+                            {{ reporte.nombre_usuario[0] if reporte.nombre_usuario else "U" }}
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <p class="user-name">{{ reporte.nombre_usuario or "Usuario SafeRoute" }}</p>
+                        <span class="user-label">Reportó este incidente</span>
+                    </div>
+
+                </div>
+
+                <h5 class="reporte-title">
+                    🚨 {{ reporte.tipo or "Reporte" }}
+                </h5>
+
+                <p class="reporte-description">
+                    {{ reporte.descripcion or "Sin descripción disponible." }}
+                </p>
+
+                <div class="reporte-meta">
+                    <div class="mb-2">
+                        📍 <strong>Ubicación:</strong> {{ reporte.ubicacion or "Sin ubicación" }}
+                    </div>
+
+                    <div class="mb-2">
+                        📅 <strong>Fecha:</strong> {{ reporte.fecha or "Sin fecha" }}
+                    </div>
+
+                    <div>
+                        ⚠️ <strong>Riesgo:</strong>
+
+                        {% if reporte.gravedad == "Alta" %}
+                            <span class="badge-risk badge-alta">Alto riesgo</span>
+                        {% elif reporte.gravedad == "Media" %}
+                            <span class="badge-risk badge-media">Medio riesgo</span>
+                        {% else %}
+                            <span class="badge-risk badge-baja">Bajo riesgo</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-reportes">
+        <h4 class="fw-bold">🗺️ Aún no hay reportes visibles</h4>
+        <p class="text-muted mb-0">
+            Cuando los usuarios registren incidentes con ubicación, aparecerán aquí.
+        </p>
+    </div>
+
+    {% endif %}
+
+</div>
     </div>
 
     <div class="map-card fade-up">

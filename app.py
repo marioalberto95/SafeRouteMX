@@ -162,18 +162,36 @@ def dashboard():
         riesgo_bajo=riesgo_bajo
     )
 
-
+# ======================
+# MAPA GENERAL PUBLICO
+# ======================
 # ======================
 # MAPA GENERAL PUBLICO
 # ======================
 @app.route("/mapa")
 def mapa():
 
+    # Traer todos los usuarios para poder mostrar nombre y foto
+    usuarios_por_correo = {}
+    usuarios_docs = db.collection("usuarios").stream()
+
+    for user_doc in usuarios_docs:
+        user = user_doc.to_dict()
+        correo_user = user.get("correo", "").strip().lower()
+
+        if correo_user:
+            usuarios_por_correo[correo_user] = {
+                "nombre": user.get("nombre", "Usuario SafeRoute"),
+                "foto_perfil": user.get("foto_perfil", "")
+            }
+
+    # Traer todos los reportes del sistema
     reportes = []
     docs = db.collection("reportes").stream()
 
     for doc in docs:
         reporte = doc.to_dict()
+        reporte["id"] = doc.id
 
         latitud = reporte.get("latitud")
         longitud = reporte.get("longitud")
@@ -182,12 +200,22 @@ def mapa():
             try:
                 reporte["latitud"] = float(latitud)
                 reporte["longitud"] = float(longitud)
+
+                correo_reporte = reporte.get("usuario", "").strip().lower()
+                datos_usuario = usuarios_por_correo.get(correo_reporte, {})
+
+                reporte["nombre_usuario"] = datos_usuario.get("nombre", "Usuario SafeRoute")
+                reporte["foto_usuario"] = datos_usuario.get("foto_perfil", "")
+
                 reportes.append(reporte)
+
             except:
                 pass
 
-    return render_template("usuario/mapa.html", reportes=reportes)
+    # Ordenar por fecha, los más recientes primero
+    reportes.sort(key=lambda r: r.get("fecha", ""), reverse=True)
 
+    return render_template("usuario/mapa.html", reportes=reportes)
 
 # ======================
 # REPORTAR USUARIO
