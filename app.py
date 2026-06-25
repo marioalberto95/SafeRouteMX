@@ -164,24 +164,27 @@ def dashboard():
 
 
 # ======================
-# MAPA USUARIO
+# MAPA GENERAL PUBLICO
 # ======================
 @app.route("/mapa")
 def mapa():
 
-    if "usuario" not in session:
-        return redirect("/login")
-
-    usuario_actual = session.get("usuario")
-
     reportes = []
-    docs = db.collection("reportes").where("usuario", "==", usuario_actual).stream()
+    docs = db.collection("reportes").stream()
 
     for doc in docs:
         reporte = doc.to_dict()
 
-        if "latitud" in reporte and "longitud" in reporte:
-            reportes.append(reporte)
+        latitud = reporte.get("latitud")
+        longitud = reporte.get("longitud")
+
+        if latitud is not None and longitud is not None:
+            try:
+                reporte["latitud"] = float(latitud)
+                reporte["longitud"] = float(longitud)
+                reportes.append(reporte)
+            except:
+                pass
 
     return render_template("usuario/mapa.html", reportes=reportes)
 
