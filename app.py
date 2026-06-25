@@ -4,6 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 import uuid
+import json
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
@@ -15,12 +16,16 @@ if not os.path.exists(UPLOAD_FOLDER):
 # ======================
 # FIREBASE
 # ======================
-cred = credentials.Certificate("firebase_key.json")
+firebase_config = os.environ.get("FIREBASE_KEY")
+
+if firebase_config:
+    firebase_dict = json.loads(firebase_config)
+    cred = credentials.Certificate(firebase_dict)
+else:
+    cred = credentials.Certificate("firebase_key.json")
+
 firebase_admin.initialize_app(cred)
-
 db = firestore.client()
-
-
 # ======================
 # INICIO
 # ======================
