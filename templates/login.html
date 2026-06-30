@@ -21,10 +21,23 @@
 
         .login-card {
             background: white;
-            border-radius: 22px;
+            border-radius: 24px;
             border: none;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-            animation: fadeUp 0.7s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.13);
+            animation: fadeUp .7s ease;
+        }
+
+        .icon-circle {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: #ffe5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 14px;
+            animation: pulse 1.8s infinite;
         }
 
         .title {
@@ -33,8 +46,8 @@
         }
 
         .form-control {
-            border-radius: 12px;
-            padding: 11px;
+            border-radius: 14px;
+            padding: 12px;
         }
 
         .form-control:focus {
@@ -43,15 +56,34 @@
         }
 
         .btn-custom {
-            border-radius: 12px;
-            padding: 11px;
+            border-radius: 14px;
+            padding: 12px;
             font-weight: bold;
         }
 
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
         .alert-animated {
-            border-radius: 14px;
+            border-radius: 16px;
             animation: shakeFade 0.55s ease;
             box-shadow: 0 5px 14px rgba(220,53,69,0.18);
+        }
+
+        .alert-success.alert-animated {
+            box-shadow: 0 5px 14px rgba(25,135,84,0.18);
         }
 
         @keyframes fadeUp {
@@ -65,6 +97,18 @@
             }
         }
 
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
         @keyframes shakeFade {
             0% {
                 opacity: 0;
@@ -72,16 +116,22 @@
             }
             25% {
                 opacity: 1;
-                transform: translateY(0) translateX(-6px);
+                transform: translateY(0) translateX(-5px);
             }
             50% {
-                transform: translateX(6px);
+                transform: translateX(5px);
             }
             75% {
                 transform: translateX(-3px);
             }
             100% {
                 transform: translateX(0);
+            }
+        }
+
+        @media(max-width: 768px) {
+            .login-card {
+                border-radius: 20px;
             }
         }
     </style>
@@ -100,12 +150,15 @@
         <div class="col-12 col-md-5">
 
             <div class="card login-card p-4">
+
+                <div class="icon-circle">🔐</div>
+
                 <h2 class="text-center mb-2 title">Iniciar Sesión</h2>
                 <p class="text-center text-muted mb-4">Accede a tu panel de SafeRoute MX</p>
 
                 {% if error %}
                 <div class="alert alert-danger alert-dismissible fade show alert-animated" role="alert">
-                    <strong>❌ Error:</strong> {{ error }}
+                    <strong>❌ Aviso:</strong> {{ error }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endif %}
@@ -120,13 +173,31 @@
                 <form method="POST" action="/login">
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Correo</label>
-                        <input type="email" name="correo" class="form-control" required>
+                        <label class="form-label fw-bold">Correo electrónico</label>
+                        <input
+                            type="email"
+                            name="correo"
+                            class="form-control"
+                            placeholder="ejemplo@correo.com"
+                            required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Contraseña</label>
-                        <input type="password" name="password" class="form-control" required>
+
+                        <div class="password-wrapper">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                class="form-control"
+                                placeholder="Ingresa tu contraseña"
+                                required>
+
+                            <button type="button" class="toggle-password" onclick="togglePassword()">
+                                👁️
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-danger w-100 btn-custom">
@@ -139,11 +210,27 @@
                     </div>
 
                 </form>
+
             </div>
 
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById("password");
+        const boton = document.querySelector(".toggle-password");
+
+        if (input.type === "password") {
+            input.type = "text";
+            boton.innerText = "🙈";
+        } else {
+            input.type = "password";
+            boton.innerText = "👁️";
+        }
+    }
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
