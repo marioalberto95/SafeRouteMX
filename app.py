@@ -16,9 +16,9 @@ app.secret_key = "saferoute_secret_key"
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = "saferoutemx.app@gmail.com"
-app.config["MAIL_PASSWORD"] = "xtti advm qgaq iyrf"
-app.config["MAIL_DEFAULT_SENDER"] = "saferoutemx.app@gmail.com"
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME")
 mail = Mail(app)
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -39,19 +39,6 @@ else:
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-@app.route("/probar-correo")
-def probar_correo():
-
-    mensaje = Message(
-        "Prueba SafeRoute MX",
-        recipients=["marioalbertoacevedoherrera95@gmail.com"]
-    )
-
-    mensaje.body = "Si recibiste este correo, SafeRoute MX ya puede enviar códigos."
-
-    mail.send(mensaje)
-
-    return "Correo enviado correctamente"
 # ======================
 # INICIO
 # ======================
