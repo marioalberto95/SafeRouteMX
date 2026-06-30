@@ -439,7 +439,17 @@ def eliminar_usuario(id):
         return redirect("/dashboard")
 
     db.collection("usuarios").document(id).delete()
+    usuario_doc = db.collection("usuarios").document(id).get()
+    if usuario_doc.exists:
+     usuario = usuario_doc.to_dict()
+    correo_usuario = usuario.get("correo", "").strip().lower()
 
+    reportes = db.collection("reportes").where("usuario", "==", correo_usuario).stream()
+
+    for reporte in reportes:
+        db.collection("reportes").document(reporte.id).delete()
+    
+    
     return redirect("/admin/usuarios")
 
 
