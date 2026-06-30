@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
+from flask_mail import Mail, Message
+import random
 from werkzeug.security import generate_password_hash, check_password_hash
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -8,6 +10,16 @@ import json
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
+# ======================
+# CONFIGURACIÓN CORREO
+# ======================
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = "saferoutemx.app@gmail.com"
+app.config["MAIL_PASSWORD"] = "xtti advm qgaq iyrf"
+app.config["MAIL_DEFAULT_SENDER"] = "saferoutemx.app@gmail.com"
+mail = Mail(app)
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -26,6 +38,20 @@ else:
 
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+@app.route("/probar-correo")
+def probar_correo():
+
+    mensaje = Message(
+        "Prueba SafeRoute MX",
+        recipients=["marioalbertoacevedoherrera95@gmail.com"]
+    )
+
+    mensaje.body = "Si recibiste este correo, SafeRoute MX ya puede enviar códigos."
+
+    mail.send(mensaje)
+
+    return "Correo enviado correctamente"
 # ======================
 # INICIO
 # ======================
@@ -55,6 +81,13 @@ def login():
 
             if correo_db == correo and check_password_hash(password_db, password):
 
+                if not usuario.get("verificado", False):
+                    session["correo_verificacion"] = correo_db
+                    return render_template(
+                        "verificar_codigo.html",
+                        error="Debes verificar tu correo antes de iniciar sesión."
+                    )
+
                 session["usuario"] = correo_db
                 session["nombre"] = usuario.get("nombre", "")
                 session["rol"] = rol_db
@@ -72,7 +105,6 @@ def login():
         )
 
     return render_template("login.html")
-
 # ======================
 # REGISTRO USUARIO
 # ======================
@@ -102,22 +134,85 @@ def registro():
                     error="Este correo ya está registrado."
                 )
 
+        codigo = str(random.randint(100000, 999999))
+
         usuario = {
             "nombre": nombre,
             "correo": correo,
             "password": generate_password_hash(password),
-            "rol": "usuario"
+            "rol": "usuario",
+            "verificado": False,
+            "codigo_verificacion": codigo
         }
 
         db.collection("usuarios").add(usuario)
 
-        return render_template(
-            "login.html",
-            exito="Registro exitoso. Ahora puedes iniciar sesión."
+        mensaje = Message(
+            "Código de verificación - SafeRoute MX",
+            recipients=[correo]
         )
+
+        mensaje.body = f"""
+Hola {nombre}.
+
+Bienvenido a SafeRoute MX.
+
+Tu código de verificación es:
+
+{codigo}
+
+Ingresa este código en la plataforma para activar tu cuenta.
+
+Gracias por usar SafeRoute MX.
+"""
+
+        mail.send(mensaje)
+
+        session["correo_verificacion"] = correo
+
+        return redirect("/verificar")
 
     return render_template("registro.html")
 
+
+
+@app.route("/verificar", methods=["GET", "POST"])
+def verificar():
+
+    correo = session.get("correo_verificacion")
+
+    if not correo:
+        return redirect("/registro")
+
+    if request.method == "POST":
+
+        codigo = request.form.get("codigo")
+
+        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
+
+        for doc in usuarios:
+            usuario = doc.to_dict()
+
+            if usuario.get("codigo_verificacion") == codigo:
+
+                db.collection("usuarios").document(doc.id).update({
+                    "verificado": True,
+                    "codigo_verificacion": ""
+                })
+
+                session.pop("correo_verificacion", None)
+
+                return render_template(
+                    "login.html",
+                    exito="Correo verificado correctamente. Ya puedes iniciar sesión."
+                )
+
+        return render_template(
+            "verificar_codigo.html",
+            error="El código ingresado no es correcto."
+        )
+
+    return render_template("verificar_codigo.html")
 # ======================
 # DASHBOARD USUARIO
 # ======================
