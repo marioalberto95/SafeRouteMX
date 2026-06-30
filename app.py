@@ -134,6 +134,16 @@ def registro():
 
         db.collection("usuarios").add(usuario)
 
+        session["correo_verificacion"] = correo
+
+        demo_mode = os.environ.get("DEMO_MODE", "").strip().lower()
+
+        if demo_mode in ["true", "1", "yes", "si"]:
+            return render_template(
+                "verificar_codigo.html",
+                codigo_demo=codigo
+            )
+
         mensaje = Message(
             "Código de verificación - SafeRoute MX",
             recipients=[correo]
@@ -155,12 +165,9 @@ Gracias por usar SafeRoute MX.
 
         mail.send(mensaje)
 
-        session["correo_verificacion"] = correo
-
         return redirect("/verificar")
 
     return render_template("registro.html")
-
 
 
 @app.route("/verificar", methods=["GET", "POST"])
