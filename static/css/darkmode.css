@@ -1,0 +1,429 @@
+/* ======== MODO OSCURO ======== */
+
+body{
+    transition:.35s;
+}
+
+body.dark{
+    background:#121212 !important;
+    color:#f5f5f5;
+}
+
+body.dark .navbar{
+    background:#8b0000 !important;
+}
+
+body.dark .feature-card,
+body.dark .info-section,
+body.dark .step-card{
+    background:#1f1f1f;
+    color:white;
+}
+
+body.dark .text-muted{
+    color:#cfcfcf !important;
+}
+
+body.dark .mini-stat{
+    background:#2d2d2d;
+}
+
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6{
+    color:white;
+}
+
+body.dark p{
+    color:#dddddd;
+}
+
+body.dark .btn-light{
+    background:#2d2d2d;
+    color:white;
+    border-color:#555;
+}
+
+body.dark .btn-outline-light{
+    color:white;
+    border-color:white;
+}
+
+body.dark .btn-outline-light:hover{
+    background:white;
+    color:#dc3545;
+}
+
+#modoOscuro{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transition:.3s;
+}
+
+#modoOscuro:hover{
+    transform:rotate(180deg);
+}
+/* =========================
+   LOGIN EN MODO OSCURO
+========================= */
+
+body.dark .login-container {
+    background: #121212 !important;
+}
+
+body.dark .login-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.55) !important;
+}
+
+body.dark .login-card .title {
+    color: #ffffff !important;
+}
+
+body.dark .login-card .descripcion {
+    color: #d8d8d8 !important;
+}
+
+body.dark .login-card label {
+    color: #ffffff !important;
+}
+
+body.dark .login-card .form-control {
+    background: #2f2f2f !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+body.dark .login-card .form-control::placeholder {
+    color: #bdbdbd !important;
+}
+
+body.dark .login-card .form-control:focus {
+    background: #333333 !important;
+    border-color: #ff4d5a !important;
+    box-shadow: 0 0 0 0.20rem rgba(255,77,90,0.18) !important;
+}
+
+body.dark .login-card .toggle-password {
+    color: #ffffff !important;
+}
+
+body.dark .login-card small {
+    color: #dddddd !important;
+}
+
+body.dark .icon-circle {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+/* =========================
+   REGISTRO EN MODO OSCURO
+========================= */
+
+body.dark .register-container{
+    background:#121212 !important;
+}
+
+body.dark .register-card{
+    background:#202020 !important;
+    color:#ffffff !important;
+    box-shadow:0 14px 40px rgba(0,0,0,.55) !important;
+}
+
+body.dark .register-card .title,
+body.dark .register-card label{
+    color:#ffffff !important;
+}
+
+body.dark .register-card .descripcion,
+body.dark .register-card small,
+body.dark .register-card .text-muted{
+    color:#d8d8d8 !important;
+}
+
+body.dark .register-card .form-control{
+    background:#2f2f2f !important;
+    color:#ffffff !important;
+    border:1px solid #555 !important;
+}
+
+body.dark .register-card .form-control::placeholder{
+    color:#bdbdbd !important;
+}
+
+body.dark .register-card .form-control:focus{
+    background:#333333 !important;
+    border-color:#ff4d5a !important;
+    box-shadow:0 0 0 .20rem rgba(255,77,90,.18) !important;
+}
+
+body.dark .register-card .toggle-password{
+    color:#ffffff !important;
+}
+
+body.dark .register-card .icon-circle{
+    background:#3a1f25 !important;
+    color:#ff4d5a !important;
+}
+
+body.dark .register-card .strength-box{
+    background:#3a3a3a !important;
+}
+
+body.dark .register-card .requirement{
+    color:#d8d8d8 !important;
+}
+
+body.dark .register-card .requirement.valid{
+    color:#75d69c !important;
+}
+
+body.dark .register-card a{
+    color:#ff6b75 !important;
+}
+/* =========================
+   VERIFICACIÓN EN MODO OSCURO
+========================= */
+
+body.dark .verify-container {
+    background: #121212 !important;
+}
+
+body.dark .verify-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 14px 40px rgba(0,0,0,.55) !important;
+}
+
+body.dark .verify-card .title,
+body.dark .verify-card label {
+    color: #ffffff !important;
+}
+
+body.dark .verify-card .descripcion,
+body.dark .verify-card small,
+body.dark .verify-card .text-muted {
+    color: #d8d8d8 !important;
+}
+
+body.dark .verify-card .form-control {
+    background: #2f2f2f !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+body.dark .verify-card .form-control::placeholder {
+    color: #bdbdbd !important;
+}
+
+body.dark .verify-card .form-control:focus {
+    background: #333333 !important;
+    border-color: #ff4d5a !important;
+    box-shadow: 0 0 0 .20rem rgba(255,77,90,.18) !important;
+}
+
+body.dark .verify-card .icon-circle {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+
+body.dark .verify-card a {
+    color: #ff6b75 !important;
+}
+/* PERFIL MODO OSCURO */
+
+body.dark .profile-card,
+body.dark .section-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 14px 40px rgba(0,0,0,.55) !important;
+}
+
+body.dark .section-title,
+body.dark .profile-name,
+body.dark label {
+    color: #ffffff !important;
+}
+
+body.dark .text-muted,
+body.dark .small-help,
+body.dark small {
+    color: #d8d8d8 !important;
+}
+
+body.dark .info-box {
+    background: #2d2d2d !important;
+    color: #ffffff !important;
+}
+
+body.dark .info-title {
+    color: #cfcfcf !important;
+}
+
+body.dark .info-value {
+    color: #ffffff !important;
+}
+
+body.dark .security-box {
+    background: #2d1c20 !important;
+    color: #ffffff !important;
+}
+
+body.dark .form-control {
+    background: #2f2f2f !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+body.dark .form-control:focus {
+    background: #333333 !important;
+    border-color: #ff4d5a !important;
+    box-shadow: 0 0 0 .20rem rgba(255,77,90,.18) !important;
+}
+
+body.dark .hero-card {
+    box-shadow: 0 14px 40px rgba(0,0,0,.45) !important;
+}
+/* ===========================
+   DASHBOARD USUARIO
+===========================*/
+
+body.dark .hero-card{
+    background:#1f1f1f !important;
+    color:#fff;
+}
+
+body.dark .hero-card .title{
+    color:#fff !important;
+}
+
+body.dark .hero-card .subtitle{
+    color:#bdbdbd !important;
+}
+
+body.dark .stats-box{
+    background:#242424 !important;
+    color:#fff;
+    box-shadow:0 8px 20px rgba(0,0,0,.45);
+}
+
+body.dark .stats-text{
+    color:#d0d0d0 !important;
+}
+
+body.dark .action-card{
+    background:#242424 !important;
+    color:#fff;
+    box-shadow:0 8px 20px rgba(0,0,0,.45);
+}
+
+body.dark .action-card h4{
+    color:#fff !important;
+}
+
+body.dark .action-card p{
+    color:#c9c9c9 !important;
+}
+
+body.dark .action-card:hover{
+    background:#2d2d2d !important;
+}
+
+body.dark .action-card::before{
+    background:rgba(220,53,69,.08);
+}
+
+body.dark .text-dark{
+    color:#fff !important;
+}
+
+body.dark .report-card{
+    background:#2b2b2b !important;
+    color:white;
+}
+
+body.dark .report-card:hover{
+    background:#343434 !important;
+}
+
+body.dark .badge.bg-danger{
+    background:#dc3545 !important;
+}
+
+/* Botón salir */
+
+body.dark .btn-outline-light{
+    border-color:#fff;
+    color:#fff;
+}
+
+body.dark .btn-outline-light:hover{
+    background:#fff;
+    color:#dc3545;
+}
+
+/* Foto perfil */
+
+body.dark .profile-mini{
+    border:3px solid white;
+    box-shadow:0 0 12px rgba(255,255,255,.15);
+}
+
+/* Colores de estadísticas */
+
+body.dark .total{
+    border-top:5px solid #4ea1ff;
+}
+
+body.dark .alto{
+    border-top:5px solid #ff5d6c;
+}
+
+body.dark .medio{
+    border-top:5px solid #ffc107;
+}
+
+body.dark .bajo{
+    border-top:5px solid #28c76f;
+}
+.profile-mini{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #fff;
+    transition:.3s;
+}
+
+.profile-mini:hover{
+    transform:scale(1.08);
+}
+
+#modoOscuro{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Solo dashboard */
+body.dark .dashboard-navbar .btn-outline-light,
+.dashboard-navbar .btn-outline-light{
+    height:38px;
+    border-radius:10px;
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}

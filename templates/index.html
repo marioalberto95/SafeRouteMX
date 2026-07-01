@@ -7,7 +7,8 @@
     <title>SafeRoute MX</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
     <style>
         html {
             scroll-behavior: smooth;
@@ -118,10 +119,16 @@
 
         .step-icon {
             font-size: 42px;
+            color: #dc3545;
         }
 
         .fade-up {
             animation: fadeUp 0.8s ease;
+        }
+
+        .navbar-brand i,
+        .btn i {
+            margin-right: 8px;
         }
 
         @keyframes fadeUp {
@@ -170,60 +177,158 @@
                 height: 160px;
             }
         }
+        .custom-navbar {
+    background: #a30000;
+    padding: 18px 0;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-logo {
+    font-size: 1.55rem;
+    color: white !important;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.nav-link-btn,
+.nav-secondary-btn,
+.nav-main-btn {
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 700;
+    transition: .3s ease;
+}
+
+.nav-link-btn {
+    color: white;
+    border: 1px solid rgba(255,255,255,.45);
+}
+
+.nav-link-btn:hover {
+    background: white;
+    color: #a30000;
+}
+
+.nav-secondary-btn {
+    color: white;
+    border: 1px solid white;
+}
+
+.nav-secondary-btn:hover {
+    background: white;
+    color: #a30000;
+}
+
+.nav-main-btn {
+    background: white;
+    color: #dc3545;
+    border: 1px solid white;
+}
+
+.nav-main-btn:hover {
+    background: #f8d7da;
+    color: #a30000;
+    transform: translateY(-2px);
+}
+
+.theme-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid white;
+    background: transparent;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: .3s;
+}
+
+.theme-btn:hover {
+    background: white;
+    color: #a30000;
+    transform: rotate(180deg);
+}
+
+@media(max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .nav-actions {
+        justify-content: center;
+    }
+
+    .nav-link-btn,
+    .nav-secondary-btn,
+    .nav-main-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .theme-btn {
+        width: 100%;
+        border-radius: 12px;
+    }
+}
     </style>
 </head>
 
 <body>
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+    <div class="container nav-container">
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-
-        <a class="navbar-brand fw-bold" href="/">
-            🚨 SafeRoute MX
+        <a class="navbar-brand fw-bold brand-logo" href="/">
+            <i class="fa-solid fa-shield-halved me-2"></i>
+            SafeRoute MX
         </a>
 
-        <div class="ms-auto">
+        <div class="nav-actions">
 
-            <a class="btn btn-outline-light btn-sm me-2" href="#funciones">
-                Funciones
-            </a>
+            <a class="nav-link-btn" href="#funciones">Funciones</a>
+            <a class="nav-link-btn" href="#ia">IA</a>
+            <a class="nav-link-btn" href="#como-funciona">Cómo funciona</a>
 
-            <a class="btn btn-outline-light btn-sm me-2" href="#ia">
-                IA
-            </a>
-
-            <a class="btn btn-outline-light btn-sm me-2" href="#como-funciona">
-                Cómo funciona
-            </a>
+            <button id="modoOscuro" class="theme-btn" title="Cambiar tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
 
             {% if session.get("usuario") %}
 
                 {% if session.get("rol") == "admin" %}
-
-                    <a class="btn btn-outline-light btn-sm me-2" href="/admin">
-                        Panel Admin
-                    </a>
-
+                <a class="nav-main-btn" href="/admin">
+                    <i class="fa-solid fa-user-shield me-2"></i>Panel Admin
+                </a>
                 {% else %}
-
-                    <a class="btn btn-outline-light btn-sm me-2" href="/dashboard">
-                        Mi Panel
-                    </a>
-
+                <a class="nav-main-btn" href="/dashboard">
+                    <i class="fa-solid fa-table-columns me-2"></i>Mi Panel
+                </a>
                 {% endif %}
 
-                <a class="btn btn-light btn-sm text-danger fw-bold" href="/logout">
-                    Cerrar sesión
+                <a class="nav-secondary-btn" href="/logout">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i>Salir
                 </a>
 
             {% else %}
 
-                <a class="btn btn-outline-light btn-sm me-2" href="/login">
-                    Iniciar Sesión
+                <a class="nav-secondary-btn" href="/login">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>Iniciar sesión
                 </a>
 
-                <a class="btn btn-light btn-sm text-danger fw-bold" href="/registro">
-                    Registrarse
+                <a class="nav-main-btn" href="/registro">
+                    <i class="fa-solid fa-user-plus me-2"></i>Registrarse
                 </a>
 
             {% endif %}
@@ -246,11 +351,13 @@
 
         <div class="mt-4 d-grid gap-3 d-md-block">
             <a href="/mapa" class="btn btn-light btn-lg btn-custom text-danger">
-                🗺️ Ver Mapa
+                <i class="fa-solid fa-map-location-dot"></i>
+                Ver mapa
             </a>
 
             <a href="/reportar" class="btn btn-danger btn-lg btn-custom ms-md-3">
-                🚨 Reportar Incidente
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Reportar incidente
             </a>
         </div>
 
@@ -272,7 +379,10 @@
                     <img class="feature-img"
                          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80">
                     <div class="feature-body">
-                        <h3>📍 Reportes</h3>
+                        <h3>
+                            <i class="fa-solid fa-location-dot text-danger me-2"></i>
+                            Reportes
+                        </h3>
                         <p class="text-muted mb-0">Registra incidentes en segundos y ubícalos en el mapa.</p>
                     </div>
                 </div>
@@ -285,7 +395,10 @@
                     <img class="feature-img"
                          src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=80">
                     <div class="feature-body">
-                        <h3>🛡️ Seguridad</h3>
+                        <h3>
+                            <i class="fa-solid fa-shield-halved text-danger me-2"></i>
+                            Seguridad
+                        </h3>
                         <p class="text-muted mb-0">Consulta zonas de riesgo antes de salir.</p>
                     </div>
                 </div>
@@ -298,7 +411,10 @@
                     <img class="feature-img"
                          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80">
                     <div class="feature-body">
-                        <h3>🤖 IA</h3>
+                        <h3>
+                            <i class="fa-solid fa-brain text-danger me-2"></i>
+                            Inteligencia Artificial
+                        </h3>
                         <p class="text-muted mb-0">Análisis visual de reportes por nivel de riesgo.</p>
                     </div>
                 </div>
@@ -324,28 +440,40 @@
 
                     <div class="col-6">
                         <div class="mini-stat">
-                            <h4>🔴 Alto</h4>
+                            <h4>
+                                <i class="fa-solid fa-circle text-danger me-2"></i>
+                                Alto
+                            </h4>
                             <small>Zonas críticas</small>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="mini-stat">
-                            <h4>🟡 Medio</h4>
+                            <h4>
+                                <i class="fa-solid fa-circle text-warning me-2"></i>
+                                Medio
+                            </h4>
                             <small>Precaución</small>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="mini-stat">
-                            <h4>🟢 Bajo</h4>
+                            <h4>
+                                <i class="fa-solid fa-circle text-success me-2"></i>
+                                Bajo
+                            </h4>
                             <small>Menor riesgo</small>
                         </div>
                     </div>
 
                     <div class="col-6">
                         <div class="mini-stat">
-                            <h4>🗺️ Mapa</h4>
+                            <h4>
+                                <i class="fa-solid fa-map-location-dot text-primary me-2"></i>
+                                Mapa
+                            </h4>
                             <small>Ubicación visual</small>
                         </div>
                     </div>
@@ -374,23 +502,35 @@
             </div>
 
             <div class="col-12 col-md-6">
-                <h2 class="fw-bold mb-3">🤖 Análisis inteligente de riesgo</h2>
+                <h2 class="fw-bold mb-3">
+                    <i class="fa-solid fa-brain text-danger me-2"></i>
+                    Análisis inteligente de riesgo
+                </h2>
                 <p class="text-muted">
                     SafeRoute MX clasifica los reportes por gravedad para identificar zonas críticas.
                 </p>
 
                 <div class="mini-stat mb-3">
-                    <h4>🔴 Riesgo alto</h4>
+                    <h4>
+                        <i class="fa-solid fa-circle text-danger me-2"></i>
+                        Riesgo alto
+                    </h4>
                     <small>Incidentes graves o zonas peligrosas.</small>
                 </div>
 
                 <div class="mini-stat mb-3">
-                    <h4>🟡 Riesgo medio</h4>
+                    <h4>
+                        <i class="fa-solid fa-circle text-warning me-2"></i>
+                        Riesgo medio
+                    </h4>
                     <small>Áreas que requieren precaución.</small>
                 </div>
 
                 <div class="mini-stat">
-                    <h4>🟢 Riesgo bajo</h4>
+                    <h4>
+                        <i class="fa-solid fa-circle text-success me-2"></i>
+                        Riesgo bajo
+                    </h4>
                     <small>Zonas con menor incidencia.</small>
                 </div>
             </div>
@@ -411,7 +551,9 @@
 
         <div class="col-12 col-md-4">
             <div class="step-card text-center">
-                <div class="step-icon">👤</div>
+                <div class="step-icon">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
                 <h4 class="fw-bold mt-3">Crea tu cuenta</h4>
                 <p class="text-muted mb-0">Regístrate e inicia sesión.</p>
             </div>
@@ -419,7 +561,9 @@
 
         <div class="col-12 col-md-4">
             <div class="step-card text-center">
-                <div class="step-icon">🚨</div>
+                <div class="step-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
                 <h4 class="fw-bold mt-3">Reporta</h4>
                 <p class="text-muted mb-0">Agrega ubicación y nivel de riesgo.</p>
             </div>
@@ -427,7 +571,9 @@
 
         <div class="col-12 col-md-4">
             <div class="step-card text-center">
-                <div class="step-icon">🗺️</div>
+                <div class="step-icon">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
                 <h4 class="fw-bold mt-3">Consulta</h4>
                 <p class="text-muted mb-0">Visualiza tus reportes en el mapa.</p>
             </div>
@@ -438,6 +584,6 @@
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
 </body>
 </html>

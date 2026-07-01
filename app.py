@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
+import re
 from flask_mail import Mail, Message
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,8 +9,19 @@ import os
 import uuid
 import json
 from werkzeug.utils import secure_filename
+import cloudinary
+import cloudinary.uploader
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
+# ======================
+# CONFIGURACIÓN CLOUDINARY
+# ======================
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 # ======================
 # CONFIGURACIÓN CORREO
 # ======================
@@ -46,16 +58,18 @@ db = firestore.client()
 def inicio():
     return render_template("index.html")
 
-
-# ======================
-# LOGIN USUARIO / ADMIN
-# ======================
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
         correo = request.form.get("correo", "").strip().lower()
         password = request.form.get("password", "").strip()
+
+        if not correo or not password:
+            return render_template(
+                "login.html",
+                error="Ingresa tu correo y contraseña."
+            )
 
         usuarios = db.collection("usuarios").stream()
 
@@ -79,7 +93,6 @@ def login():
                 session["nombre"] = usuario.get("nombre", "")
                 session["rol"] = rol_db
                 session["user_id"] = doc.id
-                session["foto_perfil"] = usuario.get("foto_perfil", "")
 
                 if rol_db == "admin":
                     return redirect("/admin")
@@ -88,7 +101,7 @@ def login():
 
         return render_template(
             "login.html",
-            error="Correo o contraseña incorrectos. Intenta nuevamente."
+            error="Correo o contraseña incorrectos. Verifica tus datos."
         )
 
     return render_template("login.html")
@@ -99,10 +112,31 @@ def login():
 def registro():
 
     if request.method == "POST":
-        nombre = request.form.get("nombre")
+        nombre = request.form.get("nombre", "").strip()
         correo = request.form.get("correo", "").strip().lower()
-        password = request.form.get("password")
-        confirmar = request.form.get("confirmar_password")
+        password = request.form.get("password", "")
+        confirmar = request.form.get("confirmar_password", "")
+
+        patron_nombre = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{3,60}$"
+        patron_password = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$"
+
+        if not re.match(patron_nombre, nombre):
+            return render_template(
+                "registro.html",
+                error="El nombre solo debe contener letras y espacios. Mínimo 3 caracteres."
+            )
+
+        if len(nombre.split()) < 2:
+            return render_template(
+                "registro.html",
+                error="Escribe tu nombre completo, por ejemplo: Juan Pérez."
+            )
+
+        if not re.match(patron_password, password):
+            return render_template(
+                "registro.html",
+                error="La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+            )
 
         if password != confirmar:
             return render_template(
@@ -170,6 +204,7 @@ Gracias por usar SafeRoute MX.
     return render_template("registro.html")
 
 
+
 @app.route("/verificar", methods=["GET", "POST"])
 def verificar():
 
@@ -221,7 +256,18 @@ def dashboard():
 
     usuario_actual = session.get("usuario")
 
+    # Obtener información del usuario (incluye la foto de perfil)
+    usuario = None
+
+    usuarios = db.collection("usuarios").where("correo", "==", usuario_actual).stream()
+
+    for doc in usuarios:
+        usuario = doc.to_dict()
+        usuario["id"] = doc.id
+        break
+
     reportes = []
+
     docs = db.collection("reportes").where("usuario", "==", usuario_actual).stream()
 
     riesgo_alto = 0
@@ -229,28 +275,32 @@ def dashboard():
     riesgo_bajo = 0
 
     for doc in docs:
+
         reporte = doc.to_dict()
         reporte["id"] = doc.id
+
         reportes.append(reporte)
 
         gravedad = reporte.get("gravedad", "")
 
         if gravedad == "Alta":
             riesgo_alto += 1
+
         elif gravedad == "Media":
             riesgo_medio += 1
+
         elif gravedad == "Baja":
             riesgo_bajo += 1
 
     return render_template(
         "usuario/dashboard.html",
+        usuario=usuario,
         reportes=reportes,
         total_reportes=len(reportes),
         riesgo_alto=riesgo_alto,
         riesgo_medio=riesgo_medio,
         riesgo_bajo=riesgo_bajo
     )
-
 # ======================
 # MAPA GENERAL PUBLICO
 # ======================
@@ -589,7 +639,6 @@ def admin_mapa():
 
     return render_template("admin/mapa.html", reportes=reportes)
 
-
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
 
@@ -609,9 +658,18 @@ def perfil():
 
     usuario = usuario_doc.to_dict()
 
+    def contar_reportes():
+        total = 0
+        docs = db.collection("reportes").where("usuario", "==", session.get("usuario")).stream()
+
+        for doc in docs:
+            total += 1
+
+        return total
+
     if request.method == "POST":
 
-        nombre = request.form.get("nombre")
+        nombre = request.form.get("nombre", "").strip()
         foto = request.files.get("foto")
 
         password_actual = request.form.get("password_actual")
@@ -625,23 +683,42 @@ def perfil():
         session["nombre"] = nombre
 
         if foto and foto.filename != "":
-            filename = secure_filename(foto.filename)
-            filename = f"{uuid.uuid4()}_{filename}"
 
-            ruta_guardado = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            foto.save(ruta_guardado)
+            if not foto.mimetype.startswith("image/"):
+                return render_template(
+                    "usuario/perfil.html",
+                    usuario=usuario,
+                    total_reportes=contar_reportes(),
+                    error="El archivo seleccionado debe ser una imagen."
+                )
 
-            ruta_foto = "/" + ruta_guardado.replace("\\", "/")
+            resultado = cloudinary.uploader.upload(
+                foto,
+                folder="saferoutemx/perfiles",
+                public_id=f"perfil_{user_id}",
+                overwrite=True,
+                resource_type="image"
+            )
+
+            ruta_foto = resultado.get("secure_url")
+
             datos_actualizados["foto_perfil"] = ruta_foto
-            session["foto_perfil"] = ruta_foto
 
         if password_actual or password_nueva or password_confirmar:
+
+            if not password_actual or not password_nueva or not password_confirmar:
+                return render_template(
+                    "usuario/perfil.html",
+                    usuario=usuario,
+                    total_reportes=contar_reportes(),
+                    error="Completa todos los campos para cambiar la contraseña."
+                )
 
             if not check_password_hash(usuario.get("password", ""), password_actual):
                 return render_template(
                     "usuario/perfil.html",
                     usuario=usuario,
-                    total_reportes=0,
+                    total_reportes=contar_reportes(),
                     error="La contraseña actual no es correcta."
                 )
 
@@ -649,7 +726,7 @@ def perfil():
                 return render_template(
                     "usuario/perfil.html",
                     usuario=usuario,
-                    total_reportes=0,
+                    total_reportes=contar_reportes(),
                     error="La nueva contraseña no coincide."
                 )
 
@@ -659,32 +736,18 @@ def perfil():
 
         usuario_actualizado = usuario_ref.get().to_dict()
 
-        total_reportes = 0
-        docs = db.collection("reportes").where("usuario", "==", session.get("usuario")).stream()
-
-        for doc in docs:
-            total_reportes += 1
-
         return render_template(
             "usuario/perfil.html",
             usuario=usuario_actualizado,
-            total_reportes=total_reportes,
+            total_reportes=contar_reportes(),
             exito="Perfil actualizado correctamente."
         )
-
-    total_reportes = 0
-
-    docs = db.collection("reportes").where("usuario", "==", session.get("usuario")).stream()
-
-    for doc in docs:
-        total_reportes += 1
 
     return render_template(
         "usuario/perfil.html",
         usuario=usuario,
-        total_reportes=total_reportes
+        total_reportes=contar_reportes()
     )
-
 @app.route("/chatbot")
 def chatbot():
 

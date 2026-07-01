@@ -6,6 +6,8 @@
     <title>Registro - SafeRoute MX</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 
     <style>
         body {
@@ -17,26 +19,58 @@
         .navbar {
             background: #dc3545;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 16px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.35rem;
+        }
+
+        #modoOscuro {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+        }
+
+        #modoOscuro:hover {
+            transform: rotate(180deg) scale(1.08);
+            background: white;
+            color: #dc3545;
+        }
+
+        .register-container {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 15px;
         }
 
         .register-card {
             background: white;
-            border-radius: 24px;
+            border-radius: 26px;
             border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.13);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.14);
             animation: fadeUp .7s ease;
+            width: 100%;
+            max-width: 560px;
         }
 
         .icon-circle {
-            width: 78px;
-            height: 78px;
+            width: 82px;
+            height: 82px;
             border-radius: 50%;
             background: #ffe5e9;
+            color: #dc3545;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
-            margin: 0 auto 14px;
+            font-size: 2.1rem;
+            margin: 0 auto 16px;
             animation: pulse 1.8s infinite;
         }
 
@@ -45,9 +79,13 @@
             color: #222;
         }
 
+        .descripcion {
+            color: #666;
+        }
+
         .form-control {
             border-radius: 14px;
-            padding: 12px;
+            padding: 13px;
         }
 
         .form-control:focus {
@@ -57,8 +95,13 @@
 
         .btn-custom {
             border-radius: 14px;
-            padding: 12px;
+            padding: 13px;
             font-weight: bold;
+            transition: .3s;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
         }
 
         .password-wrapper {
@@ -67,19 +110,20 @@
 
         .toggle-password {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             border: none;
             background: transparent;
             cursor: pointer;
-            font-size: 1.1rem;
+            color: #555;
+            font-size: 1rem;
         }
 
         .requirement {
             font-size: .9rem;
             color: #777;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
 
         .requirement.valid {
@@ -118,15 +162,9 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.08);
-            }
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
         }
 
         @keyframes shakeFade {
@@ -138,20 +176,18 @@
                 opacity: 1;
                 transform: translateY(0) translateX(-5px);
             }
-            50% {
-                transform: translateX(5px);
-            }
-            75% {
-                transform: translateX(-3px);
-            }
-            100% {
-                transform: translateX(0);
-            }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
         }
 
         @media(max-width: 768px) {
             .register-card {
-                border-radius: 20px;
+                border-radius: 22px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -160,121 +196,158 @@
 <body>
 
 <nav class="navbar navbar-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🚨 SafeRoute MX</a>
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fa-solid fa-shield-halved me-2"></i>
+            SafeRoute MX
+        </a>
+
+        <button id="modoOscuro" class="btn btn-outline-light btn-sm" title="Cambiar tema">
+            <i class="fa-solid fa-moon"></i>
+        </button>
     </div>
 </nav>
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-5">
+<div class="container register-container">
+    <div class="card register-card p-4">
 
-            <div class="card register-card p-4">
+        <div class="icon-circle">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
 
-                <div class="icon-circle">🛡️</div>
+        <h2 class="text-center mb-2 title">Crear Cuenta</h2>
+        <p class="text-center descripcion mb-4">Regístrate para usar SafeRoute MX</p>
 
-                <h2 class="text-center mb-2 title">Crear Cuenta</h2>
-                <p class="text-center text-muted mb-4">Regístrate para usar SafeRoute MX</p>
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show alert-custom" role="alert">
+            <strong>
+                <i class="fa-solid fa-circle-exclamation me-1"></i>
+                Aviso:
+            </strong>
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
 
-                {% if error %}
-                <div class="alert alert-danger alert-dismissible fade show alert-custom" role="alert">
-                    <strong>❌ Aviso:</strong> {{ error }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endif %}
+        <form method="POST" action="/registro" onsubmit="return validarFormulario()">
 
-                <form method="POST" action="/registro" onsubmit="return validarFormulario()">
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nombre completo</label>
-                        <input
-                            type="text"
-                            name="nombre"
-                            id="nombre"
-                            class="form-control"
-                            placeholder="Ejemplo: Juan Pérez"
-                            required>
-                        <small id="nombreMensaje" class="text-muted">
-                            Usa solo letras y escribe nombre y apellido.
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Correo electrónico</label>
-                        <input
-                            type="email"
-                            name="correo"
-                            class="form-control"
-                            placeholder="ejemplo@correo.com"
-                            required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Contraseña</label>
-
-                        <div class="password-wrapper">
-                            <input
-                                type="password"
-                                name="password"
-                                id="password"
-                                class="form-control"
-                                placeholder="Crea una contraseña segura"
-                                required>
-
-                            <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
-                                👁️
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="strength-box">
-                            <div id="strengthBar" class="strength-bar"></div>
-                        </div>
-                        <small id="strengthText" class="text-muted">Seguridad de contraseña</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <div id="reqLength" class="requirement">○ Mínimo 8 caracteres</div>
-                        <div id="reqUpper" class="requirement">○ Una letra mayúscula</div>
-                        <div id="reqLower" class="requirement">○ Una letra minúscula</div>
-                        <div id="reqNumber" class="requirement">○ Un número</div>
-                        <div id="reqSymbol" class="requirement">○ Un símbolo (@ $ ! % * ? & . # _ -)</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Confirmar contraseña</label>
-
-                        <div class="password-wrapper">
-                            <input
-                                type="password"
-                                name="confirmar_password"
-                                id="confirmar_password"
-                                class="form-control"
-                                placeholder="Repite tu contraseña"
-                                required>
-
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirmar_password', this)">
-                                👁️
-                            </button>
-                        </div>
-
-                        <small id="coincidenciaMensaje" class="text-muted"></small>
-                    </div>
-
-                    <button type="submit" class="btn btn-danger w-100 btn-custom">
-                        Registrarme
-                    </button>
-
-                    <div class="text-center mt-3">
-                        <small>¿Ya tienes cuenta?</small>
-                        <a href="/login" class="text-danger fw-bold text-decoration-none">Inicia sesión</a>
-                    </div>
-
-                </form>
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-user me-2"></i>
+                    Nombre completo
+                </label>
+                <input
+                    type="text"
+                    name="nombre"
+                    id="nombre"
+                    class="form-control"
+                    placeholder="Ejemplo: Juan Pérez"
+                    required>
+                <small id="nombreMensaje" class="text-muted">
+                    Usa solo letras y escribe nombre y apellido.
+                </small>
             </div>
 
-        </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-envelope me-2"></i>
+                    Correo electrónico
+                </label>
+                <input
+                    type="email"
+                    name="correo"
+                    class="form-control"
+                    placeholder="ejemplo@correo.com"
+                    required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-key me-2"></i>
+                    Contraseña
+                </label>
+
+                <div class="password-wrapper">
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        class="form-control"
+                        placeholder="Crea una contraseña segura"
+                        required>
+
+                    <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="strength-box">
+                    <div id="strengthBar" class="strength-bar"></div>
+                </div>
+                <small id="strengthText" class="text-muted">Seguridad de contraseña</small>
+            </div>
+
+            <div class="mb-3">
+                <div id="reqLength" class="requirement">
+                    <i class="fa-regular fa-circle me-2"></i>
+                    Mínimo 8 caracteres
+                </div>
+                <div id="reqUpper" class="requirement">
+                    <i class="fa-regular fa-circle me-2"></i>
+                    Una letra mayúscula
+                </div>
+                <div id="reqLower" class="requirement">
+                    <i class="fa-regular fa-circle me-2"></i>
+                    Una letra minúscula
+                </div>
+                <div id="reqNumber" class="requirement">
+                    <i class="fa-regular fa-circle me-2"></i>
+                    Un número
+                </div>
+                <div id="reqSymbol" class="requirement">
+                    <i class="fa-regular fa-circle me-2"></i>
+                    Un símbolo (@ $ ! % * ? & . # _ -)
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-lock me-2"></i>
+                    Confirmar contraseña
+                </label>
+
+                <div class="password-wrapper">
+                    <input
+                        type="password"
+                        name="confirmar_password"
+                        id="confirmar_password"
+                        class="form-control"
+                        placeholder="Repite tu contraseña"
+                        required>
+
+                    <button type="button" class="toggle-password" onclick="togglePassword('confirmar_password', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+
+                <small id="coincidenciaMensaje" class="text-muted"></small>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100 btn-custom">
+                <i class="fa-solid fa-user-plus me-2"></i>
+                Registrarme
+            </button>
+
+            <div class="text-center mt-3">
+                <small>¿Ya tienes cuenta?</small>
+                <a href="/login" class="text-danger fw-bold text-decoration-none">
+                    Inicia sesión
+                </a>
+            </div>
+
+        </form>
     </div>
 </div>
 
@@ -289,13 +362,16 @@
 
     function togglePassword(id, boton) {
         const input = document.getElementById(id);
+        const icono = boton.querySelector("i");
 
         if (input.type === "password") {
             input.type = "text";
-            boton.innerText = "🙈";
+            icono.classList.remove("fa-eye");
+            icono.classList.add("fa-eye-slash");
         } else {
             input.type = "password";
-            boton.innerText = "👁️";
+            icono.classList.remove("fa-eye-slash");
+            icono.classList.add("fa-eye");
         }
     }
 
@@ -304,10 +380,10 @@
 
         if (valido) {
             elemento.classList.add("valid");
-            elemento.innerText = "✓ " + texto;
+            elemento.innerHTML = '<i class="fa-solid fa-circle-check me-2 text-success"></i>' + texto;
         } else {
             elemento.classList.remove("valid");
-            elemento.innerText = "○ " + texto;
+            elemento.innerHTML = '<i class="fa-regular fa-circle me-2"></i>' + texto;
         }
     }
 
@@ -365,10 +441,10 @@
         }
 
         if (password.value === confirmar.value) {
-            mensaje.innerText = "✓ Las contraseñas coinciden";
+            mensaje.innerHTML = '<i class="fa-solid fa-circle-check me-1 text-success"></i>Las contraseñas coinciden';
             mensaje.style.color = "#198754";
         } else {
-            mensaje.innerText = "Las contraseñas no coinciden";
+            mensaje.innerHTML = '<i class="fa-solid fa-circle-xmark me-1 text-danger"></i>Las contraseñas no coinciden';
             mensaje.style.color = "#dc3545";
         }
     }
@@ -385,18 +461,18 @@
         }
 
         if (!patron.test(valor)) {
-            mensaje.innerText = "El nombre solo debe contener letras y espacios.";
+            mensaje.innerHTML = '<i class="fa-solid fa-circle-xmark me-1 text-danger"></i>El nombre solo debe contener letras y espacios.';
             mensaje.style.color = "#dc3545";
             return;
         }
 
         if (valor.split(" ").length < 2) {
-            mensaje.innerText = "Agrega al menos un apellido.";
+            mensaje.innerHTML = '<i class="fa-solid fa-circle-xmark me-1 text-danger"></i>Agrega al menos un apellido.';
             mensaje.style.color = "#dc3545";
             return;
         }
 
-        mensaje.innerText = "✓ Nombre válido";
+        mensaje.innerHTML = '<i class="fa-solid fa-circle-check me-1 text-success"></i>Nombre válido';
         mensaje.style.color = "#198754";
     }
 
@@ -432,5 +508,7 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
+
 </body>
 </html>
