@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, flash
 import re
 from flask_mail import Mail, Message
 import random
@@ -11,9 +11,9 @@ import json
 from werkzeug.utils import secure_filename
 import cloudinary
 import cloudinary.uploader
+
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
-# ======================
 # CONFIGURACIÓN CLOUDINARY
 # ======================
 cloudinary.config(
@@ -478,7 +478,6 @@ def admin_usuarios():
 
     return render_template("admin/usuarios.html", usuarios=usuarios)
 
-
 @app.route("/admin/usuarios/eliminar/<id>", methods=["POST"])
 def eliminar_usuario(id):
 
@@ -488,20 +487,31 @@ def eliminar_usuario(id):
     if session.get("rol") != "admin":
         return redirect("/dashboard")
 
-    db.collection("usuarios").document(id).delete()
-    usuario_doc = db.collection("usuarios").document(id).get()
-    if usuario_doc.exists:
-     usuario = usuario_doc.to_dict()
+    usuario_ref = db.collection("usuarios").document(id)
+    usuario_doc = usuario_ref.get()
+
+    if not usuario_doc.exists:
+        flash("El usuario no existe o ya fue eliminado.", "warning")
+        return redirect("/admin/usuarios")
+
+    usuario = usuario_doc.to_dict()
     correo_usuario = usuario.get("correo", "").strip().lower()
+    rol_usuario = usuario.get("rol", "")
 
-    reportes = db.collection("reportes").where("usuario", "==", correo_usuario).stream()
+    if rol_usuario == "admin":
+        flash("No puedes eliminar un usuario administrador.", "danger")
+        return redirect("/admin/usuarios")
 
-    for reporte in reportes:
-        db.collection("reportes").document(reporte.id).delete()
-    
-    
+    if correo_usuario:
+        reportes = db.collection("reportes").where("usuario", "==", correo_usuario).stream()
+
+        for reporte in reportes:
+            reporte.reference.delete()
+
+    usuario_ref.delete()
+
+    flash("Usuario eliminado correctamente.", "success")
     return redirect("/admin/usuarios")
-
 
 # ======================
 # ESTADÍSTICAS ADMIN
