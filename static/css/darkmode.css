@@ -427,3 +427,328 @@ body.dark .dashboard-navbar .btn-outline-light,
     align-items:center;
     gap:6px;
 }
+/* REPORTAR MODO OSCURO */
+
+body.dark .report-card,
+body.dark .section-box {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .section-box:hover {
+    background: #2b2b2b !important;
+}
+
+body.dark .title-app,
+body.dark .form-label {
+    color: #ffffff !important;
+}
+
+body.dark .subtitle,
+body.dark .section-box small {
+    color: #d8d8d8 !important;
+}
+
+body.dark #miniMapa {
+    border-color: #444 !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.55) !important;
+}
+/* MIS REPORTES MODO OSCURO */
+
+body.dark .report-card,
+body.dark .empty-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .report-card:hover {
+    background: #2b2b2b !important;
+}
+
+body.dark .info-line,
+body.dark .empty-card p {
+    color: #d8d8d8 !important;
+}
+
+body.dark .empty-icon {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+
+body.dark .modal-content {
+    background: #202020 !important;
+    color: #ffffff !important;
+}
+
+body.dark .modal-body {
+    color: #e0e0e0 !important;
+}
+/* MAPA MODO OSCURO */
+
+body.dark .map-card,
+body.dark .sr-report-card,
+body.dark .sr-empty {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .community-header h3,
+body.dark .sr-user-row h5,
+body.dark .sr-report-top h4 {
+    color: #ffffff !important;
+}
+
+body.dark .community-header p,
+body.dark .sr-description,
+body.dark .sr-user-row small,
+body.dark .sr-info-box p {
+    color: #d8d8d8 !important;
+}
+
+body.dark .community-badge {
+    background: #3a1f25 !important;
+    color: #ff6b75 !important;
+}
+
+body.dark .sr-info-box {
+    background: #2d2d2d !important;
+}
+
+body.dark .legend {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.55) !important;
+}
+
+body.dark .leaflet-popup-content-wrapper,
+body.dark .leaflet-popup-tip {
+    background: #202020 !important;
+    color: #ffffff !important;
+}
+
+body.dark .leaflet-container {
+    background: #121212 !important;
+}
+/* ==========================
+   CHATBOT MODO OSCURO
+========================== */
+
+body.dark .chat-container{
+    background:#181818 !important;
+}
+
+body.dark .chat-card{
+    background:#202020 !important;
+    color:#fff !important;
+    box-shadow:0 14px 40px rgba(0,0,0,.55);
+}
+
+body.dark .chat-header{
+    background:#8b0000 !important;
+    color:white !important;
+}
+
+body.dark .chat-body{
+    background:#1b1b1b !important;
+}
+
+body.dark .chat-footer{
+    background:#202020 !important;
+    border-top:1px solid #444;
+}
+
+body.dark .message-bot{
+    background:#2b2b2b !important;
+    color:white !important;
+    border:1px solid #3c3c3c;
+}
+
+body.dark .message-user{
+    background:#dc3545 !important;
+    color:white !important;
+}
+
+body.dark .quick-btn{
+    background:#2b2b2b !important;
+    color:white !important;
+    border:1px solid #666 !important;
+}
+
+body.dark .quick-btn:hover{
+    background:#dc3545 !important;
+    border-color:#dc3545 !important;
+    color:white !important;
+}
+
+body.dark .form-control{
+    background:#2f2f2f !important;
+    color:white !important;
+    border:1px solid #555 !important;
+}
+
+body.dark .form-control::placeholder{
+    color:#bdbdbd !important;
+}
+
+body.dark .form-control:focus{
+    background:#333 !important;
+    color:white !important;
+    border-color:#ff4d5a !important;
+    box-shadow:0 0 0 .20rem rgba(255,77,90,.18) !important;
+}
+
+body.dark .btn-danger{
+    background:#dc3545 !important;
+    border-color:#dc3545 !important;
+}
+
+body.dark .btn-danger:hover{
+    background:#bb2d3b !important;
+}
+
+body.dark .suggestion-title,
+body.dark .chat-title,
+body.dark h2,
+body.dark h3,
+body.dark h4{
+    color:white !important;
+}
+
+body.dark .text-muted{
+    color:#cfcfcf !important;
+}
+
+body.dark pre{
+    background:#2b2b2b;
+    color:#fff;
+}
+
+body.dark code{
+    color:#7ee787;
+}
+
+body.dark .card{
+    background:#202020;
+    color:white;
+}
+
+body.dark .badge{
+    color:white;
+}
+/* ADMIN USUARIOS MODO OSCURO */
+
+body.dark .user-card,
+body.dark .empty-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .user-card:hover {
+    background: #2b2b2b !important;
+}
+
+body.dark .info-line {
+    color: #d8d8d8 !important;
+}
+
+body.dark .empty-icon,
+body.dark .user-icon {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+
+body.dark .user-role .user-icon {
+    background: #173728 !important;
+    color: #28c76f !important;
+}
+
+body.dark .modal-content {
+    background: #202020 !important;
+    color: #ffffff !important;
+}
+
+body.dark .modal-body {
+    color: #e0e0e0 !important;
+}
+body.dark .admin-user-photo {
+    border-color: #444 !important;
+    box-shadow: 0 0 12px rgba(255,255,255,.12) !important;
+}
+/* ADMIN REPORTES MODO OSCURO */
+
+body.dark .report-card,
+body.dark .empty-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .report-card:hover {
+    background: #2b2b2b !important;
+}
+
+body.dark .info-line {
+    color: #d8d8d8 !important;
+}
+
+body.dark .report-icon,
+body.dark .empty-icon {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+/* ADMIN ESTADÍSTICAS MODO OSCURO */
+
+body.dark .stat-card,
+body.dark .panel-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .panel-title {
+    color: #ffffff !important;
+}
+
+body.dark .risk-row {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+}
+
+body.dark .icon-total,
+body.dark .icon-alto,
+body.dark .icon-medio,
+body.dark .icon-bajo {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+/* ADMIN DASHBOARD MODO OSCURO */
+
+body.dark .admin-section,
+body.dark .stats-box,
+body.dark .action-card {
+    background: #202020 !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .section-title,
+body.dark .action-card h4 {
+    color: #ffffff !important;
+}
+
+body.dark .action-card p,
+body.dark .stats-text {
+    color: #d8d8d8 !important;
+}
+
+body.dark .action-card:hover {
+    background: #2b2b2b !important;
+}
+
+body.dark .text-dark {
+    color: #ffffff !important;
+}

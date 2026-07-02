@@ -6,6 +6,8 @@
     <title>Mis Reportes - SafeRoute MX</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 
     <style>
         body {
@@ -16,34 +18,51 @@
         .navbar {
             background: #dc3545;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 14px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+        }
+
+        #modoOscuro {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .hero-card {
             background: white;
-            border-radius: 18px;
+            border-radius: 20px;
             padding: 24px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             margin-bottom: 24px;
+            animation: fadeUp .7s ease;
         }
 
         .title {
-            font-weight: 800;
+            font-weight: 900;
             color: #222;
         }
 
         .report-card {
             background: white;
-            border-radius: 18px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 22px;
             margin-bottom: 16px;
             border-left: 6px solid #dc3545;
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
             transition: 0.3s ease;
+            height: 100%;
         }
 
         .report-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 26px rgba(0,0,0,0.13);
         }
 
         .alta {
@@ -61,11 +80,54 @@
         .badge-custom {
             font-size: .85rem;
             padding: 8px 12px;
+            border-radius: 12px;
         }
 
         .btn-custom {
             border-radius: 12px;
             font-weight: bold;
+        }
+
+        .info-line {
+            margin-bottom: 9px;
+            color: #444;
+        }
+
+        .info-line i {
+            width: 22px;
+            color: #dc3545;
+        }
+
+        .empty-card {
+            background: white;
+            border-radius: 22px;
+            padding: 35px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            animation: fadeUp .7s ease;
+        }
+
+        .empty-icon {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 768px) {
@@ -85,20 +147,43 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🚨 SafeRoute MX</a>
 
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="/dashboard" class="btn btn-outline-light btn-sm">Dashboard</a>
-            <a href="/reportar" class="btn btn-light btn-sm text-danger fw-bold">Reportar</a>
-            <a href="/logout" class="btn btn-outline-light btn-sm">Salir</a>
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fa-solid fa-shield-halved me-2"></i>
+            SafeRoute MX
+        </a>
+
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <button id="modoOscuro" class="btn btn-outline-light btn-sm" title="Cambiar tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <a href="/dashboard" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-table-columns me-1"></i>
+                Dashboard
+            </a>
+
+            <a href="/reportar" class="btn btn-light btn-sm text-danger fw-bold">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                Reportar
+            </a>
+
+            <a href="/logout" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-right-from-bracket me-1"></i>
+                Salir
+            </a>
         </div>
+
     </div>
 </nav>
 
 <div class="container my-4">
 
     <div class="hero-card">
-        <h2 class="title">📋 Mis Reportes</h2>
+        <h2 class="title">
+            <i class="fa-solid fa-clipboard-list text-danger me-2"></i>
+            Mis Reportes
+        </h2>
         <p class="text-muted mb-0">
             Consulta, edita o elimina los reportes registrados desde tu cuenta.
         </p>
@@ -120,7 +205,8 @@
 
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h4 class="fw-bold mb-0">
-                            🚨 {{ reporte.tipo }}
+                            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+                            {{ reporte.tipo }}
                         </h4>
 
                         {% if reporte.gravedad == 'Alta' %}
@@ -132,26 +218,31 @@
                         {% endif %}
                     </div>
 
-                    <p class="mb-2">
-                        <strong>📍 Ubicación:</strong> {{ reporte.ubicacion }}
+                    <p class="info-line">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <strong>Ubicación:</strong> {{ reporte.ubicacion }}
                     </p>
 
-                    <p class="mb-2">
-                        <strong>⚠️ Gravedad:</strong> {{ reporte.gravedad }}
+                    <p class="info-line">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <strong>Gravedad:</strong> {{ reporte.gravedad }}
                     </p>
 
-                    <p class="mb-2">
-                        <strong>📅 Fecha:</strong> {{ reporte.fecha }}
+                    <p class="info-line">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <strong>Fecha:</strong> {{ reporte.fecha }}
                     </p>
 
-                    <p class="mb-3">
-                        <strong>📝 Descripción:</strong> {{ reporte.descripcion }}
+                    <p class="info-line mb-3">
+                        <i class="fa-solid fa-align-left"></i>
+                        <strong>Descripción:</strong> {{ reporte.descripcion }}
                     </p>
 
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="/usuario/reporte/editar/{{ reporte.id }}"
                            class="btn btn-warning btn-sm btn-custom">
-                            ✏️ Editar
+                            <i class="fa-solid fa-pen-to-square me-1"></i>
+                            Editar
                         </a>
 
                         <button type="button"
@@ -159,7 +250,8 @@
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalEliminarReporteUsuario"
                                 data-url="/usuario/reporte/eliminar/{{ reporte.id }}">
-                            🗑️ Eliminar
+                            <i class="fa-solid fa-trash me-1"></i>
+                            Eliminar
                         </button>
                     </div>
 
@@ -172,14 +264,20 @@
 
     {% else %}
 
-        <div class="hero-card text-center">
-            <h4>No tienes reportes registrados</h4>
+        <div class="empty-card text-center">
+            <div class="empty-icon">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+
+            <h4 class="fw-bold">No tienes reportes registrados</h4>
+
             <p class="text-muted">
                 Cuando reportes un incidente, aparecerá en esta sección.
             </p>
 
             <a href="/reportar" class="btn btn-danger btn-custom">
-                ➕ Crear primer reporte
+                <i class="fa-solid fa-plus me-1"></i>
+                Crear primer reporte
             </a>
         </div>
 
@@ -192,7 +290,10 @@
         <div class="modal-content" style="border-radius:20px;">
 
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">🗑️ Eliminar reporte</h5>
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-trash me-2"></i>
+                    Eliminar reporte
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
@@ -207,6 +308,7 @@
 
                 <form method="POST" id="formEliminarReporteUsuario">
                     <button type="submit" class="btn btn-danger btn-custom">
+                        <i class="fa-solid fa-trash me-1"></i>
                         Sí, eliminar
                     </button>
                 </form>
@@ -217,6 +319,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
 
 <script>
     const modalEliminar = document.getElementById('modalEliminarReporteUsuario');

@@ -754,9 +754,17 @@ def chatbot():
     if "usuario" not in session:
         return redirect("/login")
 
-    return render_template("usuario/chatbot.html")
+    usuario = None
+    user_id = session.get("user_id")
 
+    if user_id:
+        usuario_doc = db.collection("usuarios").document(user_id).get()
 
+        if usuario_doc.exists:
+            usuario = usuario_doc.to_dict()
+            usuario["id"] = usuario_doc.id
+
+    return render_template("usuario/chatbot.html", usuario=usuario)
 @app.route("/chatbot/preguntar", methods=["POST"])
 def chatbot_preguntar():
 

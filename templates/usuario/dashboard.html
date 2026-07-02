@@ -227,14 +227,13 @@
         <i class="fa-solid fa-moon"></i>
     </button>
 
-    <a href="/perfil">
-        {% if usuario and usuario.get("foto_perfil") %}
-            <img src="{{ usuario.get('foto_perfil') }}" class="profile-mini">
-        {% else %}
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                 class="profile-mini">
-        {% endif %}
-    </a>
+<a href="/perfil" title="Mi perfil">
+    {% if usuario and usuario.get("foto_perfil") %}
+        <img src="{{ usuario.get('foto_perfil') }}" class="profile-mini">
+    {% else %}
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-mini">
+    {% endif %}
+</a>
 
     <a href="/logout" class="btn btn-outline-light btn-sm">
         <i class="fa-solid fa-right-from-bracket me-1"></i>

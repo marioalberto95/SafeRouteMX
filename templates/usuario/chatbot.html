@@ -6,6 +6,8 @@
     <title>SafeRoute IA</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 
     <style>
         body {
@@ -17,6 +19,30 @@
         .navbar {
             background: #dc3545;
             box-shadow: 0 4px 12px rgba(0,0,0,.15);
+            padding: 14px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+        }
+
+        #modoOscuro {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-mini {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,.18);
         }
 
         .chat-shell {
@@ -30,7 +56,7 @@
         .chat-header {
             background: linear-gradient(135deg, #dc3545, #8f1d2b);
             color: white;
-            padding: 22px 26px;
+            padding: 24px 26px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -54,6 +80,7 @@
             padding: 8px 14px;
             font-size: 13px;
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .chat-body {
@@ -91,7 +118,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 19px;
             width: 42px;
             height: 42px;
             border-radius: 50%;
@@ -100,7 +127,7 @@
         }
 
         .bubble {
-            max-width: 75%;
+            max-width: 78%;
             padding: 14px 17px;
             border-radius: 20px;
             line-height: 1.45;
@@ -128,9 +155,16 @@
         }
 
         .quick-area {
-            padding: 16px 22px 4px;
+            padding: 16px 22px 6px;
             background: white;
             border-top: 1px solid #eee;
+        }
+
+        .quick-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #555;
+            margin-bottom: 8px;
         }
 
         .quick-btn {
@@ -147,7 +181,6 @@
         .input-chat {
             border-radius: 18px;
             padding: 13px 15px;
-            resize: none;
         }
 
         .btn-send {
@@ -172,45 +205,22 @@
             animation: typingBounce 1s infinite ease-in-out;
         }
 
-        .typing span:nth-child(2) {
-            animation-delay: .15s;
-        }
-
-        .typing span:nth-child(3) {
-            animation-delay: .3s;
-        }
+        .typing span:nth-child(2) { animation-delay: .15s; }
+        .typing span:nth-child(3) { animation-delay: .3s; }
 
         @keyframes typingBounce {
-            0%, 80%, 100% {
-                transform: scale(.7);
-                opacity: .5;
-            }
-            40% {
-                transform: scale(1.2);
-                opacity: 1;
-            }
+            0%, 80%, 100% { transform: scale(.7); opacity: .5; }
+            40% { transform: scale(1.2); opacity: 1; }
         }
 
         @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: translateY(14px) scale(.98);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(14px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
@@ -239,17 +249,49 @@
 <body>
 
 <nav class="navbar navbar-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🚨 SafeRoute MX</a>
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fa-solid fa-shield-halved me-2"></i>
+            SafeRoute MX
+        </a>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <button id="modoOscuro" class="btn btn-outline-light btn-sm" title="Cambiar tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
             {% if session.get("rol") == "admin" %}
-                <a href="/admin" class="btn btn-outline-light btn-sm">Panel Admin</a>
+                <a href="/admin" class="btn btn-outline-light btn-sm">
+                    <i class="fa-solid fa-user-shield me-1"></i>
+                    Panel Admin
+                </a>
             {% else %}
-                <a href="/dashboard" class="btn btn-outline-light btn-sm">Dashboard</a>
+                <a href="/dashboard" class="btn btn-outline-light btn-sm">
+                    <i class="fa-solid fa-table-columns me-1"></i>
+                    Dashboard
+                </a>
             {% endif %}
 
-            <a href="/logout" class="btn btn-light btn-sm text-danger fw-bold">Salir</a>
+            <a href="/perfil" title="Mi perfil">
+
+    {% if usuario and usuario.get("foto_perfil") %}
+        <img
+            src="{{ usuario.get('foto_perfil') }}"
+            class="profile-mini"
+            alt="Perfil">
+    {% else %}
+        <img
+            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            class="profile-mini"
+            alt="Perfil">
+    {% endif %}
+
+</a>
+
+            <a href="/logout" class="btn btn-light btn-sm text-danger fw-bold">
+                <i class="fa-solid fa-right-from-bracket me-1"></i>
+                Salir
+            </a>
         </div>
     </div>
 </nav>
@@ -262,132 +304,93 @@
 
                 <div class="chat-header">
                     <div class="chat-title">
-                        <h2>🤖 SafeRoute IA</h2>
-                        <p>Asistente inteligente de seguridad, reportes y administración</p>
+                        <h2><i class="fa-solid fa-robot me-2"></i> SafeRoute IA</h2>
+                        <p>Asistente inteligente de seguridad, reportes y zonas de riesgo</p>
                     </div>
 
                     <div class="status-pill">
-                        🟢 En línea · {{ session.get("rol") }}
+                        <i class="fa-solid fa-circle me-1"></i>
+                        En línea · {{ session.get("rol") }}
                     </div>
                 </div>
 
                 <div class="chat-body" id="chatBody">
-
                     <div class="message-row">
-                        <div class="bot-avatar">🤖</div>
+                        <div class="bot-avatar">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
                         <div>
                             <div class="bubble bot-bubble">
-                                Hola {{ session.get("nombre") }} 👋
-                                Soy SafeRoute IA. Puedo ayudarte con reportes, mapa, perfil, riesgos y seguridad.
+Hola {{ session.get("nombre") }}.
+
+Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar zonas de riesgo, explicar reportes, revisar tu actividad y darte recomendaciones para moverte con mayor seguridad.
+
+¿En qué puedo ayudarte hoy?
                             </div>
                             <div class="time">Ahora</div>
                         </div>
                     </div>
-
                 </div>
 
-<div class="quick-area">
+                <div class="quick-area">
+                    <div class="quick-title">
+                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>
+                        Preguntas sugeridas
+                    </div>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('Hola')">
-        👋 Hola
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué zona es la más peligrosa actualmente?')">
+                        <i class="fa-solid fa-location-dot me-1"></i> Zona más peligrosa
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuántos reportes tengo?')">
-        📋 Mis reportes
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué recomendaciones de seguridad me das para hoy?')">
+                        <i class="fa-solid fa-shield-halved me-1"></i> Recomendaciones
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cómo reporto un incidente?')">
-        🚨 Reportar
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuántos reportes tengo registrados?')">
+                        <i class="fa-solid fa-clipboard-list me-1"></i> Mis reportes
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cómo edito un reporte?')">
-        ✏️ Editar
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuál fue mi último reporte?')">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Último reporte
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cómo elimino un reporte?')">
-        🗑️ Eliminar
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué tipos de incidentes se reportan con mayor frecuencia?')">
+                        <i class="fa-solid fa-chart-column me-1"></i> Incidentes frecuentes
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cómo uso el mapa?')">
-        🗺️ Mapa
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué significa que una zona tenga riesgo alto?')">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Riesgo alto
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Qué significa riesgo alto?')">
-        🔴 Riesgo alto
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un nuevo incidente?')">
+                        <i class="fa-solid fa-file-circle-plus me-1"></i> Reportar incidente
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Qué significa riesgo medio?')">
-        🟡 Riesgo medio
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo puedo editar o eliminar uno de mis reportes?')">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Editar o eliminar
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Qué significa riesgo bajo?')">
-        🟢 Riesgo bajo
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo cambio mi fotografía de perfil?')">
+                        <i class="fa-solid fa-user-gear me-1"></i> Foto de perfil
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cómo cambio mi foto de perfil?')">
-        👤 Perfil
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad en SafeRoute MX')">
+                        <i class="fa-solid fa-chart-line me-1"></i> Mi actividad
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuál es la colonia más peligrosa?')">
-        📍 Zona peligrosa
-    </button>
+                    {% if session.get("rol") == "admin" %}
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuántos usuarios están registrados en el sistema?')">
+                        <i class="fa-solid fa-users me-1"></i> Usuarios registrados
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuál es el incidente más común?')">
-        🚨 Incidente común
-    </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuántos reportes existen actualmente?')">
+                        <i class="fa-solid fa-database me-1"></i> Reportes totales
+                    </button>
 
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('Dame un resumen del sistema')">
-        📊 Resumen
-    </button>
-
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuál fue mi último reporte?')">
-        🕒 Último reporte
-    </button>
-
-    {% if session.get("rol") == "admin" %}
-
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuántos usuarios hay?')">
-        👥 Usuarios
-    </button>
-
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuántos reportes hay?')">
-        📊 Total reportes
-    </button>
-
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Cuántos reportes de riesgo alto hay?')">
-        🚨 Alto admin
-    </button>
-
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Qué puedo hacer como admin?')">
-        🛡️ Panel admin
-    </button>
-
-    <button class="btn btn-outline-danger btn-sm quick-btn"
-            onclick="enviarPreguntaRapida('¿Qué usuario tiene más reportes?')">
-        👤 Usuario activo
-    </button>
-
-    {% endif %}
-
-</div>
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué usuario tiene más reportes registrados?')">
+                        <i class="fa-solid fa-user-check me-1"></i> Usuario más activo
+                    </button>
+                    {% endif %}
                 </div>
 
                 <div class="chat-footer">
@@ -397,14 +400,14 @@
                                 <input type="text"
                                        id="pregunta"
                                        class="form-control input-chat"
-                                       placeholder="Escribe tu mensaje..."
+                                       placeholder="Escribe tu pregunta sobre seguridad, reportes o zonas de riesgo..."
                                        autocomplete="off"
                                        required>
                             </div>
 
                             <div class="col-12 col-md-2">
                                 <button type="submit" class="btn btn-danger w-100 btn-send">
-                                    ➤
+                                    <i class="fa-solid fa-paper-plane"></i>
                                 </button>
                             </div>
                         </div>
@@ -417,12 +420,15 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
+
 <script>
     const chatBody = document.getElementById("chatBody");
     const chatForm = document.getElementById("chatForm");
     const preguntaInput = document.getElementById("pregunta");
 
-    const userPhoto = "{{ session.get('foto_perfil') if session.get('foto_perfil') else 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}";
+    const userPhoto = "{% if usuario and usuario.get('foto_perfil') %}{{ usuario.get('foto_perfil') }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}";
 
     function horaActual() {
         const ahora = new Date();
@@ -433,16 +439,25 @@
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+    function limpiarTexto(texto) {
+        return texto
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function agregarMensajeUsuario(texto) {
         const row = document.createElement("div");
         row.className = "message-row user-row";
 
         row.innerHTML = `
             <div>
-                <div class="bubble user-bubble">${texto}</div>
+                <div class="bubble user-bubble">${limpiarTexto(texto)}</div>
                 <div class="time text-end">${horaActual()}</div>
             </div>
-            <img class="avatar-chat" src="${userPhoto}">
+            <img class="avatar-chat" src="${userPhoto}" alt="Usuario">
         `;
 
         chatBody.appendChild(row);
@@ -454,9 +469,11 @@
         row.className = "message-row";
 
         row.innerHTML = `
-            <div class="bot-avatar">🤖</div>
+            <div class="bot-avatar">
+                <i class="fa-solid fa-robot"></i>
+            </div>
             <div>
-                <div class="bubble bot-bubble">${texto}</div>
+                <div class="bubble bot-bubble">${limpiarTexto(texto)}</div>
                 <div class="time">${horaActual()}</div>
             </div>
         `;
@@ -471,7 +488,9 @@
         row.id = "typingRow";
 
         row.innerHTML = `
-            <div class="bot-avatar">🤖</div>
+            <div class="bot-avatar">
+                <i class="fa-solid fa-robot"></i>
+            </div>
             <div>
                 <div class="bubble bot-bubble">
                     <div class="typing">
@@ -489,9 +508,7 @@
 
     function quitarEscribiendo() {
         const typing = document.getElementById("typingRow");
-        if (typing) {
-            typing.remove();
-        }
+        if (typing) typing.remove();
     }
 
     async function mandarPregunta(texto) {
@@ -499,7 +516,6 @@
 
         agregarMensajeUsuario(texto);
         preguntaInput.value = "";
-
         mostrarEscribiendo();
 
         const formData = new FormData();
@@ -520,7 +536,7 @@
 
         } catch (error) {
             quitarEscribiendo();
-            agregarMensajeBot("Ocurrió un error al conectar con SafeRoute IA.");
+            agregarMensajeBot("Ocurrió un error al conectar con SafeRoute IA. Intenta nuevamente.");
         }
     }
 

@@ -8,6 +8,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 
     <style>
         body {
@@ -18,6 +20,21 @@
         .navbar {
             background: #dc3545;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 14px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+        }
+
+        #modoOscuro {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .hero-card {
@@ -58,10 +75,6 @@
             background: white;
             transform: translateX(4px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.07);
-        }
-
-        .form-label {
-            color: #333;
         }
 
         .form-control,
@@ -164,16 +177,34 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🚨 SafeRoute MX</a>
-        <a href="/dashboard" class="btn btn-outline-light btn-sm">Volver</a>
+    <div class="container d-flex justify-content-between align-items-center">
+
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fa-solid fa-shield-halved me-2"></i>
+            SafeRoute MX
+        </a>
+
+        <div class="d-flex gap-2 align-items-center">
+            <button id="modoOscuro" class="btn btn-outline-light btn-sm" title="Cambiar tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <a href="/dashboard" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i>
+                Volver
+            </a>
+        </div>
+
     </div>
 </nav>
 
 <div class="container my-4 mb-5">
 
     <div class="hero-card fade-up">
-        <h2 class="title-app">🚨 Reportar Incidente</h2>
+        <h2 class="title-app">
+            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+            Reportar Incidente
+        </h2>
         <p class="subtitle">Registra un reporte ciudadano y selecciona su ubicación en el mapa</p>
     </div>
 
@@ -181,7 +212,8 @@
 
         {% if exito %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            ✅ Reporte guardado correctamente.
+            <i class="fa-solid fa-circle-check me-1"></i>
+            Reporte guardado correctamente.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endif %}
@@ -189,7 +221,10 @@
         <form method="POST" action="/reportar">
 
             <div class="section-box">
-                <label class="form-label fw-bold">Tipo de incidente</label>
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-list-check me-2"></i>
+                    Tipo de incidente
+                </label>
                 <select name="tipo" class="form-select">
                     <option value="Asalto">Asalto</option>
                     <option value="Robo">Robo</option>
@@ -201,22 +236,32 @@
             </div>
 
             <div class="section-box">
-                <label class="form-label fw-bold">Descripción</label>
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-align-left me-2"></i>
+                    Descripción
+                </label>
                 <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe brevemente lo ocurrido..."></textarea>
             </div>
 
             <div class="section-box">
-                <label class="form-label fw-bold">Fecha</label>
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-calendar-days me-2"></i>
+                    Fecha
+                </label>
                 <input name="fecha" type="date" class="form-control">
             </div>
 
             <div class="section-box">
-                <label class="form-label fw-bold">Ubicación</label>
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-location-dot me-2"></i>
+                    Ubicación
+                </label>
+
                 <input type="text" class="form-control" name="ubicacion" id="ubicacion" placeholder="Ejemplo: Centro, CDMX">
 
-                <button type="button" class="btn btn-primary btn-sm mt-3 btn-location"
-                    onclick="obtenerUbicacion()">
-                    📍 Usar mi ubicación
+                <button type="button" class="btn btn-primary btn-sm mt-3 btn-location" onclick="obtenerUbicacion()">
+                    <i class="fa-solid fa-location-crosshairs me-1"></i>
+                    Usar mi ubicación
                 </button>
 
                 <small class="text-muted d-block mt-2" id="mensajeUbicacion">
@@ -225,7 +270,10 @@
             </div>
 
             <div class="section-box">
-                <label class="form-label fw-bold">Selecciona en el mapa</label>
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-map-location-dot me-2"></i>
+                    Selecciona en el mapa
+                </label>
                 <div id="miniMapa"></div>
             </div>
 
@@ -242,7 +290,10 @@
             </div>
 
             <div class="section-box">
-                <label class="form-label fw-bold">Gravedad</label>
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-gauge-high me-2"></i>
+                    Gravedad
+                </label>
                 <select name="gravedad" class="form-select">
                     <option value="Baja">Baja</option>
                     <option value="Media">Media</option>
@@ -252,10 +303,12 @@
 
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-danger btn-lg btn-custom pulse-soft">
-                    Guardar Reporte
+                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                    Guardar reporte
                 </button>
 
                 <a href="/dashboard" class="btn btn-secondary btn-custom">
+                    <i class="fa-solid fa-arrow-left me-2"></i>
                     Volver
                 </a>
             </div>
@@ -266,6 +319,8 @@
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
 
 <script>
     var miniMapa = L.map('miniMapa').setView([19.4326, -99.1332], 12);
@@ -293,7 +348,7 @@
         miniMapa.setView([lat, lng], 15);
 
         document.getElementById("mensajeUbicacion").innerText =
-        "📍 Ubicación seleccionada correctamente";
+        "Ubicación seleccionada correctamente";
     });
 
     function obtenerUbicacion(){
@@ -320,7 +375,7 @@
 
                 miniMapa.setView([lat, lng], 16);
 
-                mensaje.innerText = "📍 Ubicación obtenida correctamente";
+                mensaje.innerText = "Ubicación obtenida correctamente";
 
             }, function(){
 
