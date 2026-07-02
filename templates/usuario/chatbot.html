@@ -324,6 +324,258 @@
 
             .suggestion-grid { grid-template-columns: 1fr; }
         }
+        /* Evita scroll horizontal en móvil */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Mejor vista para celulares */
+@media (max-width: 768px) {
+
+    body {
+        min-height: 100dvh;
+    }
+
+    /* Navbar más compacta */
+    .navbar {
+        padding: 10px 0;
+    }
+
+    .navbar .container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch !important;
+    }
+
+    .navbar-brand {
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    .navbar .d-flex {
+        justify-content: center;
+        gap: 8px !important;
+    }
+
+    .navbar .btn {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+
+    .profile-mini {
+        width: 34px;
+        height: 34px;
+    }
+
+    #modoOscuro {
+        width: 34px;
+        height: 34px;
+    }
+
+    /* Contenedor del chat */
+    .container.my-4 {
+        margin-top: 12px !important;
+        margin-bottom: 12px !important;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .chat-shell {
+        border-radius: 18px;
+        min-height: calc(100dvh - 120px);
+    }
+
+    /* Header del chat */
+    .chat-header {
+        padding: 18px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .chat-title h2 {
+        font-size: 1.35rem;
+        line-height: 1.2;
+    }
+
+    .chat-title p {
+        font-size: 0.9rem;
+        line-height: 1.35;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .status-pill {
+        font-size: 12px;
+        padding: 7px 10px;
+    }
+
+    /* Área de mensajes */
+    .chat-body {
+        height: calc(100dvh - 360px);
+        min-height: 360px;
+        padding: 14px;
+    }
+
+    .message-row {
+        gap: 7px;
+        margin-bottom: 14px;
+    }
+
+    .avatar-chat,
+    .bot-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+    }
+
+    .bubble {
+        max-width: 82vw;
+        padding: 12px 14px;
+        border-radius: 16px;
+        font-size: 0.94rem;
+        line-height: 1.45;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .bot-bubble {
+        border-left-width: 4px;
+        border-bottom-left-radius: 5px;
+    }
+
+    .user-bubble {
+        border-bottom-right-radius: 5px;
+    }
+
+    .time {
+        font-size: 10px;
+    }
+
+    /* Panel de bienvenida */
+    .welcome-panel {
+        padding: 18px;
+        border-radius: 18px;
+        margin-bottom: 16px;
+    }
+
+    .welcome-panel h3 {
+        font-size: 1.2rem;
+    }
+
+    .welcome-panel p {
+        font-size: 0.92rem;
+        margin-bottom: 14px;
+    }
+
+    .suggestion-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .suggestion-card {
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .suggestion-card i {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-card strong {
+        font-size: 14px;
+    }
+
+    .suggestion-card small {
+        font-size: 12px;
+    }
+
+    /* Preguntas rápidas con scroll horizontal */
+    .quick-area {
+        padding: 12px 12px 8px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: thin;
+    }
+
+    .quick-title {
+        font-size: 13px;
+        white-space: normal;
+    }
+
+    .quick-btn {
+        display: inline-flex;
+        align-items: center;
+        margin: 4px 3px;
+        font-size: 12px;
+        padding: 7px 10px;
+        border-radius: 18px;
+        white-space: nowrap;
+    }
+
+    /* Input del chat */
+    .chat-footer {
+        padding: 12px;
+    }
+
+    .input-chat {
+        border-radius: 15px;
+        padding: 12px 13px;
+        font-size: 14px;
+    }
+
+    .btn-send {
+        border-radius: 15px;
+        padding: 11px;
+    }
+}
+
+/* Extra pequeño: celulares muy angostos */
+@media (max-width: 420px) {
+
+    .chat-title h2 {
+        font-size: 1.2rem;
+    }
+
+    .chat-title p {
+        font-size: 0.82rem;
+    }
+
+    .chat-body {
+        height: calc(100dvh - 350px);
+        min-height: 330px;
+        padding: 12px;
+    }
+
+    .avatar-chat,
+    .bot-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+    }
+
+    .bubble {
+        max-width: 80vw;
+        font-size: 0.9rem;
+        padding: 11px 12px;
+    }
+
+    .quick-btn {
+        font-size: 11px;
+        padding: 6px 9px;
+    }
+
+    .navbar .btn {
+        font-size: 11px;
+    }
+}
     </style>
 </head>
 
@@ -657,25 +909,25 @@ Privacidad
                 </div>
 
                 <div class="chat-footer">
-                    <form id="chatForm">
-                        <div class="row g-2">
-                            <div class="col-12 col-md-10">
-                                <input type="text"
-                                       id="pregunta"
-                                       class="form-control input-chat"
-                                       placeholder="Escribe tu pregunta sobre seguridad, reportes o zonas de riesgo..."
-                                       autocomplete="off"
-                                       required>
-                            </div>
+    <form id="chatForm">
+        <div class="row g-2 align-items-center">
+            <div class="col-9 col-md-10">
+                <input type="text"
+                       id="pregunta"
+                       class="form-control input-chat"
+                       placeholder="Escribe tu pregunta..."
+                       autocomplete="off"
+                       required>
+            </div>
 
-                            <div class="col-12 col-md-2">
-                                <button type="submit" class="btn btn-danger w-100 btn-send">
-                                    <i class="fa-solid fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+            <div class="col-3 col-md-2">
+                <button type="submit" class="btn btn-danger w-100 btn-send">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
 
             </div>
 
