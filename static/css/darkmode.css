@@ -752,3 +752,97 @@ body.dark .action-card:hover {
 body.dark .text-dark {
     color: #ffffff !important;
 }
+/* CHATBOT ESTILO CHATGPT - MODO OSCURO */
+
+body.dark .chat-shell,
+body.dark .chat-card,
+body.dark .chat-main,
+body.dark .chat-container {
+    background: #181818 !important;
+    color: #ffffff !important;
+}
+
+body.dark .chat-body {
+    background: #181818 !important;
+}
+
+body.dark .welcome-panel,
+body.dark .suggestion-card,
+body.dark .chat-welcome {
+    background: #202020 !important;
+    color: #ffffff !important;
+    border: 1px solid #3a3a3a !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45) !important;
+}
+
+body.dark .welcome-panel p,
+body.dark .suggestion-card p,
+body.dark .chat-welcome p {
+    color: #d8d8d8 !important;
+}
+
+body.dark .suggestion-card h4,
+body.dark .suggestion-card h5,
+body.dark .welcome-panel h3,
+body.dark .welcome-panel h4 {
+    color: #ffffff !important;
+}
+
+body.dark .suggestion-icon {
+    background: #3a1f25 !important;
+    color: #ff4d5a !important;
+}
+
+body.dark .bot-bubble {
+    background: #242424 !important;
+    color: #ffffff !important;
+    border-left: 5px solid #ff4d5a !important;
+}
+
+body.dark .user-bubble {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+body.dark .quick-area,
+body.dark .chat-footer {
+    background: #202020 !important;
+    border-color: #333 !important;
+}
+
+body.dark .quick-title {
+    color: #ffffff !important;
+}
+
+body.dark .quick-btn {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+body.dark .quick-btn:hover {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+body.dark .input-chat,
+body.dark #pregunta {
+    background: #2f2f2f !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+body.dark .input-chat::placeholder,
+body.dark #pregunta::placeholder {
+    color: #bdbdbd !important;
+}
+
+body.dark .time {
+    color: #cfcfcf !important;
+}
+
+body.dark .bot-avatar {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}

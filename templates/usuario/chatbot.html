@@ -22,9 +22,7 @@
             padding: 14px 0;
         }
 
-        .navbar-brand {
-            font-size: 1.25rem;
-        }
+        .navbar-brand { font-size: 1.25rem; }
 
         #modoOscuro {
             width: 38px;
@@ -47,8 +45,8 @@
 
         .chat-shell {
             background: white;
-            border-radius: 26px;
-            box-shadow: 0 10px 30px rgba(0,0,0,.13);
+            border-radius: 28px;
+            box-shadow: 0 12px 34px rgba(0,0,0,.14);
             overflow: hidden;
             animation: fadeUp .7s ease;
         }
@@ -73,6 +71,14 @@
             opacity: .9;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
         .status-pill {
             background: rgba(255,255,255,.18);
             border: 1px solid rgba(255,255,255,.35);
@@ -92,6 +98,72 @@
                 #f8f9fa;
         }
 
+        .welcome-panel {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 8px 22px rgba(0,0,0,.08);
+            margin-bottom: 22px;
+            border-left: 6px solid #dc3545;
+        }
+
+        .welcome-panel h3 {
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .welcome-panel p {
+            color: #666;
+            margin-bottom: 18px;
+        }
+
+        .suggestion-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .suggestion-card {
+            background: #f8f9fa;
+            border: 1px solid #eee;
+            border-radius: 18px;
+            padding: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: .25s ease;
+            height: 100%;
+        }
+
+        .suggestion-card:hover {
+            background: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(0,0,0,.08);
+            border-color: rgba(220,53,69,.25);
+        }
+
+        .suggestion-card i {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-card strong {
+            display: block;
+            color: #222;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .suggestion-card small { color: #666; }
+
         .message-row {
             display: flex;
             gap: 10px;
@@ -99,9 +171,7 @@
             animation: popIn .35s ease;
         }
 
-        .message-row.user-row {
-            justify-content: flex-end;
-        }
+        .message-row.user-row { justify-content: flex-end; }
 
         .avatar-chat {
             width: 42px;
@@ -130,7 +200,7 @@
             max-width: 78%;
             padding: 14px 17px;
             border-radius: 20px;
-            line-height: 1.45;
+            line-height: 1.5;
             box-shadow: 0 5px 15px rgba(0,0,0,.08);
             white-space: pre-line;
         }
@@ -208,6 +278,15 @@
         .typing span:nth-child(2) { animation-delay: .15s; }
         .typing span:nth-child(3) { animation-delay: .3s; }
 
+        .analysis-box {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .analysis-box.show { display: block; }
+
         @keyframes typingBounce {
             0%, 80%, 100% { transform: scale(.7); opacity: .5; }
             40% { transform: scale(1.2); opacity: 1; }
@@ -234,14 +313,16 @@
                 padding: 18px;
             }
 
-            .bubble {
-                max-width: 88%;
-            }
+            .bubble { max-width: 88%; }
 
             .chat-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
+
+            .header-actions { justify-content: flex-start; }
+
+            .suggestion-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -273,20 +354,12 @@
             {% endif %}
 
             <a href="/perfil" title="Mi perfil">
-
-    {% if usuario and usuario.get("foto_perfil") %}
-        <img
-            src="{{ usuario.get('foto_perfil') }}"
-            class="profile-mini"
-            alt="Perfil">
-    {% else %}
-        <img
-            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            class="profile-mini"
-            alt="Perfil">
-    {% endif %}
-
-</a>
+                {% if usuario and usuario.get("foto_perfil") %}
+                    <img src="{{ usuario.get('foto_perfil') }}" class="profile-mini" alt="Perfil">
+                {% else %}
+                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-mini" alt="Perfil">
+                {% endif %}
+            </a>
 
             <a href="/logout" class="btn btn-light btn-sm text-danger fw-bold">
                 <i class="fa-solid fa-right-from-bracket me-1"></i>
@@ -298,7 +371,7 @@
 
 <div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-12 col-xl-9">
+        <div class="col-12 col-xl-10">
 
             <div class="chat-shell">
 
@@ -308,13 +381,54 @@
                         <p>Asistente inteligente de seguridad, reportes y zonas de riesgo</p>
                     </div>
 
-                    <div class="status-pill">
-                        <i class="fa-solid fa-circle me-1"></i>
-                        En línea · {{ session.get("rol") }}
+                    <div class="header-actions">
+                        <div class="status-pill">
+                            <i class="fa-solid fa-circle me-1"></i>
+                            En línea · {{ session.get("rol") }}
+                        </div>
+
+                        <button type="button" id="limpiarChat" class="btn btn-outline-light btn-sm" title="Limpiar conversación">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 </div>
 
                 <div class="chat-body" id="chatBody">
+
+                    <div class="welcome-panel" id="welcomePanel">
+                        <h3>Hola {{ session.get("nombre") }}.</h3>
+                        <p>
+                            Soy SafeRoute IA. Puedo ayudarte a analizar reportes, detectar zonas de riesgo,
+                            revisar tu actividad y darte recomendaciones de seguridad.
+                        </p>
+
+                        <div class="suggestion-grid">
+                            <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <strong>Zonas de riesgo</strong>
+                                <small>Pregúntame qué lugares conviene revisar antes de salir.</small>
+                            </button>
+
+                            <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <strong>Consejos de seguridad</strong>
+                                <small>Recibe recomendaciones para moverte con mayor precaución.</small>
+                            </button>
+
+                            <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
+                                <i class="fa-solid fa-chart-line"></i>
+                                <strong>Mi actividad</strong>
+                                <small>Consulta tus reportes, zonas e incidentes más frecuentes.</small>
+                            </button>
+
+                            <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un incidente?')">
+                                <i class="fa-solid fa-file-circle-plus"></i>
+                                <strong>Reportar incidente</strong>
+                                <small>Te explico paso a paso cómo crear un reporte.</small>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="message-row">
                         <div class="bot-avatar">
                             <i class="fa-solid fa-robot"></i>
@@ -323,9 +437,11 @@
                             <div class="bubble bot-bubble">
 Hola {{ session.get("nombre") }}.
 
-Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar zonas de riesgo, explicar reportes, revisar tu actividad y darte recomendaciones para moverte con mayor seguridad.
-
-¿En qué puedo ayudarte hoy?
+Estoy listo para ayudarte. Puedes escribirme preguntas como:
+- ¿Cuál es la zona más peligrosa?
+- ¿Qué significa riesgo alto?
+- ¿Cómo edito un reporte?
+- Dame recomendaciones de seguridad.
                             </div>
                             <div class="time">Ahora</div>
                         </div>
@@ -335,14 +451,18 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
                 <div class="quick-area">
                     <div class="quick-title">
                         <i class="fa-solid fa-wand-magic-sparkles me-1"></i>
-                        Preguntas sugeridas
+                        Preguntas rápidas
                     </div>
 
                     <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué zona es la más peligrosa actualmente?')">
                         <i class="fa-solid fa-location-dot me-1"></i> Zona más peligrosa
                     </button>
 
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué recomendaciones de seguridad me das para hoy?')">
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
+                        <i class="fa-solid fa-map-location-dot me-1"></i> Zonas a evitar
+                    </button>
+
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
                         <i class="fa-solid fa-shield-halved me-1"></i> Recomendaciones
                     </button>
 
@@ -350,47 +470,190 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
                         <i class="fa-solid fa-clipboard-list me-1"></i> Mis reportes
                     </button>
 
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuál fue mi último reporte?')">
-                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Último reporte
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué tipos de incidentes se reportan con mayor frecuencia?')">
-                        <i class="fa-solid fa-chart-column me-1"></i> Incidentes frecuentes
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué significa que una zona tenga riesgo alto?')">
-                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Riesgo alto
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
+                        <i class="fa-solid fa-chart-line me-1"></i> Mi actividad
                     </button>
 
                     <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un nuevo incidente?')">
-                        <i class="fa-solid fa-file-circle-plus me-1"></i> Reportar incidente
+                        <i class="fa-solid fa-file-circle-plus me-1"></i> Reportar
                     </button>
 
                     <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo puedo editar o eliminar uno de mis reportes?')">
                         <i class="fa-solid fa-pen-to-square me-1"></i> Editar o eliminar
                     </button>
 
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo cambio mi fotografía de perfil?')">
-                        <i class="fa-solid fa-user-gear me-1"></i> Foto de perfil
+                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué significa que una zona tenga riesgo alto?')">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Riesgo alto
                     </button>
+                    <button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cuál fue mi último reporte?')">
+<i class="fa-solid fa-clock-rotate-left me-1"></i>
+Último reporte
+</button>
 
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad en SafeRoute MX')">
-                        <i class="fa-solid fa-chart-line me-1"></i> Mi actividad
-                    </button>
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cuántos reportes he realizado?')">
+<i class="fa-solid fa-list-check me-1"></i>
+Total de reportes
+</button>
 
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cuál es mi nivel de riesgo?')">
+<i class="fa-solid fa-shield-halved me-1"></i>
+Mi riesgo
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué tipo de incidente reporto más?')">
+<i class="fa-solid fa-chart-simple me-1"></i>
+Incidente común
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿En qué zona reporto más incidentes?')">
+<i class="fa-solid fa-location-dot me-1"></i>
+Mi zona frecuente
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cómo puedo reportar un incidente?')">
+<i class="fa-solid fa-circle-plus me-1"></i>
+Cómo reportar
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cómo edito un reporte?')">
+<i class="fa-solid fa-pen-to-square me-1"></i>
+Editar reporte
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cómo elimino un reporte?')">
+<i class="fa-solid fa-trash me-1"></i>
+Eliminar reporte
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué significa riesgo alto?')">
+<i class="fa-solid fa-triangle-exclamation me-1"></i>
+Riesgo alto
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué significa riesgo medio?')">
+<i class="fa-solid fa-circle-exclamation me-1"></i>
+Riesgo medio
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué significa riesgo bajo?')">
+<i class="fa-solid fa-circle-check me-1"></i>
+Riesgo bajo
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué debo hacer si estoy en peligro?')">
+<i class="fa-solid fa-phone-volume me-1"></i>
+Emergencia
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('Dame recomendaciones para caminar seguro')">
+<i class="fa-solid fa-person-walking me-1"></i>
+Caminar seguro
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cómo puedo evitar robos?')">
+<i class="fa-solid fa-user-shield me-1"></i>
+Evitar robos
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué zonas debería evitar?')">
+<i class="fa-solid fa-ban me-1"></i>
+Zonas peligrosas
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('Muéstrame un resumen de mi actividad')">
+<i class="fa-solid fa-chart-column me-1"></i>
+Mi actividad
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
+<i class="fa-solid fa-comments me-1"></i>
+Ayuda
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Qué hace SafeRoute MX?')">
+<i class="fa-solid fa-map-location-dot me-1"></i>
+Acerca de SafeRoute
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cómo funciona el mapa?')">
+<i class="fa-solid fa-map me-1"></i>
+Mapa
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+onclick="enviarPreguntaRapida('¿Cómo protege mis datos SafeRoute MX?')">
+<i class="fa-solid fa-lock me-1"></i>
+Privacidad
+</button>
                     {% if session.get("rol") == "admin" %}
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuántos usuarios están registrados en el sistema?')">
-                        <i class="fa-solid fa-users me-1"></i> Usuarios registrados
-                    </button>
 
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuántos reportes existen actualmente?')">
-                        <i class="fa-solid fa-database me-1"></i> Reportes totales
-                    </button>
+<div class="quick-title mt-3">
+    <i class="fa-solid fa-user-shield me-1"></i>
+    Preguntas de administrador
+</div>
 
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué usuario tiene más reportes registrados?')">
-                        <i class="fa-solid fa-user-check me-1"></i> Usuario más activo
-                    </button>
-                    {% endif %}
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('¿Cuántos usuarios están registrados en el sistema?')">
+    <i class="fa-solid fa-users me-1"></i>
+    Usuarios registrados
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('¿Cuántos reportes existen actualmente?')">
+    <i class="fa-solid fa-database me-1"></i>
+    Reportes totales
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('¿Cuántos reportes de riesgo alto hay?')">
+    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+    Riesgo alto
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('¿Qué usuario tiene más reportes registrados?')">
+    <i class="fa-solid fa-user-check me-1"></i>
+    Usuario más activo
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('¿Cuál es la zona más conflictiva del sistema?')">
+    <i class="fa-solid fa-location-crosshairs me-1"></i>
+    Zona conflictiva
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('Dame un resumen general del sistema')">
+    <i class="fa-solid fa-chart-pie me-1"></i>
+    Resumen general
+</button>
+
+<button class="btn btn-outline-danger btn-sm quick-btn"
+        onclick="enviarPreguntaRapida('¿Qué puede hacer un administrador?')">
+    <i class="fa-solid fa-screwdriver-wrench me-1"></i>
+    Funciones admin
+</button>
+
+{% endif %}
                 </div>
 
                 <div class="chat-footer">
@@ -427,8 +690,12 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
     const chatBody = document.getElementById("chatBody");
     const chatForm = document.getElementById("chatForm");
     const preguntaInput = document.getElementById("pregunta");
+    const limpiarChat = document.getElementById("limpiarChat");
+    const welcomePanel = document.getElementById("welcomePanel");
 
     const userPhoto = "{% if usuario and usuario.get('foto_perfil') %}{{ usuario.get('foto_perfil') }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}";
+
+    let historialConversacion = [];
 
     function horaActual() {
         const ahora = new Date();
@@ -436,7 +703,10 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
     }
 
     function bajarChat() {
-        chatBody.scrollTop = chatBody.scrollHeight;
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: "smooth"
+        });
     }
 
     function limpiarTexto(texto) {
@@ -448,7 +718,25 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
             .replace(/'/g, "&#039;");
     }
 
+    function formatearRespuesta(texto) {
+    return texto
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/&lt;br&gt;/g, "<br>")
+        .replace(/&lt;br\/&gt;/g, "<br>")
+        .replace(/\n/g, "<br>");
+}
+
+    function ocultarBienvenida() {
+        if (welcomePanel) {
+            welcomePanel.style.display = "none";
+        }
+    }
+
     function agregarMensajeUsuario(texto) {
+        ocultarBienvenida();
+
         const row = document.createElement("div");
         row.className = "message-row user-row";
 
@@ -464,23 +752,47 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
         bajarChat();
     }
 
-    function agregarMensajeBot(texto) {
-        const row = document.createElement("div");
-        row.className = "message-row";
+function agregarMensajeBot(texto) {
+    const row = document.createElement("div");
+    row.className = "message-row";
 
-        row.innerHTML = `
-            <div class="bot-avatar">
-                <i class="fa-solid fa-robot"></i>
-            </div>
-            <div>
-                <div class="bubble bot-bubble">${limpiarTexto(texto)}</div>
-                <div class="time">${horaActual()}</div>
-            </div>
-        `;
+    row.innerHTML = `
+        <div class="bot-avatar">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <div>
+            <div class="bubble bot-bubble"></div>
+            <div class="time">${horaActual()}</div>
+        </div>
+    `;
 
-        chatBody.appendChild(row);
+    chatBody.appendChild(row);
+
+    const bubble = row.querySelector(".bot-bubble");
+    escribirRespuesta(bubble, texto);
+}
+
+function formatearRespuesta(texto) {
+    return texto
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/&lt;br&gt;/gi, "\n")
+        .replace(/&lt;br\/&gt;/gi, "\n");
+}
+
+function escribirRespuesta(elemento, texto) {
+    let i = 0;
+    const limpio = formatearRespuesta(texto);
+
+    const intervalo = setInterval(() => {
+        elemento.textContent += limpio[i];
+        i++;
         bajarChat();
-    }
+
+        if (i >= limpio.length) {
+            clearInterval(intervalo);
+        }
+    }, 8);
+}
 
     function mostrarEscribiendo() {
         const row = document.createElement("div");
@@ -489,11 +801,13 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
 
         row.innerHTML = `
             <div class="bot-avatar">
-                <i class="fa-solid fa-robot"></i>
+                <i class="fa-solid fa-brain"></i>
             </div>
             <div>
                 <div class="bubble bot-bubble">
-                    <div class="typing">
+                    <div><strong>SafeRoute IA está analizando...</strong></div>
+                    <div class="analysis-box show">Revisando reportes, zonas y estadísticas disponibles.</div>
+                    <div class="typing mt-2">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -514,6 +828,9 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
     async function mandarPregunta(texto) {
         if (!texto.trim()) return;
 
+        historialConversacion.push({ rol: "usuario", mensaje: texto });
+        if (historialConversacion.length > 10) historialConversacion.shift();
+
         agregarMensajeUsuario(texto);
         preguntaInput.value = "";
         mostrarEscribiendo();
@@ -531,8 +848,9 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
 
             setTimeout(() => {
                 quitarEscribiendo();
+                historialConversacion.push({ rol: "bot", mensaje: data.respuesta });
                 agregarMensajeBot(data.respuesta);
-            }, 850);
+            }, 800);
 
         } catch (error) {
             quitarEscribiendo();
@@ -547,6 +865,34 @@ Soy SafeRoute IA, tu asistente de seguridad ciudadana. Puedo ayudarte a analizar
     chatForm.addEventListener("submit", function(e) {
         e.preventDefault();
         mandarPregunta(preguntaInput.value);
+    });
+
+    limpiarChat.addEventListener("click", function () {
+        historialConversacion = [];
+        chatBody.innerHTML = `
+            <div class="welcome-panel" id="welcomePanel">
+                <h3>Hola {{ session.get("nombre") }}.</h3>
+                <p>
+                    Soy SafeRoute IA. Puedes iniciar una nueva conversación sobre reportes,
+                    zonas de riesgo o recomendaciones de seguridad.
+                </p>
+
+                <div class="suggestion-grid">
+                    <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <strong>Zonas de riesgo</strong>
+                        <small>Consulta lugares que conviene revisar antes de salir.</small>
+                    </button>
+
+                    <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <strong>Consejos</strong>
+                        <small>Recibe recomendaciones de seguridad ciudadana.</small>
+                    </button>
+                </div>
+            </div>
+        `;
+        bajarChat();
     });
 </script>
 
