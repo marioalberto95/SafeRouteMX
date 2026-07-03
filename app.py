@@ -1204,7 +1204,6 @@ def chatbot_preguntar():
 
 @app.route("/admin/usuarios/rol/<user_id>", methods=["POST"])
 def cambiar_rol_usuario(user_id):
-
     if "usuario" not in session:
         return redirect("/login")
 
@@ -1216,13 +1215,7 @@ def cambiar_rol_usuario(user_id):
     if nuevo_rol not in ["usuario", "admin"]:
         return redirect("/admin/usuarios")
 
-    user_ref = db.collection("usuarios").document(user_id)
-    user_doc = user_ref.get()
-
-    if not user_doc.exists:
-        return redirect("/admin/usuarios")
-
-    user_ref.update({
+    db.collection("usuarios").document(user_id).update({
         "rol": nuevo_rol
     })
 
