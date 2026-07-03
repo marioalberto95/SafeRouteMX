@@ -124,39 +124,23 @@ def registro():
         patron_password = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$"
 
         if not re.match(patron_nombre, nombre):
-            return render_template(
-                "registro.html",
-                error="El nombre solo debe contener letras y espacios. Mínimo 3 caracteres."
-            )
+            return render_template("registro.html", error="El nombre solo debe contener letras y espacios. Mínimo 3 caracteres.")
 
         if len(nombre.split()) < 2:
-            return render_template(
-                "registro.html",
-                error="Escribe tu nombre completo, por ejemplo: Juan Pérez."
-            )
+            return render_template("registro.html", error="Escribe tu nombre completo, por ejemplo: Juan Pérez.")
 
         if not re.match(patron_password, password):
-            return render_template(
-                "registro.html",
-                error="La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
-            )
+            return render_template("registro.html", error="La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.")
 
         if password != confirmar:
-            return render_template(
-                "registro.html",
-                error="Las contraseñas no coinciden."
-            )
+            return render_template("registro.html", error="Las contraseñas no coinciden.")
 
         usuarios = db.collection("usuarios").stream()
 
         for doc in usuarios:
             usuario_existente = doc.to_dict()
-
             if usuario_existente.get("correo", "").strip().lower() == correo:
-                return render_template(
-                    "registro.html",
-                    error="Este correo ya está registrado."
-                )
+                return render_template("registro.html", error="Este correo ya está registrado.")
 
         codigo = str(random.randint(100000, 999999))
 
@@ -170,22 +154,19 @@ def registro():
         }
 
         db.collection("usuarios").add(usuario)
-
         session["correo_verificacion"] = correo
 
         demo_mode = os.environ.get("DEMO_MODE", "").strip().lower()
 
         if demo_mode in ["true", "1", "yes", "si"]:
-            return render_template(
-                "verificar_codigo.html",
-                codigo_demo=codigo
-            )
+            return render_template("verificar_codigo.html", codigo_demo=codigo)
 
         mensaje = Message(
-    subject="Código de verificación - SafeRoute MX",
-    sender=app.config["MAIL_USERNAME"],
-    recipients=[correo]
-)
+            subject="Código de verificación - SafeRoute MX",
+            sender=app.config["MAIL_USERNAME"],
+            recipients=[correo]
+        )
+
         mensaje.body = f"""
 Hola {nombre}.
 
@@ -200,13 +181,19 @@ Ingresa este código en la plataforma para activar tu cuenta.
 Gracias por usar SafeRoute MX.
 """
 
-        mail.send(mensaje)
+        try:
+            mail.send(mensaje)
+        except Exception as e:
+            print("ERROR AL ENVIAR CORREO:", e)
+            return render_template(
+                "verificar_codigo.html",
+                codigo_demo=codigo,
+                error="No se pudo enviar el correo. Usa este código temporalmente."
+            )
 
         return redirect("/verificar")
 
     return render_template("registro.html")
-
-
 
 @app.route("/verificar", methods=["GET", "POST"])
 def verificar():
