@@ -205,7 +205,7 @@ def verificar():
 
     if request.method == "POST":
 
-        codigo = request.form.get("codigo")
+        codigo = request.form.get("codigo", "").replace(" ", "").strip()
 
         usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
 
