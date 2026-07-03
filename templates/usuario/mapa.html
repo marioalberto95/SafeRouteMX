@@ -313,6 +313,23 @@
             margin-bottom: 16px;
         }
 
+        .sr-report-photo {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .popup-report-photo {
+            width: 100%;
+            max-height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
         .sr-info-box {
             background: #f8f9fa;
             border-radius: 16px;
@@ -550,6 +567,10 @@
                         {{ reporte.descripcion or "Sin descripción disponible." }}
                     </p>
 
+                    {% if reporte.foto_reporte %}
+                        <img class="sr-report-photo" src="{{ reporte.foto_reporte }}" alt="Foto del incidente">
+                    {% endif %}
+
                     <div class="sr-info-box">
                         <p>
                             <i class="fa-solid fa-location-dot"></i>
@@ -670,7 +691,9 @@
             }, 450);
 
             circle.bindPopup(`
-                <div style="font-family:Arial; font-size:14px; min-width:200px;">
+                <div style="font-family:Arial; font-size:14px; min-width:220px;">
+                    ${r.foto_reporte ? `<img src="${r.foto_reporte}" class="popup-report-photo" alt="Foto del incidente">` : ""}
+
                     <b style="font-size:16px;">
                         <i class="fa-solid fa-triangle-exclamation" style="color:#dc3545;"></i>
                         ${r.tipo || "Reporte"}

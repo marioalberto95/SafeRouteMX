@@ -108,6 +108,22 @@
             font-weight: bold;
         }
 
+
+        .preview-foto-reporte {
+            display: block;
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-top: 14px;
+            border: 2px solid #eee;
+            box-shadow: 0 5px 16px rgba(0,0,0,0.10);
+        }
+
+        .preview-foto-reporte.is-hidden {
+            display: none;
+        }
+
         .fade-up {
             animation: fadeUp 0.8s ease;
         }
@@ -200,7 +216,7 @@
 
     <div class="card report-card p-4 fade-up">
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
 
             <div class="section-box">
                 <label class="form-label fw-bold">
@@ -238,7 +254,7 @@
                     <i class="fa-solid fa-location-dot me-2"></i>
                     Ubicación
                 </label>
-                <input type="text" class="form-control" name="ubicacion" id="ubicacion" value="{{ reporte.ubicacion }}">
+                <input type="text" class="form-control" name="ubicacion" id="ubicacion" value="{{ reporte.ubicacion }}" placeholder="Ejemplo: Centro, CDMX">
 
                 <button type="button" class="btn btn-primary btn-sm mt-3 btn-location" onclick="obtenerUbicacion()">
                     <i class="fa-solid fa-location-crosshairs me-1"></i>
@@ -246,7 +262,30 @@
                 </button>
 
                 <small class="text-muted d-block mt-2" id="mensajeUbicacion">
-                    Puedes mantener la ubicación actual o seleccionar una nueva en el mapa.
+                    Puedes mantener la ubicación actual, buscar una dirección o seleccionar una nueva en el mapa.
+                </small>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-magnifying-glass me-2"></i>
+                    Buscar dirección
+                </label>
+
+                <div class="input-group">
+                    <input type="text"
+                           class="form-control"
+                           id="buscarDireccion"
+                           placeholder="Ejemplo: Palacio de Bellas Artes, CDMX">
+
+                    <button type="button" class="btn btn-danger btn-location" onclick="buscarDireccionMapa()">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        Buscar
+                    </button>
+                </div>
+
+                <small class="text-muted d-block mt-2">
+                    También puedes escribir una dirección para ubicarla automáticamente en el mapa.
                 </small>
             </div>
 
@@ -280,6 +319,37 @@
                     <option value="Media" {% if reporte.gravedad == "Media" %}selected{% endif %}>Media</option>
                     <option value="Alta" {% if reporte.gravedad == "Alta" %}selected{% endif %}>Alta</option>
                 </select>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">
+                    <i class="fa-solid fa-camera me-2"></i>
+                    Fotografía del incidente
+                </label>
+
+                {% if reporte.foto_reporte %}
+                    <img src="{{ reporte.foto_reporte }}"
+                         class="preview-foto-reporte"
+                         id="previewFoto"
+                         alt="Foto actual del reporte">
+                    <small class="text-muted d-block mt-2">
+                        Foto actual del reporte. Puedes seleccionar otra imagen para reemplazarla.
+                    </small>
+                {% else %}
+                    <img src=""
+                         class="preview-foto-reporte is-hidden"
+                         id="previewFoto"
+                         alt="Vista previa de la foto">
+                    <small class="text-muted d-block mt-2">
+                        Este reporte aún no tiene foto. Puedes agregar una imagen del incidente.
+                    </small>
+                {% endif %}
+
+                <input type="file"
+                       class="form-control mt-3"
+                       name="foto_reporte"
+                       id="foto_reporte"
+                       accept="image/*">
             </div>
 
             <div class="d-grid gap-2">
@@ -373,6 +443,76 @@
             mensaje.innerText = "Tu navegador no soporta geolocalización";
         }
     }
+    async function buscarDireccionMapa(){
+
+        const inputBusqueda = document.getElementById("buscarDireccion");
+        const mensaje = document.getElementById("mensajeUbicacion");
+        const direccion = inputBusqueda.value.trim();
+
+        if(!direccion){
+            mensaje.innerText = "Escribe una dirección para buscar.";
+            return;
+        }
+
+        mensaje.innerText = "Buscando dirección...";
+
+        try{
+            const respuesta = await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(direccion)
+            );
+
+            const datos = await respuesta.json();
+
+            if(!datos || datos.length === 0){
+                mensaje.innerText = "No se encontró la dirección. Intenta escribirla más completa.";
+                return;
+            }
+
+            const lat = parseFloat(datos[0].lat);
+            const lng = parseFloat(datos[0].lon);
+
+            document.getElementById("latitud").value = lat.toFixed(6);
+            document.getElementById("longitud").value = lng.toFixed(6);
+            document.getElementById("ubicacion").value = datos[0].display_name || direccion;
+
+            if(marcador){
+                miniMapa.removeLayer(marcador);
+            }
+
+            marcador = L.marker([lat, lng]).addTo(miniMapa);
+            miniMapa.setView([lat, lng], 16);
+
+            mensaje.innerText = "Dirección encontrada correctamente";
+
+        }catch(error){
+            mensaje.innerText = "No se pudo buscar la dirección. Intenta nuevamente.";
+        }
+    }
+
+    const inputFotoReporte = document.getElementById("foto_reporte");
+    const previewFoto = document.getElementById("previewFoto");
+
+    if(inputFotoReporte){
+        inputFotoReporte.addEventListener("change", function(){
+
+            const archivo = this.files[0];
+
+            if(!archivo){
+                return;
+            }
+
+            if(!archivo.type.startsWith("image/")){
+                alert("Selecciona un archivo de imagen válido.");
+                this.value = "";
+                return;
+            }
+
+            previewFoto.src = URL.createObjectURL(archivo);
+            previewFoto.classList.remove("is-hidden");
+            previewFoto.style.display = "block";
+        });
+    }
+
 </script>
 
 </body>

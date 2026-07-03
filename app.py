@@ -179,10 +179,10 @@ def registro():
             )
 
         mensaje = Message(
-            "Código de verificación - SafeRoute MX",
-            recipients=[correo]
-        )
-
+    subject="Código de verificación - SafeRoute MX",
+    sender=app.config["MAIL_USERNAME"],
+    recipients=[correo]
+)
         mensaje.body = f"""
 Hola {nombre}.
 
@@ -310,51 +310,59 @@ def dashboard():
 @app.route("/mapa")
 def mapa():
 
-    # Traer todos los usuarios para poder mostrar nombre y foto
     usuarios_por_correo = {}
+
     usuarios_docs = db.collection("usuarios").stream()
 
     for user_doc in usuarios_docs:
+
         user = user_doc.to_dict()
-        correo_user = user.get("correo", "").strip().lower()
 
-        if correo_user:
-            usuarios_por_correo[correo_user] = {
-                "nombre": user.get("nombre", "Usuario SafeRoute"),
-                "foto_perfil": user.get("foto_perfil", "")
-            }
+        correo = user.get("correo", "").strip().lower()
 
-    # Traer todos los reportes del sistema
+        usuarios_por_correo[correo] = {
+            "nombre": user.get("nombre", "Usuario SafeRoute"),
+            "foto_perfil": user.get("foto_perfil", "")
+        }
+
     reportes = []
-    docs = db.collection("reportes").stream()
+
+    docs = (
+        db.collection("reportes")
+        .where("aprobado", "==", True)
+        .stream()
+    )
 
     for doc in docs:
+
         reporte = doc.to_dict()
         reporte["id"] = doc.id
 
-        latitud = reporte.get("latitud")
-        longitud = reporte.get("longitud")
+        try:
 
-        if latitud is not None and longitud is not None:
-            try:
-                reporte["latitud"] = float(latitud)
-                reporte["longitud"] = float(longitud)
+            reporte["latitud"] = float(reporte["latitud"])
+            reporte["longitud"] = float(reporte["longitud"])
 
-                correo_reporte = reporte.get("usuario", "").strip().lower()
-                datos_usuario = usuarios_por_correo.get(correo_reporte, {})
+            correo = reporte.get("usuario", "").strip().lower()
 
-                reporte["nombre_usuario"] = datos_usuario.get("nombre", "Usuario SafeRoute")
-                reporte["foto_usuario"] = datos_usuario.get("foto_perfil", "")
+            datos = usuarios_por_correo.get(correo, {})
 
-                reportes.append(reporte)
+            reporte["nombre_usuario"] = datos.get("nombre", "Usuario SafeRoute")
+            reporte["foto_usuario"] = datos.get("foto_perfil", "")
 
-            except:
-                pass
+            reporte["foto_reporte"] = reporte.get("foto_reporte", "")
 
-    # Ordenar por fecha, los más recientes primero
+            reportes.append(reporte)
+
+        except:
+            pass
+
     reportes.sort(key=lambda r: r.get("fecha", ""), reverse=True)
 
-    return render_template("usuario/mapa.html", reportes=reportes)
+    return render_template(
+        "usuario/mapa.html",
+        reportes=reportes
+    )
 
 # ======================
 # REPORTAR USUARIO
@@ -376,8 +384,32 @@ def reportar():
         latitud = request.form.get("latitud")
         longitud = request.form.get("longitud")
 
+        foto_reporte = request.files.get("foto_reporte")
+        url_foto_reporte = ""
+
         if not latitud or not longitud:
-            return "Debes seleccionar una ubicación en el mapa"
+            return render_template(
+                "usuario/reportar.html",
+                exito=False,
+                error="Debes seleccionar una ubicación en el mapa."
+            )
+
+        if foto_reporte and foto_reporte.filename != "":
+
+            if not foto_reporte.mimetype.startswith("image/"):
+                return render_template(
+                    "usuario/reportar.html",
+                    exito=False,
+                    error="El archivo debe ser una imagen."
+                )
+
+            resultado = cloudinary.uploader.upload(
+                foto_reporte,
+                folder="saferoutemx/reportes",
+                resource_type="image"
+            )
+
+            url_foto_reporte = resultado.get("secure_url")
 
         reporte = {
             "tipo": tipo,
@@ -387,7 +419,11 @@ def reportar():
             "gravedad": gravedad,
             "latitud": float(latitud),
             "longitud": float(longitud),
-            "usuario": session.get("usuario")
+            "usuario": session.get("usuario"),
+            "nombre_usuario": session.get("nombre"),
+            "foto_usuario": session.get("foto_perfil", ""),
+            "foto_reporte": url_foto_reporte,
+            "aprobado": False
         }
 
         db.collection("reportes").add(reporte)
@@ -395,7 +431,6 @@ def reportar():
         return render_template("usuario/reportar.html", exito=True)
 
     return render_template("usuario/reportar.html", exito=False)
-
 
 # ======================
 # DASHBOARD ADMIN
@@ -439,8 +474,39 @@ def admin_reportes():
         reporte["id"] = doc.id
         reportes.append(reporte)
 
-    return render_template("admin/reportes.html", reportes=reportes)
+    reportes.sort(key=lambda r: r.get("aprobado", False))
 
+    return render_template("admin/reportes.html", reportes=reportes)
+@app.route("/admin/reportes/aprobar/<id>", methods=["POST"])
+def aprobar_reporte(id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    db.collection("reportes").document(id).update({
+        "aprobado": True
+    })
+
+    return redirect("/admin/reportes")
+
+
+@app.route("/admin/reportes/rechazar/<id>", methods=["POST"])
+def rechazar_reporte(id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    db.collection("reportes").document(id).update({
+        "aprobado": False
+    })
+
+    return redirect("/admin/reportes")
 
 @app.route("/admin/reportes/eliminar/<id>", methods=["POST"])
 def eliminar_reporte(id):

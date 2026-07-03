@@ -171,6 +171,35 @@
                 padding-right: 14px;
             }
         }
+
+        .search-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-actions .form-control {
+            flex: 1;
+        }
+
+        #previewFoto {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 15px;
+            max-height: 300px;
+            object-fit: cover;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+
+        @media (max-width: 576px) {
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .search-actions .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -213,12 +242,20 @@
         {% if exito %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fa-solid fa-circle-check me-1"></i>
-            Reporte guardado correctamente.
+            Reporte guardado correctamente. Quedará pendiente hasta que un administrador lo apruebe.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endif %}
 
-        <form method="POST" action="/reportar">
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-1"></i>
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/reportar" enctype="multipart/form-data">
 
             <div class="section-box">
                 <label class="form-label fw-bold">
@@ -271,6 +308,33 @@
 
             <div class="section-box">
                 <label class="form-label fw-bold">
+                    <i class="fa-solid fa-magnifying-glass-location me-2"></i>
+                    Buscar dirección
+                </label>
+
+                <div class="search-actions">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="buscarDireccion"
+                        placeholder="Ejemplo: Zócalo, CDMX">
+
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-location"
+                        onclick="buscarDireccionMapa()">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        Buscar
+                    </button>
+                </div>
+
+                <small class="text-muted d-block mt-2">
+                    Puedes escribir una dirección, colonia o lugar para ubicarlo automáticamente en el mapa.
+                </small>
+            </div>
+
+            <div class="section-box">
+                <label class="form-label fw-bold">
                     <i class="fa-solid fa-map-location-dot me-2"></i>
                     Selecciona en el mapa
                 </label>
@@ -299,8 +363,25 @@
                     <option value="Media">Media</option>
                     <option value="Alta">Alta</option>
                 </select>
-            </div>
+            </div> 
+            <div class="section-box">
 
+    <label class="form-label fw-bold">
+        <i class="fa-solid fa-camera me-2"></i>
+        Fotografía del incidente
+    </label>
+
+    <input
+        type="file"
+        class="form-control"
+        name="foto_reporte"
+        id="foto_reporte"
+        accept="image/*">
+
+    <img id="previewFoto" alt="Vista previa del incidente">
+
+</div>
+            
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-danger btn-lg btn-custom pulse-soft">
                     <i class="fa-solid fa-floppy-disk me-2"></i>
@@ -336,6 +417,11 @@
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
 
+        actualizarMarcador(lat, lng, "Ubicación seleccionada correctamente");
+    });
+
+    function actualizarMarcador(lat, lng, mensajeTexto){
+
         document.getElementById("latitud").value = lat.toFixed(6);
         document.getElementById("longitud").value = lng.toFixed(6);
 
@@ -344,12 +430,48 @@
         }
 
         marcador = L.marker([lat, lng]).addTo(miniMapa);
+        miniMapa.setView([lat, lng], 16);
 
-        miniMapa.setView([lat, lng], 15);
+        if(mensajeTexto){
+            document.getElementById("mensajeUbicacion").innerText = mensajeTexto;
+        }
+    }
 
-        document.getElementById("mensajeUbicacion").innerText =
-        "Ubicación seleccionada correctamente";
-    });
+    async function buscarDireccionMapa(){
+
+        const direccion = document.getElementById("buscarDireccion").value.trim();
+        const mensaje = document.getElementById("mensajeUbicacion");
+
+        if(!direccion){
+            mensaje.innerText = "Escribe una dirección para buscar.";
+            return;
+        }
+
+        mensaje.innerText = "Buscando dirección...";
+
+        try{
+            const respuesta = await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(direccion)
+            );
+
+            const datos = await respuesta.json();
+
+            if(!datos || datos.length === 0){
+                mensaje.innerText = "No se encontró la dirección. Intenta con una referencia más específica.";
+                return;
+            }
+
+            const lat = parseFloat(datos[0].lat);
+            const lng = parseFloat(datos[0].lon);
+
+            document.getElementById("ubicacion").value = datos[0].display_name || direccion;
+
+            actualizarMarcador(lat, lng, "Dirección encontrada correctamente");
+
+        }catch(error){
+            mensaje.innerText = "No se pudo buscar la dirección. Intenta nuevamente.";
+        }
+    }
 
     function obtenerUbicacion(){
 
@@ -364,18 +486,7 @@
                 var lat = position.coords.latitude;
                 var lng = position.coords.longitude;
 
-                document.getElementById("latitud").value = lat.toFixed(6);
-                document.getElementById("longitud").value = lng.toFixed(6);
-
-                if(marcador){
-                    miniMapa.removeLayer(marcador);
-                }
-
-                marcador = L.marker([lat, lng]).addTo(miniMapa);
-
-                miniMapa.setView([lat, lng], 16);
-
-                mensaje.innerText = "Ubicación obtenida correctamente";
+                actualizarMarcador(lat, lng, "Ubicación obtenida correctamente");
 
             }, function(){
 
@@ -385,6 +496,33 @@
         } else {
             mensaje.innerText = "Tu navegador no soporta geolocalización";
         }
+    }
+
+    const inputFotoReporte = document.getElementById("foto_reporte");
+    const previewFoto = document.getElementById("previewFoto");
+
+    if(inputFotoReporte){
+        inputFotoReporte.addEventListener("change", function(){
+
+            const archivo = this.files[0];
+
+            if(!archivo){
+                previewFoto.style.display = "none";
+                previewFoto.src = "";
+                return;
+            }
+
+            if(!archivo.type.startsWith("image/")){
+                alert("Selecciona un archivo de imagen válido.");
+                this.value = "";
+                previewFoto.style.display = "none";
+                previewFoto.src = "";
+                return;
+            }
+
+            previewFoto.src = URL.createObjectURL(archivo);
+            previewFoto.style.display = "block";
+        });
     }
 </script>
 

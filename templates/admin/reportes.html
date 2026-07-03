@@ -91,6 +91,36 @@
             color: #198754;
         }
 
+
+        .report-photo {
+            width: 100%;
+            max-height: 230px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            border: 2px solid #f1f1f1;
+            box-shadow: 0 5px 14px rgba(0,0,0,.10);
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+            border-left: 5px solid #ffc107;
+        }
+
+        .status-box.approved {
+            border-left-color: #198754;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
         .badge-custom {
             font-size: .85rem;
             padding: 8px 12px;
@@ -160,6 +190,18 @@
                 padding: 20px;
             }
         }
+
+
+        body.dark .report-photo {
+            border-color: #444;
+            box-shadow: 0 8px 22px rgba(0,0,0,.45);
+        }
+
+        body.dark .status-box {
+            background: #2b2b2b !important;
+            color: #ffffff !important;
+        }
+
     </style>
 </head>
 
@@ -241,6 +283,24 @@
                         </div>
                     </div>
 
+                    <div class="status-box {% if reporte.aprobado %}approved{% endif %}">
+                        {% if reporte.aprobado %}
+                            <span class="badge bg-success badge-custom">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                Aprobado y visible en comunidad
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark badge-custom">
+                                <i class="fa-solid fa-clock me-1"></i>
+                                Pendiente de aprobación
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if reporte.foto_reporte %}
+                        <img src="{{ reporte.foto_reporte }}" class="report-photo" alt="Foto del reporte">
+                    {% endif %}
+
                     <p class="info-line">
                         <i class="fa-solid fa-location-dot"></i>
                         <strong>Ubicación:</strong> {{ reporte.ubicacion }}
@@ -263,14 +323,36 @@
                     </p>
                     {% endif %}
 
-                    <button type="button"
-                            class="btn btn-danger btn-sm btn-custom mt-2"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalEliminarReporte"
-                            data-url="/admin/reportes/eliminar/{{ reporte.id }}">
-                        <i class="fa-solid fa-trash me-1"></i>
-                        Eliminar reporte
-                    </button>
+                    <div class="action-buttons">
+
+                        {% if not reporte.aprobado %}
+                        <form method="POST" action="/admin/reportes/aprobar/{{ reporte.id }}">
+                            <button type="submit" class="btn btn-success btn-sm btn-custom">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                Aprobar
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if reporte.aprobado %}
+                        <form method="POST" action="/admin/reportes/rechazar/{{ reporte.id }}">
+                            <button type="submit" class="btn btn-warning btn-sm btn-custom">
+                                <i class="fa-solid fa-ban me-1"></i>
+                                No aprobar
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <button type="button"
+                                class="btn btn-danger btn-sm btn-custom"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEliminarReporte"
+                                data-url="/admin/reportes/eliminar/{{ reporte.id }}">
+                            <i class="fa-solid fa-trash me-1"></i>
+                            Eliminar reporte
+                        </button>
+
+                    </div>
 
                 </div>
             </div>
