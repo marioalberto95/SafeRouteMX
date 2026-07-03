@@ -1202,6 +1202,31 @@ def chatbot_preguntar():
 
     return jsonify({"respuesta": respuesta})
 
+@app.route("/admin/usuarios/rol/<user_id>", methods=["POST"])
+def cambiar_rol_usuario(user_id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    nuevo_rol = request.form.get("rol", "").strip().lower()
+
+    if nuevo_rol not in ["usuario", "admin"]:
+        return redirect("/admin/usuarios")
+
+    user_ref = db.collection("usuarios").document(user_id)
+    user_doc = user_ref.get()
+
+    if not user_doc.exists:
+        return redirect("/admin/usuarios")
+
+    user_ref.update({
+        "rol": nuevo_rol
+    })
+
+    return redirect("/admin/usuarios")
 # ======================
 # LOGOUT
 # ======================
