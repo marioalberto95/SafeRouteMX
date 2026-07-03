@@ -31,6 +31,9 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME")
+print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
+print("MAIL_PASSWORD:", "OK" if app.config["MAIL_PASSWORD"] else "NO")
+print("DEMO_MODE:", os.environ.get("DEMO_MODE"))
 mail = Mail(app)
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
