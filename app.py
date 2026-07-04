@@ -11,7 +11,7 @@ import json
 from werkzeug.utils import secure_filename
 import cloudinary
 import cloudinary.uploader
-
+import threading
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
 # CONFIGURACIÓN CLOUDINARY
@@ -165,10 +165,11 @@ def registro():
             return render_template("verificar_codigo.html", codigo_demo=codigo)
 
         mensaje = Message(
-    subject="Código de verificación - SafeRoute MX",
-    sender=app.config["MAIL_DEFAULT_SENDER"],
-    recipients=[correo]
-)
+            subject="Código de verificación - SafeRoute MX",
+            sender=app.config["MAIL_DEFAULT_SENDER"],
+            recipients=[correo]
+        )
+
         mensaje.body = f"""
 Hola {nombre}.
 
@@ -183,15 +184,19 @@ Ingresa este código en la plataforma para activar tu cuenta.
 Gracias por usar SafeRoute MX.
 """
 
-        try:
-            mail.send(mensaje)
-        except Exception as e:
-            print("ERROR AL ENVIAR CORREO:", e)
-            return render_template(
-                "verificar_codigo.html",
-                codigo_demo=codigo,
-                error="No se pudo enviar el correo. Usa este código temporalmente."
-            )
+        def enviar_correo_async(app, mensaje):
+            with app.app_context():
+                try:
+                    mail.send(mensaje)
+                    print("CORREO ENVIADO CORRECTAMENTE")
+                except Exception as e:
+                    print("ERROR AL ENVIAR CORREO:", e)
+
+        threading.Thread(
+            target=enviar_correo_async,
+            args=(app, mensaje),
+            daemon=True
+        ).start()
 
         return redirect("/verificar")
 
