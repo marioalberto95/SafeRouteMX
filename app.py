@@ -25,15 +25,18 @@ cloudinary.config(
 # ======================
 # CONFIGURACIÓN CORREO
 # ======================
-app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
+# ======================
+# CONFIGURACIÓN CORREO
+# ======================
+app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp-relay.brevo.com")
+app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
+app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
+app.config["MAIL_USE_SSL"] = False
+
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
-app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME")
-print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
-print("MAIL_PASSWORD:", "OK" if app.config["MAIL_PASSWORD"] else "NO")
-print("DEMO_MODE:", os.environ.get("DEMO_MODE"))
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER", app.config["MAIL_USERNAME"])
+
 mail = Mail(app)
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -162,11 +165,10 @@ def registro():
             return render_template("verificar_codigo.html", codigo_demo=codigo)
 
         mensaje = Message(
-            subject="Código de verificación - SafeRoute MX",
-            sender=app.config["MAIL_USERNAME"],
-            recipients=[correo]
-        )
-
+    subject="Código de verificación - SafeRoute MX",
+    sender=app.config["MAIL_DEFAULT_SENDER"],
+    recipients=[correo]
+)
         mensaje.body = f"""
 Hola {nombre}.
 
