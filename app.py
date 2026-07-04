@@ -12,6 +12,7 @@ from werkzeug.utils import secure_filename
 import cloudinary
 import cloudinary.uploader
 import threading
+import requests
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
 # CONFIGURACIÓN CLOUDINARY
@@ -165,33 +166,54 @@ def registro():
         if demo_mode in ["true", "1", "yes", "si"]:
             return render_template("verificar_codigo.html", codigo_demo=codigo)
 
-        mensaje = Message(
-            subject="Código de verificación - SafeRoute MX",
-            sender=app.config["MAIL_DEFAULT_SENDER"],
-            recipients=[correo]
-        )
+        brevo_api_key = os.environ.get("BREVO_API_KEY")
 
-        mensaje.body = f"""
-Hola {nombre}.
-
-Bienvenido a SafeRoute MX.
-
-Tu código de verificación es:
-
-{codigo}
-
-Ingresa este código en la plataforma para activar tu cuenta.
-
-Gracias por usar SafeRoute MX.
-"""
+        payload = {
+            "sender": {
+                "name": "SafeRoute MX",
+                "email": app.config["MAIL_DEFAULT_SENDER"]
+            },
+            "to": [
+                {
+                    "email": correo,
+                    "name": nombre
+                }
+            ],
+            "subject": "Código de verificación - SafeRoute MX",
+            "htmlContent": f"""
+                <h2>Hola {nombre}</h2>
+                <p>Bienvenido a SafeRoute MX.</p>
+                <p>Tu código de verificación es:</p>
+                <h1>{codigo}</h1>
+                <p>Ingresa este código en la plataforma para activar tu cuenta.</p>
+                <p>Gracias por usar SafeRoute MX.</p>
+            """
+        }
 
         try:
-            mail.send(mensaje)
-            print("CORREO ENVIADO CORRECTAMENTE", flush=True)
+            respuesta = requests.post(
+                "https://api.brevo.com/v3/smtp/email",
+                headers={
+                    "accept": "application/json",
+                    "api-key": brevo_api_key,
+                    "content-type": "application/json"
+                },
+                json=payload,
+                timeout=10
+            )
+
+            print("BREVO STATUS:", respuesta.status_code, flush=True)
+            print("BREVO RESPONSE:", respuesta.text, flush=True)
+
+            if respuesta.status_code not in [200, 201, 202]:
+                return render_template(
+                    "verificar_codigo.html",
+                    codigo_demo=codigo,
+                    error="No se pudo enviar el correo. Usa este código temporalmente."
+                )
 
         except Exception as e:
-            print("ERROR AL ENVIAR CORREO:", e, flush=True)
-
+            print("ERROR BREVO API:", e, flush=True)
             return render_template(
                 "verificar_codigo.html",
                 codigo_demo=codigo,
