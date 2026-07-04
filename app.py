@@ -142,6 +142,7 @@ def registro():
 
         for doc in usuarios:
             usuario_existente = doc.to_dict()
+
             if usuario_existente.get("correo", "").strip().lower() == correo:
                 return render_template("registro.html", error="Este correo ya está registrado.")
 
@@ -184,19 +185,18 @@ Ingresa este código en la plataforma para activar tu cuenta.
 Gracias por usar SafeRoute MX.
 """
 
-        def enviar_correo_async(app, mensaje):
-            with app.app_context():
-                try:
-                    mail.send(mensaje)
-                    print("CORREO ENVIADO CORRECTAMENTE")
-                except Exception as e:
-                    print("ERROR AL ENVIAR CORREO:", e)
+        try:
+            mail.send(mensaje)
+            print("CORREO ENVIADO CORRECTAMENTE", flush=True)
 
-        threading.Thread(
-            target=enviar_correo_async,
-            args=(app, mensaje),
-            daemon=True
-        ).start()
+        except Exception as e:
+            print("ERROR AL ENVIAR CORREO:", e, flush=True)
+
+            return render_template(
+                "verificar_codigo.html",
+                codigo_demo=codigo,
+                error="No se pudo enviar el correo. Usa este código temporalmente."
+            )
 
         return redirect("/verificar")
 
