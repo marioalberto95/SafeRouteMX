@@ -238,6 +238,29 @@
                         <strong>Descripción:</strong> {{ reporte.descripcion }}
                     </p>
 
+                    
+                    <hr>
+
+                    <p class="info-line">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <strong>Estado:</strong>
+                        <span class="badge bg-secondary">{{ reporte.estado or 'Pendiente' }}</span>
+                    </p>
+
+                    <p class="info-line">
+                        <i class="fa-solid fa-route"></i>
+                        <strong>Seguimiento:</strong>
+                        {{ reporte.seguimiento or 'Sin seguimiento' }}
+                    </p>
+
+                    {% if reporte.comentario_admin %}
+                    <div class="alert alert-info mt-2 mb-3">
+                        <strong><i class="fa-solid fa-user-shield me-1"></i>Comentario del administrador</strong><br>
+                        {{ reporte.comentario_admin }}
+                    </div>
+                    {% endif %}
+
+
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="/usuario/reporte/editar/{{ reporte.id }}"
                            class="btn btn-warning btn-sm btn-custom">

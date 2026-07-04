@@ -91,7 +91,6 @@
             color: #198754;
         }
 
-
         .report-photo {
             width: 100%;
             max-height: 230px;
@@ -110,8 +109,24 @@
             border-left: 5px solid #ffc107;
         }
 
-        .status-box.approved {
-            border-left-color: #198754;
+        .status-box.approved { border-left-color: #198754; }
+        .status-box.rejected { border-left-color: #dc3545; }
+        .status-box.following { border-left-color: #0d6efd; }
+        .status-box.resolved { border-left-color: #198754; }
+
+        .tracking-box {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+            margin-bottom: 14px;
+            border-left: 5px solid #0d6efd;
+        }
+
+        .tracking-title {
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 12px;
         }
 
         .action-buttons {
@@ -191,17 +206,31 @@
             }
         }
 
-
         body.dark .report-photo {
             border-color: #444;
             box-shadow: 0 8px 22px rgba(0,0,0,.45);
         }
 
-        body.dark .status-box {
+        body.dark .status-box,
+        body.dark .tracking-box {
             background: #2b2b2b !important;
             color: #ffffff !important;
         }
 
+        body.dark .tracking-title {
+            color: #ffffff !important;
+        }
+
+        body.dark .form-select,
+        body.dark .form-control {
+            background: #2f2f2f !important;
+            color: #ffffff !important;
+            border: 1px solid #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
+        }
     </style>
 </head>
 
@@ -237,7 +266,7 @@
             Reportes registrados
         </h2>
         <p class="text-muted mb-0">
-            Visualiza y administra todos los incidentes reportados por los usuarios.
+            Visualiza, aprueba y da seguimiento a todos los incidentes reportados por los usuarios.
         </p>
     </div>
 
@@ -283,17 +312,68 @@
                         </div>
                     </div>
 
-                    <div class="status-box {% if reporte.aprobado %}approved{% endif %}">
-                        {% if reporte.aprobado %}
-                            <span class="badge bg-success badge-custom">
-                                <i class="fa-solid fa-circle-check me-1"></i>
-                                Aprobado y visible en comunidad
-                            </span>
+                    <div class="status-box
+                        {% if reporte.estado == 'Rechazado' %}rejected
+                        {% elif reporte.estado == 'En seguimiento' %}following
+                        {% elif reporte.estado == 'Resuelto' %}resolved
+                        {% elif reporte.aprobado %}approved
+                        {% endif %}
+                    ">
+                        {% if reporte.estado %}
+                            {% if reporte.estado == "Pendiente" %}
+                                <span class="badge bg-warning text-dark badge-custom">
+                                    <i class="fa-solid fa-clock me-1"></i>
+                                    Pendiente
+                                </span>
+                            {% elif reporte.estado == "Aprobado" %}
+                                <span class="badge bg-success badge-custom">
+                                    <i class="fa-solid fa-circle-check me-1"></i>
+                                    Aprobado
+                                </span>
+                            {% elif reporte.estado == "Rechazado" %}
+                                <span class="badge bg-danger badge-custom">
+                                    <i class="fa-solid fa-ban me-1"></i>
+                                    Rechazado
+                                </span>
+                            {% elif reporte.estado == "En seguimiento" %}
+                                <span class="badge bg-primary badge-custom">
+                                    <i class="fa-solid fa-spinner me-1"></i>
+                                    En seguimiento
+                                </span>
+                            {% elif reporte.estado == "Resuelto" %}
+                                <span class="badge bg-success badge-custom">
+                                    <i class="fa-solid fa-shield-check me-1"></i>
+                                    Resuelto
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary badge-custom">
+                                    {{ reporte.estado }}
+                                </span>
+                            {% endif %}
                         {% else %}
-                            <span class="badge bg-warning text-dark badge-custom">
-                                <i class="fa-solid fa-clock me-1"></i>
-                                Pendiente de aprobación
-                            </span>
+                            {% if reporte.aprobado %}
+                                <span class="badge bg-success badge-custom">
+                                    <i class="fa-solid fa-circle-check me-1"></i>
+                                    Aprobado y visible en comunidad
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark badge-custom">
+                                    <i class="fa-solid fa-clock me-1"></i>
+                                    Pendiente de aprobación
+                                </span>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="mt-2 small">
+                            <strong>Seguimiento:</strong>
+                            {{ reporte.seguimiento or "Sin seguimiento" }}
+                        </div>
+
+                        {% if reporte.comentario_admin %}
+                        <div class="mt-1 small">
+                            <strong>Comentario admin:</strong>
+                            {{ reporte.comentario_admin }}
+                        </div>
                         {% endif %}
                     </div>
 
@@ -322,6 +402,85 @@
                         <strong>Usuario:</strong> {{ reporte.usuario }}
                     </p>
                     {% endif %}
+
+                    <div class="tracking-box">
+                        <div class="tracking-title">
+                            <i class="fa-solid fa-clipboard-check text-primary me-2"></i>
+                            Seguimiento administrativo
+                        </div>
+
+                        <form method="POST" action="/admin/reportes/actualizar_estado/{{ reporte.id }}">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    Estado del reporte
+                                </label>
+
+                                <select name="estado" class="form-select">
+                                    <option value="Pendiente" {% if reporte.estado == "Pendiente" or not reporte.estado %}selected{% endif %}>
+                                        Pendiente
+                                    </option>
+                                    <option value="Aprobado" {% if reporte.estado == "Aprobado" %}selected{% endif %}>
+                                        Aprobado
+                                    </option>
+                                    <option value="Rechazado" {% if reporte.estado == "Rechazado" %}selected{% endif %}>
+                                        Rechazado
+                                    </option>
+                                    <option value="En seguimiento" {% if reporte.estado == "En seguimiento" %}selected{% endif %}>
+                                        En seguimiento
+                                    </option>
+                                    <option value="Resuelto" {% if reporte.estado == "Resuelto" %}selected{% endif %}>
+                                        Resuelto
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    Seguimiento
+                                </label>
+
+                                <select name="seguimiento" class="form-select">
+                                    <option value="Sin seguimiento" {% if reporte.seguimiento == "Sin seguimiento" or not reporte.seguimiento %}selected{% endif %}>
+                                        Sin seguimiento
+                                    </option>
+                                    <option value="Reporte recibido por el administrador" {% if reporte.seguimiento == "Reporte recibido por el administrador" %}selected{% endif %}>
+                                        Reporte recibido por el administrador
+                                    </option>
+                                    <option value="Reporte enviado a revisión" {% if reporte.seguimiento == "Reporte enviado a revisión" %}selected{% endif %}>
+                                        Reporte enviado a revisión
+                                    </option>
+                                    <option value="Reporte canalizado a la autoridad correspondiente" {% if reporte.seguimiento == "Reporte canalizado a la autoridad correspondiente" %}selected{% endif %}>
+                                        Reporte canalizado a la autoridad correspondiente
+                                    </option>
+                                    <option value="Se está dando seguimiento al incidente" {% if reporte.seguimiento == "Se está dando seguimiento al incidente" %}selected{% endif %}>
+                                        Se está dando seguimiento al incidente
+                                    </option>
+                                    <option value="Reporte atendido o resuelto" {% if reporte.seguimiento == "Reporte atendido o resuelto" %}selected{% endif %}>
+                                        Reporte atendido o resuelto
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    Comentario para el usuario
+                                </label>
+
+                                <textarea
+                                    name="comentario_admin"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Escribe una observación o explicación para el usuario...">{{ reporte.comentario_admin or "" }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm btn-custom">
+                                <i class="fa-solid fa-floppy-disk me-1"></i>
+                                Guardar seguimiento
+                            </button>
+
+                        </form>
+                    </div>
 
                     <div class="action-buttons">
 

@@ -26,9 +26,6 @@ cloudinary.config(
 # ======================
 # CONFIGURACIÓN CORREO
 # ======================
-# ======================
-# CONFIGURACIÓN CORREO
-# ======================
 app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp-relay.brevo.com")
 app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
 app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
@@ -44,6 +41,60 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+# ======================
+# FUNCIÓN PARA ENVIAR CORREO DEL ESTADO DEL REPORTE
+# ======================
+def enviar_correo_estado_reporte(correo, nombre, reporte, estado, seguimiento, comentario):
+    brevo_api_key = os.environ.get("BREVO_API_KEY")
+
+    if not brevo_api_key:
+        return
+
+    payload = {
+        "sender": {
+            "name": "SafeRoute MX",
+            "email": app.config["MAIL_DEFAULT_SENDER"]
+        },
+        "to": [
+            {
+                "email": correo,
+                "name": nombre or "Usuario SafeRoute"
+            }
+        ],
+        "subject": "Actualización de tu reporte - SafeRoute MX",
+        "htmlContent": f"""
+            <h2>Hola {nombre or "Usuario SafeRoute"}</h2>
+            <p>Tu reporte ha sido actualizado por el administrador.</p>
+
+            <h3>Detalles del reporte</h3>
+            <p><b>Tipo:</b> {reporte.get("tipo", "Sin tipo")}</p>
+            <p><b>Ubicación:</b> {reporte.get("ubicacion", "Sin ubicación")}</p>
+            <p><b>Gravedad:</b> {reporte.get("gravedad", "Sin gravedad")}</p>
+
+            <h3>Estado actual</h3>
+            <p><b>Estado:</b> {estado}</p>
+            <p><b>Seguimiento:</b> {seguimiento}</p>
+            <p><b>Comentario del administrador:</b> {comentario or "Sin comentario"}</p>
+
+            <p>Gracias por contribuir a la seguridad de la comunidad.</p>
+        """
+    }
+
+    try:
+        respuesta = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            },
+            json=payload,
+            timeout=10
+        )
+        print("BREVO ESTADO REPORTE:", respuesta.status_code, respuesta.text, flush=True)
+
+    except Exception as e:
+        print("ERROR NOTIFICANDO ESTADO REPORTE:", e, flush=True)
 # ======================
 # FIREBASE
 # ======================
@@ -393,13 +444,11 @@ def reportar():
         return redirect("/login")
 
     if request.method == "POST":
-
         tipo = request.form.get("tipo")
         descripcion = request.form.get("descripcion")
         fecha = request.form.get("fecha")
         ubicacion = request.form.get("ubicacion")
         gravedad = request.form.get("gravedad")
-
         latitud = request.form.get("latitud")
         longitud = request.form.get("longitud")
 
@@ -407,27 +456,17 @@ def reportar():
         url_foto_reporte = ""
 
         if not latitud or not longitud:
-            return render_template(
-                "usuario/reportar.html",
-                exito=False,
-                error="Debes seleccionar una ubicación en el mapa."
-            )
+            return render_template("usuario/reportar.html", exito=False, error="Debes seleccionar una ubicación en el mapa.")
 
         if foto_reporte and foto_reporte.filename != "":
-
             if not foto_reporte.mimetype.startswith("image/"):
-                return render_template(
-                    "usuario/reportar.html",
-                    exito=False,
-                    error="El archivo debe ser una imagen."
-                )
+                return render_template("usuario/reportar.html", exito=False, error="El archivo debe ser una imagen.")
 
             resultado = cloudinary.uploader.upload(
                 foto_reporte,
                 folder="saferoutemx/reportes",
                 resource_type="image"
             )
-
             url_foto_reporte = resultado.get("secure_url")
 
         reporte = {
@@ -442,7 +481,12 @@ def reportar():
             "nombre_usuario": session.get("nombre"),
             "foto_usuario": session.get("foto_perfil", ""),
             "foto_reporte": url_foto_reporte,
-            "aprobado": False
+
+            "aprobado": False,
+            "estado": "Pendiente",
+            "seguimiento": "Sin seguimiento",
+            "comentario_admin": "",
+            "fecha_actualizacion": ""
         }
 
         db.collection("reportes").add(reporte)
@@ -493,9 +537,58 @@ def admin_reportes():
         reporte["id"] = doc.id
         reportes.append(reporte)
 
-    reportes.sort(key=lambda r: r.get("aprobado", False))
+    reportes.sort(key=lambda r: (
+        r.get("aprobado", False),
+        r.get("estado", "Pendiente")
+    ))
 
     return render_template("admin/reportes.html", reportes=reportes)
+@app.route("/admin/reportes/actualizar_estado/<id>", methods=["POST"])
+def actualizar_estado_reporte(id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    estado = request.form.get("estado", "Pendiente")
+    seguimiento = request.form.get("seguimiento", "Sin seguimiento")
+    comentario_admin = request.form.get("comentario_admin", "")
+
+    aprobado = True if estado in ["Aprobado", "En seguimiento", "Resuelto"] else False
+
+    reporte_ref = db.collection("reportes").document(id)
+    reporte_doc = reporte_ref.get()
+
+    if not reporte_doc.exists:
+        return redirect("/admin/reportes")
+
+    reporte = reporte_doc.to_dict()
+
+    reporte_ref.update({
+        "estado": estado,
+        "seguimiento": seguimiento,
+        "comentario_admin": comentario_admin,
+        "aprobado": aprobado,
+        "fecha_actualizacion": firestore.SERVER_TIMESTAMP
+    })
+
+    correo_usuario = reporte.get("usuario")
+    nombre_usuario = reporte.get("nombre_usuario", "Usuario SafeRoute")
+
+    if correo_usuario:
+        enviar_correo_estado_reporte(
+            correo_usuario,
+            nombre_usuario,
+            reporte,
+            estado,
+            seguimiento,
+            comentario_admin
+        )
+
+    return redirect("/admin/reportes")
+
 @app.route("/admin/reportes/aprobar/<id>", methods=["POST"])
 def aprobar_reporte(id):
 
@@ -506,11 +599,13 @@ def aprobar_reporte(id):
         return redirect("/dashboard")
 
     db.collection("reportes").document(id).update({
-        "aprobado": True
+        "aprobado": True,
+        "estado": "Aprobado",
+        "seguimiento": "Reporte aprobado para la comunidad",
+        "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
     return redirect("/admin/reportes")
-
 
 @app.route("/admin/reportes/rechazar/<id>", methods=["POST"])
 def rechazar_reporte(id):
@@ -522,7 +617,10 @@ def rechazar_reporte(id):
         return redirect("/dashboard")
 
     db.collection("reportes").document(id).update({
-        "aprobado": False
+        "aprobado": False,
+        "estado": "Rechazado",
+        "seguimiento": "Reporte no aprobado para publicación",
+        "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
     return redirect("/admin/reportes")
