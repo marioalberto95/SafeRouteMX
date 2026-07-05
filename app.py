@@ -1027,6 +1027,21 @@ def chatbot_preguntar():
     total_mis_reportes = len(mis_reportes)
 
     # ======================
+    # ESTADOS Y SEGUIMIENTO
+    # ======================
+    reportes_pendientes = sum(1 for r in reportes if r.get("estado", "Pendiente") == "Pendiente")
+    reportes_aprobados = sum(1 for r in reportes if r.get("estado") == "Aprobado" or r.get("aprobado") == True)
+    reportes_rechazados = sum(1 for r in reportes if r.get("estado") == "Rechazado")
+    reportes_seguimiento = sum(1 for r in reportes if r.get("estado") == "En seguimiento")
+    reportes_resueltos = sum(1 for r in reportes if r.get("estado") == "Resuelto")
+
+    mis_pendientes = sum(1 for r in mis_reportes if r.get("estado", "Pendiente") == "Pendiente")
+    mis_aprobados = sum(1 for r in mis_reportes if r.get("estado") == "Aprobado" or r.get("aprobado") == True)
+    mis_rechazados = sum(1 for r in mis_reportes if r.get("estado") == "Rechazado")
+    mis_seguimiento = sum(1 for r in mis_reportes if r.get("estado") == "En seguimiento")
+    mis_resueltos = sum(1 for r in mis_reportes if r.get("estado") == "Resuelto")
+
+    # ======================
     # ANÁLISIS GENERAL
     # ======================
     reportes_alto = sum(1 for r in reportes if r.get("gravedad") == "Alta")
@@ -1070,8 +1085,14 @@ def chatbot_preguntar():
     porcentaje_bajo = round((reportes_bajo / total_reportes) * 100, 1) if total_reportes else 0
 
     respuesta = (
-        "Puedo ayudarte con reportes, mapa, perfil, riesgos, estadísticas, "
-        "zonas peligrosas y recomendaciones de seguridad."
+        "Puedo ayudarte con preguntas específicas de SafeRoute MX.\n\n"
+        "Puedes preguntarme, por ejemplo:\n"
+        "• ¿Cuántos reportes tengo registrados?\n"
+        "• ¿Cuál fue mi último reporte?\n"
+        "• ¿Mi reporte lleva seguimiento?\n"
+        "• ¿Qué zonas debo evitar?\n"
+        "• ¿Cómo puedo reportar un incidente?\n"
+        "• ¿Cómo protege mis datos SafeRoute MX?"
     )
 
     # ======================
@@ -1118,10 +1139,11 @@ def chatbot_preguntar():
             "1. Entra a 'Reportar'.\n"
             "2. Selecciona el tipo de incidente.\n"
             "3. Escribe una descripción clara.\n"
-            "4. Selecciona la ubicación en el mapa.\n"
-            "5. Elige la gravedad.\n"
-            "6. Guarda el reporte.\n\n"
-            "Mientras más clara sea la información, más útil será para otros usuarios."
+            "4. Selecciona la ubicación en el mapa o busca una dirección.\n"
+            "5. Agrega una foto si tienes evidencia del incidente.\n"
+            "6. Elige la gravedad.\n"
+            "7. Guarda el reporte.\n\n"
+            "Después de enviarlo, el reporte queda pendiente para revisión del administrador. Cuando sea aprobado o tenga seguimiento, recibirás una notificación."
         )
 
     elif contiene("como edito", "editar reporte", "modificar reporte", "cambiar reporte"):
@@ -1200,13 +1222,13 @@ def chatbot_preguntar():
         else:
             respuesta = "Todavía no tienes reportes registrados."
 
-    elif contiene("mi zona mas reportada", "donde reporto mas", "zona que mas reporto"):
+    elif contiene("mi zona mas reportada", "donde reporto mas", "zona que mas reporto", "en que zona reporto mas", "zona frecuente", "mi zona frecuente"):
         if mi_zona_mas_reportada:
             respuesta = f"La zona donde más has reportado es {mi_zona_mas_reportada}, con {total_mi_zona_mas_reportada} reportes."
         else:
             respuesta = "Aún no tienes suficientes reportes para identificar tu zona más reportada."
 
-    elif contiene("que tipo reporto mas", "mi incidente mas comun", "que reporto mas"):
+    elif contiene("que tipo reporto mas", "mi incidente mas comun", "que reporto mas", "tipo de incidente reporto mas", "incidente comun"):
         if mi_tipo_mas_comun:
             respuesta = f"El tipo de incidente que más has reportado es {mi_tipo_mas_comun}, con {total_mi_tipo_mas_comun} registros."
         else:
@@ -1224,6 +1246,99 @@ def chatbot_preguntar():
             respuesta += f"\nZona donde más reportas: {mi_zona_mas_reportada}"
         if mi_tipo_mas_comun:
             respuesta += f"\nIncidente que más reportas: {mi_tipo_mas_comun}"
+
+
+    elif contiene("mi nivel de riesgo", "cual es mi nivel de riesgo", "riesgo de mis reportes"):
+        if total_mis_reportes == 0:
+            respuesta = "Aún no puedo calcular tu nivel de riesgo porque no tienes reportes registrados."
+        elif mis_alto > 0:
+            respuesta = (
+                "Tu nivel de riesgo actual es ALTO.\n\n"
+                f"Tienes {mis_alto} reportes de riesgo alto, {mis_medio} de riesgo medio y {mis_bajo} de riesgo bajo.\n\n"
+                "Recomendación: revisa tus zonas frecuentes y evita pasar por lugares donde hayas reportado incidentes graves."
+            )
+        elif mis_medio > 0:
+            respuesta = (
+                "Tu nivel de riesgo actual es MEDIO.\n\n"
+                f"Tienes {mis_medio} reportes de riesgo medio y {mis_bajo} de riesgo bajo.\n\n"
+                "Recomendación: mantente atento y consulta el mapa antes de salir."
+            )
+        else:
+            respuesta = (
+                "Tu nivel de riesgo actual es BAJO.\n\n"
+                f"Tienes {mis_bajo} reportes de riesgo bajo.\n\n"
+                "Aun así, es recomendable seguir revisando el mapa y reportar cualquier incidente importante."
+            )
+
+    elif contiene("estado de mis reportes", "seguimiento de mis reportes", "mis reportes tienen seguimiento", "mi reporte lleva seguimiento", "mi reporte tiene seguimiento"):
+        if total_mis_reportes == 0:
+            respuesta = "Todavía no tienes reportes registrados para consultar seguimiento."
+        else:
+            respuesta = (
+                "Estado de tus reportes:\n\n"
+                f"• Pendientes: {mis_pendientes}\n"
+                f"• Aprobados: {mis_aprobados}\n"
+                f"• Rechazados: {mis_rechazados}\n"
+                f"• En seguimiento: {mis_seguimiento}\n"
+                f"• Resueltos: {mis_resueltos}\n\n"
+                "Puedes revisar el detalle en 'Mis Reportes'. Ahí verás el comentario del administrador si ya fue actualizado."
+            )
+
+    elif contiene("mi reporte fue aprobado", "reporte aprobado", "aprobaron mi reporte", "mi publicacion fue aprobada"):
+        if total_mis_reportes == 0:
+            respuesta = "Aún no tienes reportes registrados."
+        else:
+            respuesta = (
+                f"Tienes {mis_aprobados} reportes aprobados y visibles para la comunidad.\n"
+                f"También tienes {mis_pendientes} pendientes y {mis_rechazados} rechazados."
+            )
+
+    elif contiene("mi reporte fue rechazado", "rechazaron mi reporte", "reporte rechazado"):
+        if mis_rechazados > 0:
+            respuesta = f"Tienes {mis_rechazados} reporte(s) rechazado(s). Revisa 'Mis Reportes' para ver si el administrador dejó un comentario."
+        else:
+            respuesta = "No tienes reportes rechazados actualmente."
+
+    elif contiene("por que no aparece mi reporte", "no veo mi reporte en el mapa", "mi reporte no aparece"):
+        respuesta = (
+            "Tu reporte puede no aparecer en el mapa por estas razones:\n\n"
+            "• Todavía está pendiente de revisión.\n"
+            "• Fue rechazado por el administrador.\n"
+            "• No tiene ubicación válida.\n\n"
+            "Solo los reportes aprobados por el administrador aparecen en la comunidad y en el mapa."
+        )
+
+    elif contiene("como protege mis datos", "privacidad", "mis datos", "datos personales"):
+        respuesta = (
+            "SafeRoute MX protege tu información usando datos mínimos necesarios para el sistema.\n\n"
+            "• Tu contraseña se guarda cifrada.\n"
+            "• Las imágenes se guardan en Cloudinary y en Firestore solo se guarda la URL.\n"
+            "• Los reportes se muestran a la comunidad solo cuando son aprobados.\n"
+            "• El administrador puede revisar reportes para evitar publicaciones falsas o inapropiadas."
+        )
+
+    elif contiene("evitar robos", "como puedo evitar robos", "prevenir robos"):
+        respuesta = (
+            "Consejos para reducir el riesgo de robo:\n\n"
+            "• Evita usar el celular en calles solas.\n"
+            "• Revisa el mapa antes de salir.\n"
+            "• Evita zonas con reportes recientes de robo o asalto.\n"
+            "• Camina por lugares iluminados y transitados.\n"
+            "• Comparte tu ubicación con alguien de confianza.\n"
+            "• Si hay peligro inmediato, llama al 911."
+        )
+
+    elif contiene("caminar seguro", "recomendaciones para caminar", "caminar de noche"):
+        respuesta = (
+            "Para caminar con más seguridad:\n\n"
+            "• Revisa el mapa antes de salir.\n"
+            "• Evita calles oscuras o solas.\n"
+            "• Mantente atento a tu entorno.\n"
+            "• No uses audífonos a volumen alto.\n"
+            "• Si notas una situación sospechosa, cambia de ruta.\n"
+            "• En caso de emergencia, llama al 911."
+        )
+
 
     # ======================
     # ANÁLISIS DE RIESGO
@@ -1351,7 +1466,37 @@ def chatbot_preguntar():
     # ======================
     if rol == "admin":
 
-        if contiene("usuario con mas reportes", "quien reporta mas", "usuario mas activo"):
+        if contiene("cuantos reportes de riesgo alto", "reportes de riesgo alto hay", "riesgo alto hay"):
+            respuesta = f"Actualmente hay {reportes_alto} reportes de riesgo alto en el sistema."
+
+        elif contiene("cuantos reportes de riesgo medio", "reportes de riesgo medio hay", "riesgo medio hay"):
+            respuesta = f"Actualmente hay {reportes_medio} reportes de riesgo medio en el sistema."
+
+        elif contiene("cuantos reportes de riesgo bajo", "reportes de riesgo bajo hay", "riesgo bajo hay"):
+            respuesta = f"Actualmente hay {reportes_bajo} reportes de riesgo bajo en el sistema."
+
+        elif contiene("reportes pendientes", "cuantos pendientes", "pendientes de aprobacion"):
+            respuesta = (
+                "Estado general de reportes:\n\n"
+                f"• Pendientes: {reportes_pendientes}\n"
+                f"• Aprobados: {reportes_aprobados}\n"
+                f"• Rechazados: {reportes_rechazados}\n"
+                f"• En seguimiento: {reportes_seguimiento}\n"
+                f"• Resueltos: {reportes_resueltos}"
+            )
+
+        elif contiene("zona conflictiva", "zona mas conflictiva", "cual es la zona mas conflictiva"):
+            if zona_mas_alta:
+                respuesta = (
+                    f"La zona más conflictiva es {zona_mas_alta}, porque concentra {total_zona_mas_alta} reportes de riesgo alto.\n\n"
+                    "Recomendación administrativa: revisar esos reportes, validar si siguen activos y priorizar seguimiento."
+                )
+            elif zona_mas_reportada:
+                respuesta = f"La zona con más reportes es {zona_mas_reportada}, con {total_zona_mas_reportada} registros."
+            else:
+                respuesta = "Aún no hay reportes suficientes para detectar una zona conflictiva."
+
+        elif contiene("usuario con mas reportes", "quien reporta mas", "usuario mas activo"):
             if usuario_mas_activo:
                 respuesta = (
                     "El usuario con más reportes es:\n\n"
@@ -1365,6 +1510,10 @@ def chatbot_preguntar():
             respuesta = (
                 "Como administrador puedes:\n\n"
                 "• Consultar todos los reportes.\n"
+                "• Aprobar o rechazar reportes.\n"
+                "• Dar seguimiento a reportes.\n"
+                "• Agregar comentarios administrativos.\n"
+                "• Enviar notificaciones al usuario cuando cambia el estado.\n"
                 "• Eliminar reportes inapropiados.\n"
                 "• Ver usuarios registrados.\n"
                 "• Eliminar usuarios.\n"

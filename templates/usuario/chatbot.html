@@ -970,16 +970,6 @@ Privacidad
             .replace(/'/g, "&#039;");
     }
 
-    function formatearRespuesta(texto) {
-    return texto
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/&lt;br&gt;/g, "<br>")
-        .replace(/&lt;br\/&gt;/g, "<br>")
-        .replace(/\n/g, "<br>");
-}
-
     function ocultarBienvenida() {
         if (welcomePanel) {
             welcomePanel.style.display = "none";
