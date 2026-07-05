@@ -115,7 +115,9 @@ db = firestore.client()
 @app.route("/")
 def inicio():
     return render_template("index.html")
-
+# ======================
+# LOGIN
+# ======================
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -163,6 +165,171 @@ def login():
         )
 
     return render_template("login.html")
+# ======================
+# RECUPERAR CONTRASEÑA DESDE LOGIN
+# ======================
+def enviar_correo_recuperacion_password(correo, nombre, codigo):
+    brevo_api_key = os.environ.get("BREVO_API_KEY")
+
+    if not brevo_api_key:
+        print("BREVO_API_KEY no configurada", flush=True)
+        return False
+
+    payload = {
+        "sender": {
+            "name": "SafeRoute MX",
+            "email": app.config["MAIL_DEFAULT_SENDER"]
+        },
+        "to": [
+            {
+                "email": correo,
+                "name": nombre or "Usuario SafeRoute"
+            }
+        ],
+        "subject": "Código para restablecer tu contraseña - SafeRoute MX",
+        "htmlContent": f"""
+            <h2>Hola {nombre or "Usuario SafeRoute"}</h2>
+            <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+            <p>Tu código de verificación es:</p>
+            <h1>{codigo}</h1>
+            <p>Ingresa este código en SafeRoute MX para crear una nueva contraseña.</p>
+            <p>Si tú no solicitaste este cambio, ignora este correo.</p>
+        """
+    }
+
+    try:
+        respuesta = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            },
+            json=payload,
+            timeout=10
+        )
+
+        print("BREVO RECUPERACION STATUS:", respuesta.status_code, flush=True)
+        print("BREVO RECUPERACION RESPONSE:", respuesta.text, flush=True)
+
+        return respuesta.status_code in [200, 201, 202]
+
+    except Exception as e:
+        print("ERROR BREVO RECUPERACION:", e, flush=True)
+        return False
+
+
+@app.route("/recuperar_password", methods=["GET", "POST"])
+def recuperar_password():
+
+    if request.method == "POST":
+        correo = request.form.get("correo", "").strip().lower()
+
+        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
+
+        usuario_doc = None
+        usuario = None
+
+        for doc in usuarios:
+            usuario_doc = doc
+            usuario = doc.to_dict()
+            break
+
+        if not usuario_doc:
+            return render_template(
+                "recuperar_password.html",
+                error="No existe una cuenta registrada con ese correo."
+            )
+
+        codigo = str(random.randint(100000, 999999))
+
+        db.collection("usuarios").document(usuario_doc.id).update({
+            "codigo_recuperacion": codigo
+        })
+
+        session["correo_recuperacion"] = correo
+
+        demo_mode = os.environ.get("DEMO_MODE", "").strip().lower()
+
+        if demo_mode in ["true", "1", "yes", "si"]:
+            return render_template(
+                "restablecer_password.html",
+                codigo_demo=codigo
+            )
+
+        enviado = enviar_correo_recuperacion_password(
+            correo,
+            usuario.get("nombre", "Usuario SafeRoute"),
+            codigo
+        )
+
+        if not enviado:
+            return render_template(
+                "restablecer_password.html",
+                codigo_demo=codigo,
+                error="No se pudo enviar el correo. Usa este código temporalmente."
+            )
+
+        return render_template(
+            "restablecer_password.html",
+            exito="Te enviamos un código a tu correo para restablecer tu contraseña."
+        )
+
+    return render_template("recuperar_password.html")
+
+
+@app.route("/restablecer_password", methods=["GET", "POST"])
+def restablecer_password():
+
+    correo = session.get("correo_recuperacion")
+
+    if not correo:
+        return redirect("/recuperar_password")
+
+    if request.method == "POST":
+        codigo = request.form.get("codigo", "").replace(" ", "").strip()
+        password_nueva = request.form.get("password_nueva", "")
+        password_confirmar = request.form.get("password_confirmar", "")
+
+        patron_password = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$"
+
+        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
+
+        for doc in usuarios:
+            usuario = doc.to_dict()
+
+            if usuario.get("codigo_recuperacion") != codigo:
+                return render_template(
+                    "restablecer_password.html",
+                    error="El código ingresado no es correcto."
+                )
+
+            if not re.match(patron_password, password_nueva):
+                return render_template(
+                    "restablecer_password.html",
+                    error="La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+                )
+
+            if password_nueva != password_confirmar:
+                return render_template(
+                    "restablecer_password.html",
+                    error="Las contraseñas no coinciden."
+                )
+
+            db.collection("usuarios").document(doc.id).update({
+                "password": generate_password_hash(password_nueva),
+                "codigo_recuperacion": ""
+            })
+
+            session.pop("correo_recuperacion", None)
+
+            return render_template(
+                "login.html",
+                exito="Contraseña actualizada correctamente. Ya puedes iniciar sesión."
+            )
+
+    return render_template("restablecer_password.html")
+
 # ======================
 # REGISTRO USUARIO
 # ======================
