@@ -832,6 +832,9 @@ def admin_mapa():
 
     return render_template("admin/mapa.html", reportes=reportes)
 
+# ======================
+# PERFIL
+# ======================
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
 
@@ -865,10 +868,6 @@ def perfil():
         nombre = request.form.get("nombre", "").strip()
         foto = request.files.get("foto")
 
-        password_actual = request.form.get("password_actual")
-        password_nueva = request.form.get("password_nueva")
-        password_confirmar = request.form.get("password_confirmar")
-
         datos_actualizados = {
             "nombre": nombre
         }
@@ -896,34 +895,7 @@ def perfil():
             ruta_foto = resultado.get("secure_url")
 
             datos_actualizados["foto_perfil"] = ruta_foto
-
-        if password_actual or password_nueva or password_confirmar:
-
-            if not password_actual or not password_nueva or not password_confirmar:
-                return render_template(
-                    "usuario/perfil.html",
-                    usuario=usuario,
-                    total_reportes=contar_reportes(),
-                    error="Completa todos los campos para cambiar la contraseña."
-                )
-
-            if not check_password_hash(usuario.get("password", ""), password_actual):
-                return render_template(
-                    "usuario/perfil.html",
-                    usuario=usuario,
-                    total_reportes=contar_reportes(),
-                    error="La contraseña actual no es correcta."
-                )
-
-            if password_nueva != password_confirmar:
-                return render_template(
-                    "usuario/perfil.html",
-                    usuario=usuario,
-                    total_reportes=contar_reportes(),
-                    error="La nueva contraseña no coincide."
-                )
-
-            datos_actualizados["password"] = generate_password_hash(password_nueva)
+            session["foto_perfil"] = ruta_foto
 
         usuario_ref.update(datos_actualizados)
 
@@ -940,6 +912,168 @@ def perfil():
         "usuario/perfil.html",
         usuario=usuario,
         total_reportes=contar_reportes()
+    )
+
+
+def enviar_correo_cambio_password(correo, nombre, codigo):
+    brevo_api_key = os.environ.get("BREVO_API_KEY")
+
+    if not brevo_api_key:
+        print("BREVO_API_KEY no configurada", flush=True)
+        return False
+
+    payload = {
+        "sender": {
+            "name": "SafeRoute MX",
+            "email": app.config["MAIL_DEFAULT_SENDER"]
+        },
+        "to": [
+            {
+                "email": correo,
+                "name": nombre or "Usuario SafeRoute"
+            }
+        ],
+        "subject": "Código para cambiar tu contraseña - SafeRoute MX",
+        "htmlContent": f"""
+            <h2>Hola {nombre or "Usuario SafeRoute"}</h2>
+            <p>Recibimos una solicitud para cambiar la contraseña de tu cuenta.</p>
+            <p>Tu código de verificación es:</p>
+            <h1>{codigo}</h1>
+            <p>Ingresa este código en SafeRoute MX para actualizar tu contraseña.</p>
+            <p>Si tú no solicitaste este cambio, ignora este correo.</p>
+        """
+    }
+
+    try:
+        respuesta = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            },
+            json=payload,
+            timeout=10
+        )
+
+        print("BREVO PASSWORD STATUS:", respuesta.status_code, flush=True)
+        print("BREVO PASSWORD RESPONSE:", respuesta.text, flush=True)
+
+        return respuesta.status_code in [200, 201, 202]
+
+    except Exception as e:
+        print("ERROR BREVO CAMBIO PASSWORD:", e, flush=True)
+        return False
+
+
+@app.route("/perfil/solicitar_cambio_password", methods=["POST"])
+def solicitar_cambio_password():
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect("/logout")
+
+    usuario_ref = db.collection("usuarios").document(user_id)
+    usuario_doc = usuario_ref.get()
+
+    if not usuario_doc.exists:
+        return redirect("/logout")
+
+    usuario = usuario_doc.to_dict()
+    codigo = str(random.randint(100000, 999999))
+
+    usuario_ref.update({
+        "codigo_cambio_password": codigo
+    })
+
+    session["cambio_password_user_id"] = user_id
+
+    demo_mode = os.environ.get("DEMO_MODE", "").strip().lower()
+
+    if demo_mode in ["true", "1", "yes", "si"]:
+        return render_template(
+            "usuario/verificar_cambio_password.html",
+            codigo_demo=codigo
+        )
+
+    enviado = enviar_correo_cambio_password(
+        usuario.get("correo"),
+        usuario.get("nombre"),
+        codigo
+    )
+
+    if not enviado:
+        return render_template(
+            "usuario/verificar_cambio_password.html",
+            codigo_demo=codigo,
+            error="No se pudo enviar el correo. Usa este código temporalmente."
+        )
+
+    return render_template(
+        "usuario/verificar_cambio_password.html",
+        exito="Te enviamos un código a tu correo para cambiar la contraseña."
+    )
+
+
+@app.route("/perfil/cambiar_password", methods=["POST"])
+def cambiar_password_perfil():
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    user_id = session.get("cambio_password_user_id") or session.get("user_id")
+
+    if not user_id:
+        return redirect("/logout")
+
+    codigo = request.form.get("codigo", "").replace(" ", "").strip()
+    password_nueva = request.form.get("password_nueva", "")
+    password_confirmar = request.form.get("password_confirmar", "")
+
+    patron_password = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$"
+
+    usuario_ref = db.collection("usuarios").document(user_id)
+    usuario_doc = usuario_ref.get()
+
+    if not usuario_doc.exists:
+        return redirect("/logout")
+
+    usuario = usuario_doc.to_dict()
+
+    if usuario.get("codigo_cambio_password") != codigo:
+        return render_template(
+            "usuario/verificar_cambio_password.html",
+            error="El código ingresado no es correcto."
+        )
+
+    if not re.match(patron_password, password_nueva):
+        return render_template(
+            "usuario/verificar_cambio_password.html",
+            error="La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+        )
+
+    if password_nueva != password_confirmar:
+        return render_template(
+            "usuario/verificar_cambio_password.html",
+            error="Las contraseñas no coinciden."
+        )
+
+    usuario_ref.update({
+        "password": generate_password_hash(password_nueva),
+        "codigo_cambio_password": ""
+    })
+
+    session.pop("cambio_password_user_id", None)
+
+    return render_template(
+        "usuario/perfil.html",
+        usuario=usuario_ref.get().to_dict(),
+        total_reportes=len(list(db.collection("reportes").where("usuario", "==", session.get("usuario")).stream())),
+        exito="Contraseña actualizada correctamente."
     )
 @app.route("/chatbot")
 def chatbot():

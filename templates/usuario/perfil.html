@@ -412,33 +412,24 @@
                     <div class="security-box">
                         <strong>
                             <i class="fa-solid fa-key me-1"></i>
-                            Cambiar contraseña
+                            Cambiar contraseña con verificación por correo
                         </strong><br>
                         <small class="text-muted">
-                            Llena estos campos solo si deseas actualizar tu contraseña.
+                            Para proteger tu cuenta, SafeRoute MX enviará un código a tu correo antes de permitir cambiar la contraseña.
                         </small>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Contraseña actual</label>
-                        <input type="password"
-                               name="password_actual"
-                               class="form-control">
-                    </div>
+                    <button type="submit"
+                            formaction="/perfil/solicitar_cambio_password"
+                            formmethod="POST"
+                            class="btn btn-outline-danger w-100 btn-custom">
+                        <i class="fa-solid fa-envelope-circle-check me-2"></i>
+                        Enviar código para cambiar contraseña
+                    </button>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nueva contraseña</label>
-                        <input type="password"
-                               name="password_nueva"
-                               class="form-control">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Confirmar nueva contraseña</label>
-                        <input type="password"
-                               name="password_confirmar"
-                               class="form-control">
-                    </div>
+                    <small class="small-help d-block mt-2">
+                        Recibirás un código en tu correo registrado: <strong>{{ usuario.correo }}</strong>
+                    </small>
                 </div>
 
                 <div class="section-card">
