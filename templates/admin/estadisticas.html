@@ -36,31 +36,73 @@
         }
 
         .admin-hero {
-            background: linear-gradient(135deg, #dc3545, #8f1d2b);
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,.26), transparent 24%),
+                linear-gradient(135deg, #dc3545, #8f1d2b);
             color: white;
-            border-radius: 25px;
+            border-radius: 28px;
             padding: 34px;
-            box-shadow: 0 10px 28px rgba(220,53,69,.25);
+            box-shadow: 0 12px 32px rgba(220,53,69,.28);
             animation: fadeUp .7s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-hero::after {
+            content: "";
+            position: absolute;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.10);
+            right: -45px;
+            bottom: -55px;
         }
 
         .admin-hero h2 {
             font-weight: 900;
         }
 
+        .hero-actions {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-pill {
+            border: 1px solid rgba(255,255,255,.35);
+            background: rgba(255,255,255,.16);
+            color: white;
+            border-radius: 30px;
+            padding: 9px 14px;
+            font-weight: 800;
+            display: inline-block;
+        }
+
         .stat-card, .panel-card {
             background: white;
-            border-radius: 22px;
-            padding: 26px;
+            border-radius: 24px;
+            padding: 24px;
             box-shadow: 0 8px 22px rgba(0,0,0,.08);
             height: 100%;
             animation: fadeUp .7s ease;
         }
 
         .stat-card {
-            text-align: center;
             transition: .3s;
             border-top: 6px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.04);
         }
 
         .stat-card:hover {
@@ -68,20 +110,41 @@
             box-shadow: 0 12px 28px rgba(0,0,0,.13);
         }
 
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
         .stat-icon {
-            width: 66px;
-            height: 66px;
+            width: 58px;
+            height: 58px;
             border-radius: 18px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 auto 14px;
-            font-size: 30px;
+            font-size: 27px;
+            flex-shrink: 0;
         }
 
         .number {
-            font-size: 44px;
+            font-size: 40px;
             font-weight: 900;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-weight: 900;
+            color: #222;
+            margin-top: 16px;
+            margin-bottom: 4px;
+        }
+
+        .stat-small {
+            color: #6c757d;
+            font-size: 14px;
+            margin: 0;
         }
 
         .total-card { border-top-color: #0d6efd; }
@@ -104,9 +167,14 @@
             color: #222;
         }
 
+        .panel-subtitle {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
         .risk-row {
             background: #f8f9fa;
-            border-radius: 15px;
+            border-radius: 16px;
             padding: 15px;
             margin-bottom: 12px;
             border-left: 6px solid #dc3545;
@@ -120,13 +188,90 @@
             border-left-color: #198754;
         }
 
+        .progress {
+            height: 11px;
+            border-radius: 20px;
+            background: #eceff3;
+        }
+
+        .progress-bar {
+            border-radius: 20px;
+        }
+
         .chart-box {
-            height: 320px;
+            height: 330px;
+        }
+
+        .mini-chart-box {
+            height: 260px;
+        }
+
+        .insight-card {
+            background: #f8f9fa;
+            border-radius: 18px;
+            padding: 18px;
+            border-left: 6px solid #dc3545;
+            height: 100%;
+        }
+
+        .insight-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 20px;
         }
 
         .empty-box {
             border-radius: 16px;
             padding: 18px;
+        }
+
+        .admin-table {
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .quick-link {
+            border-radius: 14px;
+            font-weight: 800;
+        }
+
+        body.dark .stat-card,
+        body.dark .panel-card,
+        body.dark .risk-row,
+        body.dark .insight-card {
+            background: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .stat-label,
+        body.dark .panel-title {
+            color: #ffffff !important;
+        }
+
+        body.dark .stat-small,
+        body.dark .panel-subtitle {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .table {
+            color: #ffffff;
         }
 
         @keyframes fadeUp {
@@ -152,11 +297,15 @@
             }
 
             .number {
-                font-size: 36px;
+                font-size: 34px;
             }
 
             .chart-box {
-                height: 280px;
+                height: 290px;
+            }
+
+            .mini-chart-box {
+                height: 240px;
             }
         }
     </style>
@@ -176,6 +325,16 @@
                 <i class="fa-solid fa-moon"></i>
             </button>
 
+            <a href="/admin/mapa" class="btn btn-outline-light btn-sm fw-bold">
+                <i class="fa-solid fa-map-location-dot me-1"></i>
+                Mapa
+            </a>
+
+            <a href="/admin/reportes" class="btn btn-outline-light btn-sm fw-bold">
+                <i class="fa-solid fa-file-lines me-1"></i>
+                Reportes
+            </a>
+
             <a href="/admin" class="btn btn-light btn-sm text-danger fw-bold">
                 <i class="fa-solid fa-arrow-left me-1"></i>
                 Volver
@@ -184,74 +343,103 @@
     </div>
 </nav>
 
-<div class="container my-4">
+<div class="container-fluid px-3 px-lg-4 my-4">
 
     <div class="admin-hero mb-4">
-        <h2>
-            <i class="fa-solid fa-chart-pie me-2"></i>
-            Centro de Estadísticas
-        </h2>
-        <p class="mb-0">
-            Análisis administrativo de reportes, niveles de riesgo y comportamiento del sistema.
-        </p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2>
+                    <i class="fa-solid fa-chart-pie me-2"></i>
+                    Centro de Inteligencia Estadística
+                </h2>
+                <p class="mb-0">
+                    Panel administrativo para analizar riesgos, comportamiento de reportes y prioridades de seguimiento.
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <span class="hero-pill">
+                    <i class="fa-solid fa-user-shield me-1"></i>
+                    Vista administrativa
+                </span>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 mb-4">
 
-        <div class="col-12 col-md-6 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="stat-card total-card">
-                <div class="stat-icon icon-total">
-                    <i class="fa-solid fa-clipboard-list"></i>
+                <div class="stat-top">
+                    <div class="stat-icon icon-total">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <div class="number total">{{ total_reportes }}</div>
                 </div>
-                <div class="number total">{{ total_reportes }}</div>
-                <h5 class="mt-3 fw-bold">Total reportes</h5>
-                <p class="text-muted mb-0">Incidentes registrados</p>
+                <h5 class="stat-label">Total reportes</h5>
+                <p class="stat-small">Incidentes registrados en el sistema</p>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="stat-card alto-card">
-                <div class="stat-icon icon-alto">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="stat-top">
+                    <div class="stat-icon icon-alto">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="number alto">{{ riesgo_alto }}</div>
                 </div>
-                <div class="number alto">{{ riesgo_alto }}</div>
-                <h5 class="mt-3 fw-bold">Riesgo alto</h5>
-                <p class="text-muted mb-0">Casos críticos</p>
+                <h5 class="stat-label">Riesgo alto</h5>
+                <p class="stat-small">Casos críticos que requieren prioridad</p>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="stat-card medio-card">
-                <div class="stat-icon icon-medio">
-                    <i class="fa-solid fa-circle-exclamation"></i>
+                <div class="stat-top">
+                    <div class="stat-icon icon-medio">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <div class="number medio">{{ riesgo_medio }}</div>
                 </div>
-                <div class="number medio">{{ riesgo_medio }}</div>
-                <h5 class="mt-3 fw-bold">Riesgo medio</h5>
-                <p class="text-muted mb-0">Casos moderados</p>
+                <h5 class="stat-label">Riesgo medio</h5>
+                <p class="stat-small">Casos moderados para seguimiento</p>
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <div class="stat-card bajo-card">
-                <div class="stat-icon icon-bajo">
-                    <i class="fa-solid fa-shield-halved"></i>
+                <div class="stat-top">
+                    <div class="stat-icon icon-bajo">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="number bajo">{{ riesgo_bajo }}</div>
                 </div>
-                <div class="number bajo">{{ riesgo_bajo }}</div>
-                <h5 class="mt-3 fw-bold">Riesgo bajo</h5>
-                <p class="text-muted mb-0">Casos leves</p>
+                <h5 class="stat-label">Riesgo bajo</h5>
+                <p class="stat-small">Reportes de menor gravedad</p>
             </div>
         </div>
 
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
 
-        <div class="col-12 col-lg-7">
+        <div class="col-12 col-xl-7">
             <div class="panel-card">
-                <h4 class="panel-title mb-3">
-                    <i class="fa-solid fa-chart-simple text-danger me-2"></i>
-                    Gráfica de riesgos
-                </h4>
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                    <div>
+                        <h4 class="panel-title mb-1">
+                            <i class="fa-solid fa-chart-simple text-danger me-2"></i>
+                            Distribución de riesgos
+                        </h4>
+                        <p class="panel-subtitle mb-0">
+                            Comparación general entre reportes de riesgo alto, medio y bajo.
+                        </p>
+                    </div>
+                    <span class="badge bg-danger rounded-pill p-2">
+                        {{ total_reportes }} reportes
+                    </span>
+                </div>
 
                 {% if total_reportes > 0 %}
                     <div class="chart-box">
@@ -265,42 +453,54 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-xl-5">
             <div class="panel-card">
-                <h4 class="panel-title mb-3">
+                <h4 class="panel-title mb-1">
                     <i class="fa-solid fa-shield text-danger me-2"></i>
-                    Resumen administrativo
+                    Resumen operativo
                 </h4>
+                <p class="panel-subtitle mb-3">
+                    Lectura rápida para toma de decisiones administrativas.
+                </p>
 
                 {% if total_reportes > 0 %}
 
                     <div class="risk-row">
-                        <div class="d-flex justify-content-between gap-3">
+                        <div class="d-flex justify-content-between gap-3 mb-2">
                             <strong>
                                 <i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>
                                 Riesgo alto
                             </strong>
                             <span>{{ riesgo_alto }} reportes</span>
                         </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" id="barAlto"></div>
+                        </div>
                     </div>
 
                     <div class="risk-row media-row">
-                        <div class="d-flex justify-content-between gap-3">
+                        <div class="d-flex justify-content-between gap-3 mb-2">
                             <strong>
                                 <i class="fa-solid fa-circle-exclamation text-warning me-1"></i>
                                 Riesgo medio
                             </strong>
                             <span>{{ riesgo_medio }} reportes</span>
                         </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" id="barMedio"></div>
+                        </div>
                     </div>
 
                     <div class="risk-row baja-row">
-                        <div class="d-flex justify-content-between gap-3">
+                        <div class="d-flex justify-content-between gap-3 mb-2">
                             <strong>
                                 <i class="fa-solid fa-shield-halved text-success me-1"></i>
                                 Riesgo bajo
                             </strong>
                             <span>{{ riesgo_bajo }} reportes</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" id="barBajo"></div>
                         </div>
                     </div>
 
@@ -314,10 +514,139 @@
 
                 <hr>
 
-                <p class="text-muted mb-0">
-                    Esta sección ayuda al administrador a detectar si predominan zonas críticas,
-                    moderadas o seguras dentro del sistema SafeRoute MX.
+                <div class="d-grid gap-2">
+                    <a href="/admin/reportes" class="btn btn-danger quick-link">
+                        <i class="fa-solid fa-file-pen me-1"></i>
+                        Gestionar reportes
+                    </a>
+                    <a href="/admin/mapa" class="btn btn-outline-danger quick-link">
+                        <i class="fa-solid fa-map-location-dot me-1"></i>
+                        Ver mapa administrativo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-lg-4">
+            <div class="insight-card">
+                <div class="insight-icon">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+                <h5 class="fw-bold">Prioridad sugerida</h5>
+                {% if total_reportes == 0 %}
+                    <p class="mb-0 text-muted">Aún no hay datos suficientes para generar una prioridad.</p>
+                {% elif riesgo_alto >= riesgo_medio and riesgo_alto >= riesgo_bajo %}
+                    <p class="mb-0">Prioriza los reportes de <strong>riesgo alto</strong> y revisa si requieren seguimiento inmediato.</p>
+                {% elif riesgo_medio >= riesgo_alto and riesgo_medio >= riesgo_bajo %}
+                    <p class="mb-0">Predominan los reportes de <strong>riesgo medio</strong>. Conviene monitorear tendencias y zonas repetidas.</p>
+                {% else %}
+                    <p class="mb-0">Predominan reportes de <strong>riesgo bajo</strong>. Mantén monitoreo preventivo.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="insight-card">
+                <div class="insight-icon">
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+                <h5 class="fw-bold">Lectura administrativa</h5>
+                <p class="mb-0">
+                    Usa estas estadísticas para decidir qué reportes aprobar, cuáles dar seguimiento y qué zonas conviene revisar en el mapa.
                 </p>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="insight-card">
+                <div class="insight-icon">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                </div>
+                <h5 class="fw-bold">Comunicación al usuario</h5>
+                <p class="mb-0">
+                    Cuando actualices el estado de un reporte, el usuario puede recibir una notificación con el seguimiento correspondiente.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-12 col-xl-6">
+            <div class="panel-card">
+                <h4 class="panel-title mb-1">
+                    <i class="fa-solid fa-chart-column text-danger me-2"></i>
+                    Comparativa por nivel
+                </h4>
+                <p class="panel-subtitle mb-3">
+                    Vista alternativa para comparar cantidades de reportes.
+                </p>
+
+                {% if total_reportes > 0 %}
+                    <div class="mini-chart-box">
+                        <canvas id="graficaBarras"></canvas>
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary empty-box">
+                        Aún no hay datos suficientes.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-6">
+            <div class="panel-card">
+                <h4 class="panel-title mb-1">
+                    <i class="fa-solid fa-table-list text-danger me-2"></i>
+                    Tabla ejecutiva
+                </h4>
+                <p class="panel-subtitle mb-3">
+                    Resumen numérico para revisión rápida.
+                </p>
+
+                {% if total_reportes > 0 %}
+                    <div class="table-responsive admin-table">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nivel</th>
+                                    <th>Reportes</th>
+                                    <th>Porcentaje</th>
+                                    <th>Acción sugerida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-danger">Alto</span></td>
+                                    <td>{{ riesgo_alto }}</td>
+                                    <td id="pctAltoTabla">0%</td>
+                                    <td>Atención prioritaria</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">Medio</span></td>
+                                    <td>{{ riesgo_medio }}</td>
+                                    <td id="pctMedioTabla">0%</td>
+                                    <td>Monitoreo frecuente</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-success">Bajo</span></td>
+                                    <td>{{ riesgo_bajo }}</td>
+                                    <td id="pctBajoTabla">0%</td>
+                                    <td>Seguimiento preventivo</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-secondary empty-box">
+                        Aún no hay reportes registrados.
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -335,6 +664,31 @@
     const riesgoMedio = Number("{{ riesgo_medio }}");
     const riesgoBajo = Number("{{ riesgo_bajo }}");
 
+    function porcentaje(valor) {
+        if (totalReportes <= 0) return 0;
+        return Math.round((valor / totalReportes) * 100);
+    }
+
+    const pctAlto = porcentaje(riesgoAlto);
+    const pctMedio = porcentaje(riesgoMedio);
+    const pctBajo = porcentaje(riesgoBajo);
+
+    const barAlto = document.getElementById("barAlto");
+    const barMedio = document.getElementById("barMedio");
+    const barBajo = document.getElementById("barBajo");
+
+    if (barAlto) barAlto.style.width = pctAlto + "%";
+    if (barMedio) barMedio.style.width = pctMedio + "%";
+    if (barBajo) barBajo.style.width = pctBajo + "%";
+
+    const pctAltoTabla = document.getElementById("pctAltoTabla");
+    const pctMedioTabla = document.getElementById("pctMedioTabla");
+    const pctBajoTabla = document.getElementById("pctBajoTabla");
+
+    if (pctAltoTabla) pctAltoTabla.textContent = pctAlto + "%";
+    if (pctMedioTabla) pctMedioTabla.textContent = pctMedio + "%";
+    if (pctBajoTabla) pctBajoTabla.textContent = pctBajo + "%";
+
     if (totalReportes > 0) {
         const ctx = document.getElementById("graficaRiesgos");
 
@@ -349,8 +703,54 @@
                         "#ffc107",
                         "#198754"
                     ],
-                    borderWidth: 3,
-                    borderColor: "#ffffff"
+                    borderWidth: 4,
+                    borderColor: "#ffffff",
+                    hoverOffset: 14
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "62%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            usePointStyle: true,
+                            padding: 18,
+                            font: {
+                                weight: "bold"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const valor = context.raw;
+                                const pct = porcentaje(valor);
+                                return ` ${context.label}: ${valor} reportes (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctxBar = document.getElementById("graficaBarras");
+
+        new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: ["Alto", "Medio", "Bajo"],
+                datasets: [{
+                    label: "Reportes",
+                    data: [riesgoAlto, riesgoMedio, riesgoBajo],
+                    backgroundColor: [
+                        "#dc3545",
+                        "#ffc107",
+                        "#198754"
+                    ],
+                    borderRadius: 14
                 }]
             },
             options: {
@@ -358,7 +758,15 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: "bottom"
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
                     }
                 }
             }
