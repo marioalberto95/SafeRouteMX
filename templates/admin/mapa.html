@@ -38,12 +38,13 @@
         }
 
         .hero-card {
-            background: white;
-            border-radius: 22px;
+            background: linear-gradient(135deg, #ffffff, #fff7f7);
+            border-radius: 24px;
             padding: 26px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             margin-bottom: 20px;
             animation: fadeUp .7s ease;
+            border-left: 8px solid #dc3545;
         }
 
         .title {
@@ -56,15 +57,34 @@
             margin-bottom: 0;
         }
 
+        .admin-badge {
+            border-radius: 30px;
+            padding: 9px 14px;
+            font-weight: 800;
+        }
+
         .stats-box {
             border-radius: 20px;
-            padding: 24px;
+            padding: 22px;
             background: white;
             text-align: center;
             font-weight: bold;
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
             transition: 0.3s ease;
             min-height: 125px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-box::after {
+            content: "";
+            position: absolute;
+            right: -22px;
+            bottom: -22px;
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.04);
         }
 
         .stats-box:hover {
@@ -73,7 +93,7 @@
         }
 
         .icon-risk {
-            font-size: 32px;
+            font-size: 30px;
             display: block;
             margin-bottom: 8px;
         }
@@ -102,18 +122,120 @@
             color: #198754;
         }
 
+        .total {
+            border-top: 5px solid #0d6efd;
+            color: #0d6efd;
+        }
+
+        .pendiente {
+            border-top: 5px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .seguimiento {
+            border-top: 5px solid #6610f2;
+            color: #6610f2;
+        }
+
+        .admin-panel {
+            background: white;
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+            height: 100%;
+            animation: fadeUp .8s ease;
+        }
+
+        .panel-title {
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 14px;
+        }
+
+        .filter-box {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 14px;
+            border-left: 5px solid #dc3545;
+            margin-bottom: 14px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: #555;
+            margin-bottom: 7px;
+        }
+
+        .form-select,
+        .form-control {
+            border-radius: 13px;
+        }
+
+        .admin-list {
+            max-height: 330px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .admin-report-item {
+            border: 1px solid #eee;
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #fbfbfb;
+            cursor: pointer;
+            transition: .25s ease;
+        }
+
+        .admin-report-item:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,.08);
+            border-color: rgba(220,53,69,.25);
+        }
+
+        .admin-report-item strong {
+            color: #222;
+        }
+
+        .small-muted {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
         .map-card {
             background: white;
             padding: 16px;
             border-radius: 22px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.12);
             animation: fadeUp .8s ease;
+            position: relative;
         }
 
         #map {
             height: 72vh;
             width: 100%;
             border-radius: 16px;
+        }
+
+        .map-toolbar {
+            position: absolute;
+            z-index: 500;
+            top: 26px;
+            left: 26px;
+            background: rgba(255,255,255,.96);
+            border-radius: 16px;
+            padding: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.18);
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            border-radius: 12px;
+            font-weight: 800;
         }
 
         .legend {
@@ -125,8 +247,51 @@
             line-height: 1.7;
         }
 
+        .popup-img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .admin-popup-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #222;
+        }
+
         .fade-up {
             animation: fadeUp 0.8s ease;
+        }
+
+        body.dark .hero-card,
+        body.dark .stats-box,
+        body.dark .admin-panel,
+        body.dark .map-card,
+        body.dark .legend,
+        body.dark .map-toolbar {
+            background: #1f1f1f !important;
+            color: white !important;
+        }
+
+        body.dark .title,
+        body.dark .panel-title,
+        body.dark .admin-report-item strong {
+            color: white !important;
+        }
+
+        body.dark .subtitle,
+        body.dark .small-muted {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .filter-box,
+        body.dark .admin-report-item {
+            background: #2b2b2b !important;
+            border-color: #444 !important;
+            color: white !important;
         }
 
         @keyframes fadeUp {
@@ -137,6 +302,16 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 992px) {
+            #map {
+                height: 65vh;
+            }
+
+            .admin-list {
+                max-height: 260px;
             }
         }
 
@@ -162,6 +337,13 @@
             .navbar .container {
                 flex-direction: column;
                 gap: 10px;
+            }
+
+            .map-toolbar {
+                position: static;
+                margin-bottom: 12px;
+                box-shadow: none;
+                justify-content: center;
             }
         }
 
@@ -196,6 +378,11 @@
                 <i class="fa-solid fa-moon"></i>
             </button>
 
+            <a href="/admin/reportes" class="btn btn-outline-light btn-sm fw-bold">
+                <i class="fa-solid fa-file-lines me-1"></i>
+                Reportes
+            </a>
+
             <a href="/admin" class="btn btn-light btn-sm text-danger fw-bold">
                 <i class="fa-solid fa-arrow-left me-1"></i>
                 Panel Admin
@@ -205,19 +392,38 @@
     </div>
 </nav>
 
-<div class="container my-4">
+<div class="container-fluid px-3 px-lg-4 my-4">
 
     <div class="hero-card fade-up">
-        <h3 class="title">
-            <i class="fa-solid fa-map-location-dot text-danger me-2"></i>
-            Mapa general de reportes
-        </h3>
-        <p class="subtitle">Visualización general de todos los reportes registrados en el sistema.</p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="title mb-1">
+                    <i class="fa-solid fa-map-location-dot text-danger me-2"></i>
+                    Centro de monitoreo de reportes
+                </h3>
+                <p class="subtitle">
+                    Vista administrativa para revisar zonas críticas, estados de aprobación y seguimiento de incidentes.
+                </p>
+            </div>
+
+            <span class="badge bg-danger admin-badge">
+                <i class="fa-solid fa-user-shield me-1"></i>
+                Modo administrador
+            </span>
+        </div>
     </div>
 
     <div class="row g-4 mb-4 fade-up">
 
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-box total">
+                <span class="icon-risk"><i class="fa-solid fa-database"></i></span>
+                <div class="risk-number" id="totalCount">0</div>
+                <div class="risk-text">Reportes</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="stats-box alto">
                 <span class="icon-risk"><i class="fa-solid fa-triangle-exclamation"></i></span>
                 <div class="risk-number" id="altoCount">0</div>
@@ -225,7 +431,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="stats-box medio">
                 <span class="icon-risk"><i class="fa-solid fa-circle-exclamation"></i></span>
                 <div class="risk-number" id="medioCount">0</div>
@@ -233,7 +439,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="stats-box bajo">
                 <span class="icon-risk"><i class="fa-solid fa-shield-halved"></i></span>
                 <div class="risk-number" id="bajoCount">0</div>
@@ -241,10 +447,116 @@
             </div>
         </div>
 
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-box pendiente">
+                <span class="icon-risk"><i class="fa-solid fa-clock"></i></span>
+                <div class="risk-number" id="pendienteCount">0</div>
+                <div class="risk-text">Pendientes</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stats-box seguimiento">
+                <span class="icon-risk"><i class="fa-solid fa-route"></i></span>
+                <div class="risk-number" id="seguimientoCount">0</div>
+                <div class="risk-text">Seguimiento</div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="map-card fade-up">
-        <div id="map"></div>
+    <div class="row g-4">
+        <div class="col-12 col-xl-3">
+            <div class="admin-panel">
+
+                <h5 class="panel-title">
+                    <i class="fa-solid fa-sliders text-danger me-2"></i>
+                    Controles administrativos
+                </h5>
+
+                <div class="filter-box">
+                    <div class="filter-label">
+                        <i class="fa-solid fa-gauge-high me-1"></i>
+                        Filtrar por gravedad
+                    </div>
+                    <select id="filtroGravedad" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+
+                <div class="filter-box">
+                    <div class="filter-label">
+                        <i class="fa-solid fa-list-check me-1"></i>
+                        Filtrar por estado
+                    </div>
+                    <select id="filtroEstado" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="En seguimiento">En seguimiento</option>
+                        <option value="Resuelto">Resuelto</option>
+                    </select>
+                </div>
+
+                <div class="filter-box">
+                    <div class="filter-label">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        Buscar por ubicación o tipo
+                    </div>
+                    <input type="text" id="buscarReporte" class="form-control" placeholder="Ej. robo, centro, avenida...">
+                </div>
+
+                <div class="d-grid gap-2 mb-3">
+                    <button class="btn btn-danger btn-sm fw-bold" onclick="aplicarFiltros()">
+                        <i class="fa-solid fa-filter me-1"></i>
+                        Aplicar filtros
+                    </button>
+
+                    <button class="btn btn-outline-secondary btn-sm fw-bold" onclick="limpiarFiltros()">
+                        <i class="fa-solid fa-rotate-right me-1"></i>
+                        Limpiar filtros
+                    </button>
+                </div>
+
+                <hr>
+
+                <h6 class="fw-bold mb-3">
+                    <i class="fa-solid fa-bell text-danger me-1"></i>
+                    Últimos reportes visibles
+                </h6>
+
+                <div class="admin-list" id="listaReportesAdmin"></div>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-9">
+            <div class="map-card fade-up">
+
+                <div class="map-toolbar">
+                    <button class="btn btn-danger btn-sm toolbar-btn" onclick="centrarMapa()">
+                        <i class="fa-solid fa-location-crosshairs me-1"></i>
+                        Centrar
+                    </button>
+
+                    <button class="btn btn-outline-danger btn-sm toolbar-btn" onclick="mostrarSoloAlta()">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                        Solo riesgo alto
+                    </button>
+
+                    <a href="/admin/reportes" class="btn btn-outline-dark btn-sm toolbar-btn">
+                        <i class="fa-solid fa-file-pen me-1"></i>
+                        Gestionar reportes
+                    </a>
+                </div>
+
+                <div id="map"></div>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -262,6 +574,10 @@
 
     var reportes = JSON.parse('{{ reportes | tojson | safe | replace("\n", "") | replace("\r", "") }}');
 
+    var markerGroup = L.layerGroup().addTo(map);
+    var bounds = [];
+    var markersPorId = {};
+
     function getColor(gravedad) {
         if (gravedad === "Alta") return "#dc3545";
         if (gravedad === "Media") return "#ffc107";
@@ -274,97 +590,260 @@
         return "fa-shield-halved";
     }
 
-    let alto = 0;
-    let medio = 0;
-    let bajo = 0;
+    function getEstado(r) {
+        if (r.estado) return r.estado;
+        if (r.aprobado === true) return "Aprobado";
+        return "Pendiente";
+    }
 
-    reportes.forEach(function(r) {
-        if (r.gravedad === "Alta") alto++;
-        else if (r.gravedad === "Media") medio++;
-        else bajo++;
+    function limpiarTexto(valor) {
+        if (!valor) return "";
+        return String(valor).toLowerCase();
+    }
 
-        if (r.latitud && r.longitud) {
+    function getBadgeEstado(estado) {
+        if (estado === "Aprobado") return "success";
+        if (estado === "Rechazado") return "danger";
+        if (estado === "En seguimiento") return "primary";
+        if (estado === "Resuelto") return "dark";
+        return "warning";
+    }
 
-            var pulseCircle = L.circle([r.latitud, r.longitud], {
-                radius: 40,
-                color: getColor(r.gravedad),
-                fillColor: getColor(r.gravedad),
-                fillOpacity: 0.12,
-                opacity: 0.8,
-                weight: 1
-            }).addTo(map);
+    function renderizarMapa(lista) {
+        markerGroup.clearLayers();
+        bounds = [];
+        markersPorId = {};
 
-            var circle = L.circleMarker([r.latitud, r.longitud], {
-                radius: 10,
-                color: getColor(r.gravedad),
-                fillColor: getColor(r.gravedad),
-                fillOpacity: 0.9,
-                weight: 3
-            }).addTo(map);
+        lista.forEach(function(r) {
+            if (r.latitud && r.longitud) {
 
-            let radius = 40;
-            let grow = true;
+                var pulseCircle = L.circle([r.latitud, r.longitud], {
+                    radius: 40,
+                    color: getColor(r.gravedad),
+                    fillColor: getColor(r.gravedad),
+                    fillOpacity: 0.12,
+                    opacity: 0.8,
+                    weight: 1
+                }).addTo(markerGroup);
 
-            setInterval(() => {
+                var circle = L.circleMarker([r.latitud, r.longitud], {
+                    radius: 10,
+                    color: getColor(r.gravedad),
+                    fillColor: getColor(r.gravedad),
+                    fillOpacity: 0.9,
+                    weight: 3
+                }).addTo(markerGroup);
 
-                radius += 18;
+                let radius = 40;
+                let grow = true;
 
-                pulseCircle.setRadius(radius);
+                setInterval(() => {
+                    radius += 18;
 
-                pulseCircle.setStyle({
-                    opacity: 1 - (radius / 260),
-                    fillOpacity: 0.16 - (radius / 2200)
-                });
+                    pulseCircle.setRadius(radius);
 
-                if (radius > 250) {
-                    radius = 40;
-                }
+                    pulseCircle.setStyle({
+                        opacity: 1 - (radius / 260),
+                        fillOpacity: 0.16 - (radius / 2200)
+                    });
 
-                if (grow) {
-                    circle.setRadius(16);
-                    circle.setStyle({ fillOpacity: 1, opacity: 1 });
-                } else {
-                    circle.setRadius(9);
-                    circle.setStyle({ fillOpacity: 0.55, opacity: 0.75 });
-                }
+                    if (radius > 250) {
+                        radius = 40;
+                    }
 
-                grow = !grow;
+                    if (grow) {
+                        circle.setRadius(16);
+                        circle.setStyle({ fillOpacity: 1, opacity: 1 });
+                    } else {
+                        circle.setRadius(9);
+                        circle.setStyle({ fillOpacity: 0.55, opacity: 0.75 });
+                    }
 
-            }, 450);
+                    grow = !grow;
+                }, 450);
 
-            circle.bindPopup(`
-                <div style="font-family:Arial; font-size:14px; min-width:210px;">
-                    <b style="font-size:16px;">
-                        <i class="fa-solid ${getIcon(r.gravedad)}"></i> ${r.tipo || "Reporte"}
-                    </b><br><br>
-                    <i class="fa-solid fa-location-dot"></i> <b>Ubicación:</b> ${r.ubicacion || "Sin ubicación"}<br>
-                    <i class="fa-solid fa-calendar-days"></i> <b>Fecha:</b> ${r.fecha || "Sin fecha"}<br>
-                    <i class="fa-solid fa-gauge-high"></i> <b>Gravedad:</b> ${r.gravedad || "Sin gravedad"}<br>
-                    <hr>
-                    <i class="fa-solid fa-align-left"></i> ${r.descripcion || "Sin descripción"}
+                var estado = getEstado(r);
+                var foto = r.foto_reporte ? `<img src="${r.foto_reporte}" class="popup-img">` : "";
+
+                circle.bindPopup(`
+                    <div style="font-family:Arial; font-size:14px; min-width:250px;">
+                        <div class="admin-popup-title">
+                            <i class="fa-solid ${getIcon(r.gravedad)}" style="color:${getColor(r.gravedad)};"></i>
+                            ${r.tipo || "Reporte"}
+                        </div>
+
+                        ${foto}
+
+                        <span class="badge bg-${getBadgeEstado(estado)} mb-2">${estado}</span><br>
+
+                        <i class="fa-solid fa-location-dot"></i> <b>Ubicación:</b> ${r.ubicacion || "Sin ubicación"}<br>
+                        <i class="fa-solid fa-calendar-days"></i> <b>Fecha:</b> ${r.fecha || "Sin fecha"}<br>
+                        <i class="fa-solid fa-gauge-high"></i> <b>Gravedad:</b> ${r.gravedad || "Sin gravedad"}<br>
+                        <i class="fa-solid fa-user"></i> <b>Usuario:</b> ${r.usuario || "Sin usuario"}<br>
+                        <i class="fa-solid fa-route"></i> <b>Seguimiento:</b> ${r.seguimiento || "Sin seguimiento"}<br>
+
+                        <hr>
+                        <i class="fa-solid fa-align-left"></i> ${r.descripcion || "Sin descripción"}
+
+                        <hr>
+                        <a href="/admin/reportes" class="btn btn-danger btn-sm w-100">
+                            <i class="fa-solid fa-file-pen me-1"></i>
+                            Gestionar en panel
+                        </a>
+                    </div>
+                `);
+
+                bounds.push([r.latitud, r.longitud]);
+                markersPorId[r.id] = circle;
+            }
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [30, 30] });
+        }
+    }
+
+    function actualizarEstadisticas(lista) {
+        let alto = 0;
+        let medio = 0;
+        let bajo = 0;
+        let pendiente = 0;
+        let seguimiento = 0;
+
+        lista.forEach(function(r) {
+            if (r.gravedad === "Alta") alto++;
+            else if (r.gravedad === "Media") medio++;
+            else bajo++;
+
+            let estado = getEstado(r);
+
+            if (estado === "Pendiente") pendiente++;
+            if (estado === "En seguimiento") seguimiento++;
+        });
+
+        document.getElementById("totalCount").textContent = lista.length;
+        document.getElementById("altoCount").textContent = alto;
+        document.getElementById("medioCount").textContent = medio;
+        document.getElementById("bajoCount").textContent = bajo;
+        document.getElementById("pendienteCount").textContent = pendiente;
+        document.getElementById("seguimientoCount").textContent = seguimiento;
+    }
+
+    function renderizarListaAdmin(lista) {
+        const contenedor = document.getElementById("listaReportesAdmin");
+        contenedor.innerHTML = "";
+
+        if (lista.length === 0) {
+            contenedor.innerHTML = `
+                <div class="alert alert-warning mb-0">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    No hay reportes con esos filtros.
                 </div>
-            `);
+            `;
+            return;
+        }
+
+        lista.slice().reverse().slice(0, 8).forEach(function(r) {
+            const estado = getEstado(r);
+            const item = document.createElement("div");
+            item.className = "admin-report-item";
+            item.onclick = function() {
+                if (r.id && markersPorId[r.id]) {
+                    map.setView([r.latitud, r.longitud], 16);
+                    markersPorId[r.id].openPopup();
+                }
+            };
+
+            item.innerHTML = `
+                <div class="d-flex justify-content-between gap-2">
+                    <strong>${r.tipo || "Reporte"}</strong>
+                    <span class="badge bg-${getBadgeEstado(estado)}">${estado}</span>
+                </div>
+                <div class="small-muted">
+                    <i class="fa-solid fa-location-dot me-1"></i>${r.ubicacion || "Sin ubicación"}
+                </div>
+                <div class="small-muted">
+                    <i class="fa-solid fa-gauge-high me-1"></i>${r.gravedad || "Sin gravedad"}
+                </div>
+            `;
+
+            contenedor.appendChild(item);
+        });
+    }
+
+    function filtrarReportes() {
+        const gravedad = document.getElementById("filtroGravedad").value;
+        const estado = document.getElementById("filtroEstado").value;
+        const busqueda = limpiarTexto(document.getElementById("buscarReporte").value);
+
+        return reportes.filter(function(r) {
+            const estadoReporte = getEstado(r);
+
+            const coincideGravedad = gravedad === "Todos" || r.gravedad === gravedad;
+            const coincideEstado = estado === "Todos" || estadoReporte === estado;
+            const coincideBusqueda =
+                busqueda === "" ||
+                limpiarTexto(r.tipo).includes(busqueda) ||
+                limpiarTexto(r.ubicacion).includes(busqueda) ||
+                limpiarTexto(r.descripcion).includes(busqueda) ||
+                limpiarTexto(r.usuario).includes(busqueda);
+
+            return coincideGravedad && coincideEstado && coincideBusqueda;
+        });
+    }
+
+    function aplicarFiltros() {
+        const filtrados = filtrarReportes();
+        renderizarMapa(filtrados);
+        actualizarEstadisticas(filtrados);
+        renderizarListaAdmin(filtrados);
+    }
+
+    function limpiarFiltros() {
+        document.getElementById("filtroGravedad").value = "Todos";
+        document.getElementById("filtroEstado").value = "Todos";
+        document.getElementById("buscarReporte").value = "";
+        aplicarFiltros();
+    }
+
+    function centrarMapa() {
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [30, 30] });
+        } else {
+            map.setView([19.4326, -99.1332], 12);
+        }
+    }
+
+    function mostrarSoloAlta() {
+        document.getElementById("filtroGravedad").value = "Alta";
+        aplicarFiltros();
+    }
+
+    document.getElementById("buscarReporte").addEventListener("keyup", function(e) {
+        if (e.key === "Enter") {
+            aplicarFiltros();
         }
     });
-
-    document.getElementById("altoCount").textContent = alto;
-    document.getElementById("medioCount").textContent = medio;
-    document.getElementById("bajoCount").textContent = bajo;
 
     var legend = L.control({ position: "bottomright" });
 
     legend.onAdd = function () {
         var div = L.DomUtil.create("div", "legend");
         div.innerHTML = `
-            <b><i class="fa-solid fa-map-location-dot"></i> Leyenda</b><br>
+            <b><i class="fa-solid fa-map-location-dot"></i> Leyenda Admin</b><br>
             <i class="fa-solid fa-triangle-exclamation" style="color:#dc3545;"></i> Alto riesgo<br>
             <i class="fa-solid fa-circle-exclamation" style="color:#d39e00;"></i> Medio riesgo<br>
-            <i class="fa-solid fa-shield-halved" style="color:#198754;"></i> Bajo riesgo
+            <i class="fa-solid fa-shield-halved" style="color:#198754;"></i> Bajo riesgo<br>
+            <hr style="margin:6px 0;">
+            <i class="fa-solid fa-clock" style="color:#6c757d;"></i> Pendiente<br>
+            <i class="fa-solid fa-route" style="color:#0d6efd;"></i> En seguimiento
         `;
         return div;
     };
 
     legend.addTo(map);
+
+    aplicarFiltros();
 </script>
 
 </body>
