@@ -15,6 +15,7 @@
         body {
             background: linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -38,12 +39,15 @@
         }
 
         .hero-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 25%),
+                white;
+            border-radius: 24px;
+            padding: 26px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             margin-bottom: 20px;
             animation: fadeUp 0.8s ease;
+            border-left: 8px solid #dc3545;
         }
 
         .title {
@@ -56,6 +60,11 @@
             margin-bottom: 0;
         }
 
+        .hero-actions .btn {
+            border-radius: 14px;
+            font-weight: 800;
+        }
+
         .stats-box {
             border-radius: 20px;
             padding: 22px;
@@ -66,10 +75,24 @@
             transition: 0.3s ease;
             min-height: 120px;
             animation: fadeUp 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-box::after {
+            content: "";
+            position: absolute;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.04);
+            right: -25px;
+            bottom: -25px;
         }
 
         .stats-box:hover {
             transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.13);
         }
 
         .icon-risk {
@@ -102,18 +125,63 @@
             color: #198754;
         }
 
+        .total {
+            border-top: 5px solid #0d6efd;
+            color: #0d6efd;
+        }
+
+        .filter-panel {
+            background: white;
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+            margin-bottom: 20px;
+            animation: fadeUp 0.8s ease;
+        }
+
+        .filter-title {
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .form-select,
+        .form-control {
+            border-radius: 14px;
+        }
+
         .map-card {
             background: white;
             padding: 16px;
             border-radius: 22px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.12);
             animation: fadeUp 0.8s ease;
+            position: relative;
         }
 
         #map {
             height: 72vh;
             width: 100%;
             border-radius: 16px;
+        }
+
+        .map-toolbar {
+            position: absolute;
+            top: 26px;
+            left: 26px;
+            z-index: 500;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,.96);
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.18);
+        }
+
+        .map-toolbar .btn {
+            border-radius: 12px;
+            font-weight: 800;
         }
 
         .legend {
@@ -140,7 +208,14 @@
         }
 
         .fade-up {
-            animation: fadeUp 0.8s ease;
+            opacity: 0;
+            transform: translateY(22px);
+            transition: .75s ease;
+        }
+
+        .fade-up.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         @keyframes fadeUp {
@@ -155,8 +230,8 @@
         }
 
         .community-reports {
-            margin-top: 40px;
-            margin-bottom: 50px;
+            margin-top: 42px;
+            margin-bottom: 55px;
         }
 
         .community-header {
@@ -183,7 +258,7 @@
 
         .community-header p {
             color: #6c757d;
-            max-width: 720px;
+            max-width: 760px;
             margin: 0 auto;
         }
 
@@ -198,14 +273,28 @@
             border-radius: 24px;
             padding: 22px;
             box-shadow: 0 10px 28px rgba(0,0,0,0.10);
-            transition: 0.3s ease;
+            transition: 0.35s ease;
             border-top: 6px solid #dc3545;
             min-height: 280px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .sr-report-card::after {
+            content: "";
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            background: rgba(220,53,69,.06);
         }
 
         .sr-report-card:hover {
-            transform: translateY(-7px);
-            box-shadow: 0 14px 34px rgba(0,0,0,0.16);
+            transform: translateY(-8px);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.16);
         }
 
         .sr-report-card.risk-high {
@@ -225,6 +314,8 @@
             align-items: center;
             gap: 13px;
             margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
         }
 
         .sr-avatar-img {
@@ -266,6 +357,11 @@
         .sr-user-row small {
             color: #6c757d;
             font-size: 13px;
+        }
+
+        .sr-report-main {
+            position: relative;
+            z-index: 2;
         }
 
         .sr-report-top {
@@ -320,11 +416,16 @@
             border-radius: 16px;
             margin-bottom: 16px;
             box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transition: .35s ease;
+        }
+
+        .sr-report-card:hover .sr-report-photo {
+            transform: scale(1.025);
         }
 
         .popup-report-photo {
             width: 100%;
-            max-height: 160px;
+            max-height: 170px;
             object-fit: cover;
             border-radius: 12px;
             margin-bottom: 10px;
@@ -351,6 +452,18 @@
             width: 18px;
         }
 
+        .sr-card-actions {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sr-card-actions .btn {
+            border-radius: 12px;
+            font-weight: 800;
+        }
+
         .sr-empty {
             background: white;
             border-radius: 22px;
@@ -372,9 +485,84 @@
             margin: 0 auto 16px;
         }
 
+        .modal-content {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 18px 44px rgba(0,0,0,.25);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            border: none;
+        }
+
+        .modal-title {
+            font-weight: 900;
+        }
+
+        .modal-img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,.14);
+        }
+
+        .detail-box {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px;
+            height: 100%;
+            border-left: 5px solid #dc3545;
+        }
+
+        .detail-box strong {
+            color: #222;
+        }
+
+        body.dark .hero-card,
+        body.dark .stats-box,
+        body.dark .map-card,
+        body.dark .filter-panel,
+        body.dark .sr-report-card,
+        body.dark .sr-empty,
+        body.dark .legend,
+        body.dark .map-toolbar,
+        body.dark .detail-box,
+        body.dark .sr-info-box {
+            background: #1f1f1f !important;
+            color: white !important;
+        }
+
+        body.dark .title,
+        body.dark .community-header h3,
+        body.dark .sr-user-row h5,
+        body.dark .sr-report-top h4,
+        body.dark .filter-title,
+        body.dark .detail-box strong {
+            color: white !important;
+        }
+
+        body.dark .subtitle,
+        body.dark .community-header p,
+        body.dark .sr-user-row small,
+        body.dark .sr-description {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .sr-info-box p {
+            color: white !important;
+        }
+
         @media (max-width: 992px) {
             .report-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            #map {
+                height: 66vh;
             }
         }
 
@@ -413,6 +601,13 @@
             .sr-report-top {
                 flex-direction: column;
             }
+
+            .map-toolbar {
+                position: static;
+                margin-bottom: 12px;
+                box-shadow: none;
+                justify-content: center;
+            }
         }
 
         @media (max-width: 480px) {
@@ -441,15 +636,20 @@
             SafeRoute MX
         </a>
 
-        <div class="d-flex gap-2 align-items-center">
+        <div class="d-flex gap-2 align-items-center flex-wrap">
             <button id="modoOscuro" class="btn btn-outline-light btn-sm" title="Cambiar tema">
                 <i class="fa-solid fa-moon"></i>
             </button>
 
-           <a href="/dashboard" class="btn btn-outline-light btn-sm">
-    <i class="fa-solid fa-table-columns me-1"></i>
-    Mi panel
-          </a>
+            <a href="/reportar" class="btn btn-light btn-sm text-danger fw-bold">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                Reportar
+            </a>
+
+            <a href="/dashboard" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-table-columns me-1"></i>
+                Mi panel
+            </a>
         </div>
 
     </div>
@@ -458,16 +658,39 @@
 <div class="container my-4">
 
     <div class="hero-card fade-up">
-        <h3 class="title">
-            <i class="fa-solid fa-map-location-dot text-danger me-2"></i>
-            Mapa General de Reportes
-        </h3>
-        <p class="subtitle">Visualización general de todos los reportes registrados en el sistema</p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="title">
+                    <i class="fa-solid fa-map-location-dot text-danger me-2"></i>
+                    Mapa General de Reportes
+                </h3>
+                <p class="subtitle">
+                    Consulta reportes aprobados por la comunidad, revisa detalles y ubica zonas de riesgo antes de salir.
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <a href="#comunidad" class="btn btn-danger">
+                    <i class="fa-solid fa-users me-1"></i>
+                    Ver comunidad
+                </a>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 mb-4 fade-up">
 
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
+            <div class="stats-box total pulse-soft">
+                <span class="icon-risk">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </span>
+                <div class="risk-number" id="totalCount">0</div>
+                <div class="risk-text">Reportes visibles</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
             <div class="stats-box alto pulse-soft">
                 <span class="icon-risk">
                     <i class="fa-solid fa-triangle-exclamation"></i>
@@ -477,7 +700,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
             <div class="stats-box medio pulse-soft">
                 <span class="icon-risk">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -487,7 +710,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
             <div class="stats-box bajo pulse-soft">
                 <span class="icon-risk">
                     <i class="fa-solid fa-shield-halved"></i>
@@ -499,11 +722,59 @@
 
     </div>
 
+    <div class="filter-panel fade-up">
+        <h5 class="filter-title">
+            <i class="fa-solid fa-filter text-danger me-2"></i>
+            Filtros de búsqueda
+        </h5>
+
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-bold">Gravedad</label>
+                <select id="filtroGravedad" class="form-select">
+                    <option value="Todos">Todos</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Baja">Baja</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-5">
+                <label class="form-label fw-bold">Buscar reporte</label>
+                <input type="text" id="buscarReporte" class="form-control" placeholder="Ej. robo, colonia, calle...">
+            </div>
+
+            <div class="col-12 col-md-3 d-grid">
+                <button class="btn btn-danger fw-bold" onclick="aplicarFiltros()">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i>
+                    Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="map-card fade-up">
+        <div class="map-toolbar">
+            <button class="btn btn-danger btn-sm" onclick="centrarMapa()">
+                <i class="fa-solid fa-location-crosshairs me-1"></i>
+                Centrar mapa
+            </button>
+
+            <button class="btn btn-outline-danger btn-sm" onclick="mostrarSoloAlta()">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                Solo alto riesgo
+            </button>
+
+            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
+                <i class="fa-solid fa-rotate-right me-1"></i>
+                Limpiar
+            </button>
+        </div>
+
         <div id="map"></div>
     </div>
 
-    <section class="community-reports fade-up">
+    <section class="community-reports fade-up" id="comunidad">
 
         <div class="community-header">
             <span class="community-badge">
@@ -514,21 +785,23 @@
             <h3>Reportes recientes de la comunidad</h3>
 
             <p>
-                Consulta incidentes registrados por otros usuarios para identificar zonas que conviene evitar.
+                Toca cualquier reporte para ver información completa, fotografía, ubicación, gravedad y descripción detallada.
             </p>
         </div>
 
         {% if reportes %}
 
-        <div class="report-grid">
+        <div class="report-grid" id="reportGrid">
 
             {% for reporte in reportes %}
 
-            <article class="sr-report-card
+            <article class="sr-report-card fade-up
                 {% if reporte.gravedad == 'Alta' %}risk-high
                 {% elif reporte.gravedad == 'Media' %}risk-medium
                 {% else %}risk-low
-                {% endif %}">
+                {% endif %}"
+                data-id="{{ reporte.id }}"
+                onclick="abrirDetalleDesdeCard('{{ reporte.id }}')">
 
                 <div class="sr-user-row">
 
@@ -582,6 +855,18 @@
                             <strong>Fecha:</strong> {{ reporte.fecha or "Sin fecha" }}
                         </p>
                     </div>
+
+                    <div class="sr-card-actions">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="event.stopPropagation(); abrirDetalleDesdeCard('{{ reporte.id }}')">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            Ver detalles
+                        </button>
+
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="event.stopPropagation(); enfocarReporte('{{ reporte.id }}')">
+                            <i class="fa-solid fa-map-location-dot me-1"></i>
+                            Ver en mapa
+                        </button>
+                    </div>
                 </div>
 
             </article>
@@ -599,12 +884,77 @@
 
             <h4>Aún no hay reportes visibles</h4>
 
-            <p>Cuando los usuarios registren incidentes con ubicación, aparecerán aquí.</p>
+            <p>Cuando los usuarios registren incidentes con ubicación y sean aprobados, aparecerán aquí.</p>
         </div>
 
         {% endif %}
 
     </section>
+</div>
+
+<div class="modal fade" id="detalleReporteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    Detalle del reporte
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="modalFotoWrap" class="mb-3"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                        <div class="detail-box">
+                            <strong><i class="fa-solid fa-user text-danger me-1"></i> Usuario</strong>
+                            <div id="modalUsuario">Usuario SafeRoute</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="detail-box">
+                            <strong><i class="fa-solid fa-gauge-high text-danger me-1"></i> Gravedad</strong>
+                            <div id="modalGravedad">Sin gravedad</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="detail-box">
+                            <strong><i class="fa-solid fa-location-dot text-danger me-1"></i> Ubicación</strong>
+                            <div id="modalUbicacion">Sin ubicación</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="detail-box">
+                            <strong><i class="fa-solid fa-calendar-days text-danger me-1"></i> Fecha</strong>
+                            <div id="modalFecha">Sin fecha</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-box">
+                    <strong><i class="fa-solid fa-align-left text-danger me-1"></i> Descripción</strong>
+                    <div id="modalDescripcion" class="mt-2">Sin descripción</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-outline-danger fw-bold" id="btnModalMapa">
+                    <i class="fa-solid fa-map-location-dot me-1"></i>
+                    Ver ubicación en mapa
+                </button>
+                <button class="btn btn-secondary fw-bold" data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -620,105 +970,276 @@
 
     var reportes = JSON.parse('{{ reportes | tojson | safe | replace("\n", "") | replace("\r", "") }}');
 
+    var markerGroup = L.layerGroup().addTo(map);
+    var markersPorId = {};
+    var bounds = [];
+    var reporteActual = null;
+
     function getColor(gravedad) {
         if (gravedad === "Alta") return "#dc3545";
         if (gravedad === "Media") return "#ffc107";
         return "#198754";
     }
 
-    let alto = 0;
-    let medio = 0;
-    let bajo = 0;
+    function getIcon(gravedad) {
+        if (gravedad === "Alta") return "fa-triangle-exclamation";
+        if (gravedad === "Media") return "fa-circle-exclamation";
+        return "fa-shield-halved";
+    }
 
-    reportes.forEach(function(r) {
-        if (r.gravedad === "Alta") alto++;
-        else if (r.gravedad === "Media") medio++;
-        else bajo++;
+    function getRiesgoTexto(gravedad) {
+        if (gravedad === "Alta") return "Alto riesgo";
+        if (gravedad === "Media") return "Medio riesgo";
+        return "Bajo riesgo";
+    }
 
-        if (r.latitud && r.longitud) {
+    function limpiarTexto(valor) {
+        if (!valor) return "";
+        return String(valor).toLowerCase();
+    }
 
-            var pulseCircle = L.circle([r.latitud, r.longitud], {
-                radius: 40,
-                color: getColor(r.gravedad),
-                fillColor: getColor(r.gravedad),
-                fillOpacity: 0.12,
-                opacity: 0.8,
-                weight: 1
-            }).addTo(map);
+    function renderizarMapa(lista) {
+        markerGroup.clearLayers();
+        markersPorId = {};
+        bounds = [];
 
-            var circle = L.circleMarker([r.latitud, r.longitud], {
-                radius: 10,
-                color: getColor(r.gravedad),
-                fillColor: getColor(r.gravedad),
-                fillOpacity: 0.9,
-                weight: 3
-            }).addTo(map);
+        lista.forEach(function(r) {
+            if (r.latitud && r.longitud) {
 
-            let radius = 40;
-            let grow = true;
+                var pulseCircle = L.circle([r.latitud, r.longitud], {
+                    radius: 40,
+                    color: getColor(r.gravedad),
+                    fillColor: getColor(r.gravedad),
+                    fillOpacity: 0.12,
+                    opacity: 0.8,
+                    weight: 1
+                }).addTo(markerGroup);
 
-            setInterval(() => {
+                var circle = L.circleMarker([r.latitud, r.longitud], {
+                    radius: 10,
+                    color: getColor(r.gravedad),
+                    fillColor: getColor(r.gravedad),
+                    fillOpacity: 0.9,
+                    weight: 3
+                }).addTo(markerGroup);
 
-                radius += 18;
+                let radius = 40;
+                let grow = true;
 
-                pulseCircle.setRadius(radius);
+                setInterval(() => {
+                    radius += 18;
 
-                pulseCircle.setStyle({
-                    opacity: 1 - (radius / 260),
-                    fillOpacity: 0.16 - (radius / 2200)
-                });
+                    pulseCircle.setRadius(radius);
 
-                if (radius > 250) {
-                    radius = 40;
-                }
-
-                if (grow) {
-                    circle.setRadius(16);
-                    circle.setStyle({
-                        fillOpacity: 1,
-                        opacity: 1
+                    pulseCircle.setStyle({
+                        opacity: 1 - (radius / 260),
+                        fillOpacity: 0.16 - (radius / 2200)
                     });
-                } else {
-                    circle.setRadius(9);
-                    circle.setStyle({
-                        fillOpacity: 0.55,
-                        opacity: 0.75
-                    });
-                }
 
-                grow = !grow;
+                    if (radius > 250) {
+                        radius = 40;
+                    }
 
-            }, 450);
+                    if (grow) {
+                        circle.setRadius(16);
+                        circle.setStyle({
+                            fillOpacity: 1,
+                            opacity: 1
+                        });
+                    } else {
+                        circle.setRadius(9);
+                        circle.setStyle({
+                            fillOpacity: 0.55,
+                            opacity: 0.75
+                        });
+                    }
 
-            circle.bindPopup(`
-                <div style="font-family:Arial; font-size:14px; min-width:220px;">
-                    ${r.foto_reporte ? `<img src="${r.foto_reporte}" class="popup-report-photo" alt="Foto del incidente">` : ""}
+                    grow = !grow;
+                }, 450);
 
-                    <b style="font-size:16px;">
-                        <i class="fa-solid fa-triangle-exclamation" style="color:#dc3545;"></i>
-                        ${r.tipo || "Reporte"}
-                    </b><br><br>
+                circle.bindPopup(`
+                    <div style="font-family:Arial; font-size:14px; min-width:240px;">
+                        ${r.foto_reporte ? `<img src="${r.foto_reporte}" class="popup-report-photo" alt="Foto del incidente">` : ""}
 
-                    <i class="fa-solid fa-location-dot" style="color:#dc3545;"></i>
-                    <b>Ubicación:</b> ${r.ubicacion || "Sin ubicación"}<br>
+                        <b style="font-size:16px;">
+                            <i class="fa-solid ${getIcon(r.gravedad)}" style="color:${getColor(r.gravedad)};"></i>
+                            ${r.tipo || "Reporte"}
+                        </b><br><br>
 
-                    <i class="fa-solid fa-calendar-days" style="color:#dc3545;"></i>
-                    <b>Fecha:</b> ${r.fecha || "Sin fecha"}<br>
+                        <i class="fa-solid fa-location-dot" style="color:#dc3545;"></i>
+                        <b>Ubicación:</b> ${r.ubicacion || "Sin ubicación"}<br>
 
-                    <i class="fa-solid fa-gauge-high" style="color:#dc3545;"></i>
-                    <b>Gravedad:</b> ${r.gravedad || "Sin gravedad"}<br>
-                    <hr>
+                        <i class="fa-solid fa-calendar-days" style="color:#dc3545;"></i>
+                        <b>Fecha:</b> ${r.fecha || "Sin fecha"}<br>
 
-                    <i class="fa-solid fa-align-left" style="color:#dc3545;"></i>
-                    ${r.descripcion || "Sin descripción"}
-                </div>
-            `);
+                        <i class="fa-solid fa-gauge-high" style="color:#dc3545;"></i>
+                        <b>Gravedad:</b> ${getRiesgoTexto(r.gravedad)}<br>
+                        <hr>
+
+                        <i class="fa-solid fa-align-left" style="color:#dc3545;"></i>
+                        ${r.descripcion || "Sin descripción"}<br><br>
+
+                        <button class="btn btn-danger btn-sm w-100" onclick="abrirDetalleDesdePopup('${r.id}')">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            Ver detalles completos
+                        </button>
+                    </div>
+                `);
+
+                markersPorId[r.id] = circle;
+                bounds.push([r.latitud, r.longitud]);
+            }
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [30, 30] });
         }
+    }
+
+    function actualizarEstadisticas(lista) {
+        let alto = 0;
+        let medio = 0;
+        let bajo = 0;
+
+        lista.forEach(function(r) {
+            if (r.gravedad === "Alta") alto++;
+            else if (r.gravedad === "Media") medio++;
+            else bajo++;
+        });
+
+        document.getElementById("totalCount").textContent = lista.length;
+        document.getElementById("altoCount").textContent = alto;
+        document.getElementById("medioCount").textContent = medio;
+        document.getElementById("bajoCount").textContent = bajo;
+    }
+
+    function filtrarReportes() {
+        const gravedad = document.getElementById("filtroGravedad").value;
+        const busqueda = limpiarTexto(document.getElementById("buscarReporte").value);
+
+        return reportes.filter(function(r) {
+            const coincideGravedad = gravedad === "Todos" || r.gravedad === gravedad;
+            const coincideBusqueda =
+                busqueda === "" ||
+                limpiarTexto(r.tipo).includes(busqueda) ||
+                limpiarTexto(r.descripcion).includes(busqueda) ||
+                limpiarTexto(r.ubicacion).includes(busqueda) ||
+                limpiarTexto(r.nombre_usuario).includes(busqueda);
+
+            return coincideGravedad && coincideBusqueda;
+        });
+    }
+
+    function aplicarFiltros() {
+        const filtrados = filtrarReportes();
+        renderizarMapa(filtrados);
+        actualizarEstadisticas(filtrados);
+        filtrarCards(filtrados);
+    }
+
+    function limpiarFiltros() {
+        document.getElementById("filtroGravedad").value = "Todos";
+        document.getElementById("buscarReporte").value = "";
+        aplicarFiltros();
+    }
+
+    function mostrarSoloAlta() {
+        document.getElementById("filtroGravedad").value = "Alta";
+        aplicarFiltros();
+    }
+
+    function centrarMapa() {
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [30, 30] });
+        } else {
+            map.setView([19.4326, -99.1332], 12);
+        }
+    }
+
+    function filtrarCards(lista) {
+        const idsVisibles = lista.map(r => String(r.id));
+
+        document.querySelectorAll(".sr-report-card").forEach(card => {
+            const id = String(card.dataset.id);
+            card.style.display = idsVisibles.includes(id) ? "block" : "none";
+        });
+    }
+
+    function buscarReportePorId(id) {
+        return reportes.find(r => String(r.id) === String(id));
+    }
+
+    function abrirDetalleDesdeCard(id) {
+        const r = buscarReportePorId(id);
+        if (!r) return;
+        abrirModalDetalle(r);
+    }
+
+    function abrirDetalleDesdePopup(id) {
+        const r = buscarReportePorId(id);
+        if (!r) return;
+        abrirModalDetalle(r);
+    }
+
+    function abrirModalDetalle(r) {
+        reporteActual = r;
+
+        document.getElementById("modalTitulo").innerHTML =
+            `<i class="fa-solid ${getIcon(r.gravedad)} me-2"></i>${r.tipo || "Reporte"}`;
+
+        document.getElementById("modalUsuario").textContent = r.nombre_usuario || "Usuario SafeRoute";
+        document.getElementById("modalGravedad").textContent = getRiesgoTexto(r.gravedad);
+        document.getElementById("modalUbicacion").textContent = r.ubicacion || "Sin ubicación";
+        document.getElementById("modalFecha").textContent = r.fecha || "Sin fecha";
+        document.getElementById("modalDescripcion").textContent = r.descripcion || "Sin descripción";
+
+        const fotoWrap = document.getElementById("modalFotoWrap");
+
+        if (r.foto_reporte) {
+            fotoWrap.innerHTML = `<img src="${r.foto_reporte}" class="modal-img" alt="Foto del incidente">`;
+        } else {
+            fotoWrap.innerHTML = `
+                <div class="alert alert-secondary mb-0">
+                    <i class="fa-solid fa-image me-1"></i>
+                    Este reporte no tiene fotografía.
+                </div>
+            `;
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById("detalleReporteModal"));
+        modal.show();
+    }
+
+    function enfocarReporte(id) {
+        const r = buscarReportePorId(id);
+        if (!r || !r.latitud || !r.longitud) return;
+
+        map.setView([r.latitud, r.longitud], 16);
+
+        if (markersPorId[id]) {
+            markersPorId[id].openPopup();
+        }
+
+        document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    document.getElementById("btnModalMapa").addEventListener("click", function() {
+        if (!reporteActual) return;
+
+        const modalElement = document.getElementById("detalleReporteModal");
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+
+        setTimeout(() => {
+            enfocarReporte(reporteActual.id);
+        }, 350);
     });
 
-    document.getElementById("altoCount").textContent = alto;
-    document.getElementById("medioCount").textContent = medio;
-    document.getElementById("bajoCount").textContent = bajo;
+    document.getElementById("buscarReporte").addEventListener("keyup", function(e) {
+        if (e.key === "Enter") {
+            aplicarFiltros();
+        }
+    });
 
     var legend = L.control({ position: "bottomright" });
 
@@ -734,6 +1255,21 @@
     };
 
     legend.addTo(map);
+
+    aplicarFiltros();
+
+    const animados = document.querySelectorAll(".fade-up");
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("show");
+            }
+        });
+    }, {
+        threshold: 0.12
+    });
+
+    animados.forEach(elemento => observer.observe(elemento));
 </script>
 
 </body>
