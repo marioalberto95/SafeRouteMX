@@ -1852,6 +1852,13 @@ def cambiar_rol_usuario(user_id):
         "rol": nuevo_rol
     })
 
+    # Si cambiaste tu propio rol, actualiza la sesión
+    if user_id == session.get("user_id"):
+        session["rol"] = nuevo_rol
+
+        if nuevo_rol == "usuario":
+            return redirect("/dashboard")
+
     return redirect("/admin/usuarios")
 # ======================
 # LOGOUT
