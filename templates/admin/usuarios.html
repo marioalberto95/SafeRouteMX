@@ -515,26 +515,26 @@
                         </p>
 
                         {% if usuario.id != session.get("user_id") %}
-                        <form method="POST"
-                              action="/admin/usuarios/rol/{{ usuario.id }}"
-                              class="mt-3 role-form">
+<form method="POST"
+      action="/admin/usuarios/rol/{{ usuario.id }}"
+      class="mt-3 role-form">
 
-                            <div class="input-group">
-                                <select name="rol" class="form-select">
-                                    <option value="usuario" {% if usuario.rol == "usuario" %}selected{% endif %}>
-                                        Usuario
-                                    </option>
-                                    <option value="admin" {% if usuario.rol == "admin" %}selected{% endif %}>
-                                        Administrador
-                                    </option>
-                                </select>
+    <div class="input-group">
+        <select name="rol" class="form-select">
+            <option value="usuario" {% if usuario.rol == "usuario" %}selected{% endif %}>
+                Usuario
+            </option>
+            <option value="admin" {% if usuario.rol == "admin" %}selected{% endif %}>
+                Administrador
+            </option>
+        </select>
 
-                                <button type="submit" class="btn btn-warning btn-custom">
-                                    <i class="fa-solid fa-pen-to-square me-1"></i>
-                                    Cambiar
-                                </button>
-                            </div>
-                        </form>
+        <button type="submit" class="btn btn-warning btn-custom">
+            <i class="fa-solid fa-pen-to-square me-1"></i>
+            Cambiar
+        </button>
+    </div>
+</form>
                         {% endif %}
 
                         {% if usuario.rol != 'admin' %}
