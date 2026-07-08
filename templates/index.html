@@ -21,57 +21,36 @@
             overflow-x: hidden;
         }
 
-        /* ===========================
-           NAVBAR PREMIUM
-        =========================== */
+        .custom-navbar{
 
-        .custom-navbar {
-            background:
-                linear-gradient(90deg, #860000, #b00000, #860000);
-            padding: 18px 0;
-            box-shadow:
-                0 10px 32px rgba(0,0,0,.30),
-                inset 0 -1px 0 rgba(255,255,255,.10);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    background:
+        linear-gradient(
+            90deg,
+            #9b0000,
+            #b40000,
+            #9b0000);
 
+    padding:18px 0;
+
+    box-shadow:
+        0 8px 28px rgba(0,0,0,.25);
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
+}
         .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,.08);
-            border: 1px solid rgba(255,255,255,.13);
-            border-radius: 24px;
-            padding: 13px 20px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow:
-                0 10px 28px rgba(0,0,0,.22),
-                inset 0 1px 0 rgba(255,255,255,.14);
         }
 
         .brand-logo {
             font-size: 1.55rem;
             color: white !important;
-            font-weight: 900;
-            letter-spacing: .2px;
-            transition: .35s ease;
-            text-shadow: 0 5px 16px rgba(0,0,0,.22);
-        }
-
-        .brand-logo:hover {
-            transform: translateY(-2px);
-            color: white !important;
-        }
-
-        .brand-logo i {
-            transition: .35s ease;
-        }
-
-        .brand-logo:hover i {
-            transform: rotate(-10deg) scale(1.18);
         }
 
         .nav-actions {
@@ -80,123 +59,123 @@
             gap: 12px;
         }
 
-        .nav-link-btn,
-        .nav-main-btn,
-        .nav-secondary-btn,
-        .theme-btn {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            height: 50px;
-            min-width: 50px;
-            padding: 0 22px;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,.20);
-            background:
-                linear-gradient(135deg, #ff5a6b, #dc3545);
-            color: white !important;
-            text-decoration: none;
-            font-weight: 900;
-            overflow: hidden;
-            transition: .35s ease;
-            box-shadow:
-                0 10px 25px rgba(220,53,69,.34),
-                inset 0 1px 0 rgba(255,255,255,.18);
-        }
+/* ===========================
+   BOTONES DE LA NAVBAR
+=========================== */
 
-        .nav-link-btn::before,
-        .nav-main-btn::before,
-        .nav-secondary-btn::before,
-        .theme-btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -120%;
-            width: 80%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255,255,255,.34),
-                transparent
-            );
-            transform: skewX(-20deg);
-            transition: .55s ease;
-        }
+.nav-link-btn,
+.nav-main-btn,
+.nav-secondary-btn,
+.theme-btn{
 
-        .nav-link-btn:hover::before,
-        .nav-main-btn:hover::before,
-        .nav-secondary-btn:hover::before,
-        .theme-btn:hover::before {
-            left: 130%;
-        }
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
 
-        .nav-link-btn:hover,
-        .nav-main-btn:hover,
-        .nav-secondary-btn:hover,
-        .theme-btn:hover {
-            transform: translateY(-4px) scale(1.04);
-            background:
-                linear-gradient(135deg, #ff7382, #e63946);
-            color: white !important;
-            box-shadow:
-                0 18px 35px rgba(220,53,69,.48),
-                inset 0 1px 0 rgba(255,255,255,.22);
-        }
+    text-decoration:none;
 
-        .nav-link-btn i,
-        .nav-main-btn i,
-        .nav-secondary-btn i,
-        .theme-btn i {
-            margin-right: 0 !important;
-            transition: .35s ease;
-            position: relative;
-            z-index: 2;
-        }
+    height:48px;
+    padding:0 22px;
 
-        .nav-link-btn:hover i,
-        .nav-main-btn:hover i,
-        .nav-secondary-btn:hover i,
-        .theme-btn:hover i {
-            transform: rotate(-10deg) scale(1.2);
-        }
+    border-radius:15px;
 
-        .theme-btn {
-            width: 50px;
-            padding: 0;
-        }
+    border:none;
 
-        .navbar-toggler {
-            border: 1px solid rgba(255,255,255,.35);
-            border-radius: 14px;
-            padding: 10px 12px;
-            box-shadow: 0 8px 18px rgba(0,0,0,.18);
-        }
+    background:linear-gradient(135deg,#ff5a6b,#dc3545);
 
-        .navbar-toggler:focus {
-            box-shadow: 0 0 0 .20rem rgba(255,255,255,.18);
-        }
+    color:white;
 
-        .profile-mini {
-            width: 50px;
-            height: 50px;
-            border-radius: 16px;
-            object-fit: cover;
-            border: 3px solid rgba(255,255,255,.88);
-            transition: .35s ease;
-            box-shadow:
-                0 8px 20px rgba(0,0,0,.28),
-                inset 0 1px 0 rgba(255,255,255,.2);
-        }
+    font-weight:800;
 
-        .profile-mini:hover {
-            transform: translateY(-4px) scale(1.08) rotate(3deg);
-            box-shadow:
-                0 18px 35px rgba(255,255,255,.22),
-                0 10px 25px rgba(0,0,0,.22);
-        }
+    transition:.35s;
+
+    box-shadow:
+        0 10px 25px rgba(220,53,69,.28);
+
+}
+
+/* Hover */
+
+.nav-link-btn:hover,
+.nav-main-btn:hover,
+.nav-secondary-btn:hover,
+.theme-btn:hover{
+
+    color:white;
+
+    transform:
+        translateY(-4px)
+        scale(1.04);
+
+    background:linear-gradient(135deg,#ff7382,#e63946);
+
+    box-shadow:
+        0 18px 35px rgba(220,53,69,.45);
+
+}
+
+/* Iconos */
+
+.nav-link-btn i,
+.nav-main-btn i,
+.nav-secondary-btn i,
+.theme-btn i{
+
+    transition:.35s;
+
+}
+
+.nav-link-btn:hover i,
+.nav-main-btn:hover i,
+.nav-secondary-btn:hover i,
+.theme-btn:hover i{
+
+    transform:
+        rotate(-10deg)
+        scale(1.2);
+
+}
+
+/* Botón modo oscuro */
+
+.theme-btn{
+
+    width:48px;
+    padding:0;
+
+}
+
+/* Foto */
+
+.profile-mini{
+
+    width:50px;
+    height:50px;
+
+    border-radius:16px;
+
+    object-fit:cover;
+
+    border:3px solid rgba(255,255,255,.85);
+
+    transition:.35s;
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.28);
+
+}
+
+.profile-mini:hover{
+
+    transform:
+        translateY(-4px)
+        scale(1.08);
+
+    box-shadow:
+        0 18px 35px rgba(255,255,255,.22);
+
+}
 
         .hero {
             min-height: 680px;
@@ -520,7 +499,8 @@
             transform: translateY(0);
         }
 
-        .btn-custom i {
+        .navbar-brand i,
+        .btn i {
             margin-right: 8px;
         }
 
@@ -534,10 +514,6 @@
         }
 
         @media (max-width: 991px) {
-            .nav-container {
-                align-items: stretch;
-            }
-
             .nav-actions {
                 flex-direction: column;
                 align-items: stretch;
@@ -552,12 +528,11 @@
                 width: 100%;
                 text-align: center;
                 justify-content: center;
-                height: 48px;
             }
 
             .theme-btn {
-                padding: 0;
-                border-radius: 16px;
+                padding: 10px;
+                border-radius: 12px;
             }
 
             .navbar-collapse {
@@ -569,8 +544,6 @@
             .nav-container {
                 flex-direction: column;
                 gap: 12px;
-                border-radius: 22px;
-                padding: 14px;
             }
 
             .brand-logo {
