@@ -141,28 +141,34 @@
             position: relative;
         }
 
-        .floating-shape {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(220,53,69,.09);
-            animation: floatShape 7s ease-in-out infinite;
-            z-index: 0;
-        }
+        .floating-shape{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:0;
+    opacity:.9;
+}
 
-        .shape-one {
-            width: 190px;
-            height: 190px;
-            top: 80px;
-            left: 8%;
-        }
+        .shape-one{
+    width:420px;
+    height:420px;
+    top:-90px;
+    left:-170px;
+    background:radial-gradient(circle,#dc354530,#dc354510,transparent 72%);
+    filter:blur(3px);
+    animation:floatShape 8s ease-in-out infinite;
+}
 
-        .shape-two {
-            width: 240px;
-            height: 240px;
-            bottom: 55px;
-            right: 7%;
-            animation-delay: 1.4s;
-        }
+.shape-two{
+    width:500px;
+    height:500px;
+    bottom:-170px;
+    right:-220px;
+    background:radial-gradient(circle,#dc354535,#dc354510,transparent 72%);
+    filter:blur(3px);
+    animation:floatShape 9s ease-in-out infinite;
+    animation-delay:2s;
+}
 
         .register-layout {
             width: 100%;
