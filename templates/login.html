@@ -11,9 +11,13 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(220,53,69,.08), transparent 22%),
+                radial-gradient(circle at 85% 70%, rgba(220,53,69,.10), transparent 24%),
+                linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -47,40 +51,161 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 30px 15px;
+            padding: 35px 15px;
+            position: relative;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(220,53,69,.09);
+            animation: floatShape 7s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .shape-one {
+            width: 190px;
+            height: 190px;
+            top: 70px;
+            left: 8%;
+        }
+
+        .shape-two {
+            width: 240px;
+            height: 240px;
+            bottom: 55px;
+            right: 7%;
+            animation-delay: 1.4s;
+        }
+
+        .login-layout {
+            width: 100%;
+            max-width: 1050px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-card {
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 24%),
+                linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            border-radius: 28px;
+            padding: 34px;
+            min-height: 100%;
+            box-shadow: 0 14px 35px rgba(220,53,69,.28);
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp .75s ease;
+        }
+
+        .info-card::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            right: -60px;
+            bottom: -70px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+        }
+
+        .info-card h1 {
+            font-weight: 900;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-card p {
+            opacity: .95;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-pill {
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,.35);
+            background: rgba(255,255,255,.15);
+            border-radius: 999px;
+            padding: 9px 14px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-line {
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 12px;
+            position: relative;
+            z-index: 2;
+            transition: .3s ease;
+        }
+
+        .feature-line:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,.20);
         }
 
         .login-card {
             background: white;
-            border-radius: 26px;
+            border-radius: 28px;
             border: none;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.14);
-            animation: fadeUp .7s ease;
+            box-shadow: 0 14px 38px rgba(0,0,0,0.14);
+            animation: fadeUp .85s ease;
             width: 100%;
-            max-width: 520px;
+            overflow: hidden;
+        }
+
+        .login-top {
+            background: #fff7f7;
+            padding: 24px 24px 8px;
+        }
+
+        .login-body {
+            padding: 24px;
         }
 
         .icon-circle {
-            width: 82px;
-            height: 82px;
+            width: 86px;
+            height: 86px;
             border-radius: 50%;
             background: #ffe5e9;
             color: #dc3545;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.1rem;
+            font-size: 2.2rem;
             margin: 0 auto 16px;
             animation: pulse 1.8s infinite;
+            box-shadow: 0 8px 20px rgba(220,53,69,.16);
         }
 
         .title {
-            font-weight: 800;
+            font-weight: 900;
             color: #222;
         }
 
         .descripcion {
             color: #666;
+        }
+
+        .field-box {
+            background: #f8f9fa;
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 16px;
+            border-left: 5px solid #dc3545;
+            transition: .3s ease;
+        }
+
+        .field-box:hover {
+            background: white;
+            transform: translateX(4px);
+            box-shadow: 0 7px 18px rgba(0,0,0,.07);
         }
 
         .form-control {
@@ -96,12 +221,13 @@
         .btn-custom {
             border-radius: 14px;
             padding: 13px;
-            font-weight: bold;
+            font-weight: 900;
             transition: .3s;
         }
 
         .btn-custom:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(220,53,69,.22);
         }
 
         .password-wrapper {
@@ -130,6 +256,51 @@
             box-shadow: 0 5px 14px rgba(25,135,84,0.18);
         }
 
+        .helper-links {
+            background: #fff7f7;
+            border-radius: 18px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .secure-note {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 13px;
+            text-align: center;
+        }
+
+        .secure-note i {
+            color: #dc3545;
+        }
+
+        body.dark .login-card,
+        body.dark .login-top,
+        body.dark .field-box,
+        body.dark .helper-links {
+            background: #1f1f1f !important;
+            color: white !important;
+        }
+
+        body.dark .title {
+            color: white !important;
+        }
+
+        body.dark .descripcion,
+        body.dark .secure-note {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .form-control {
+            background: #2f2f2f !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
+        }
+
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -147,6 +318,15 @@
             100% { transform: scale(1); }
         }
 
+        @keyframes floatShape {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-22px) scale(1.04);
+            }
+        }
+
         @keyframes shakeFade {
             0% {
                 opacity: 0;
@@ -161,13 +341,25 @@
             100% { transform: translateX(0); }
         }
 
+        @media(max-width: 992px) {
+            .info-card {
+                text-align: center;
+            }
+        }
+
         @media(max-width: 768px) {
-            .login-card {
+            .login-card,
+            .info-card {
                 border-radius: 22px;
             }
 
             .navbar-brand {
                 font-size: 1.1rem;
+            }
+
+            .shape-one,
+            .shape-two {
+                display: none;
             }
         }
     </style>
@@ -189,85 +381,147 @@
 </nav>
 
 <div class="container login-container">
-    <div class="card login-card p-4">
 
-        <div class="icon-circle">
-            <i class="fa-solid fa-lock"></i>
-        </div>
+    <div class="floating-shape shape-one"></div>
+    <div class="floating-shape shape-two"></div>
 
-        <h2 class="text-center mb-2 title">Iniciar Sesión</h2>
-        <p class="text-center descripcion mb-4">Accede a tu panel de SafeRoute MX</p>
+    <div class="login-layout">
+        <div class="row g-4 align-items-stretch">
 
-        {% if error %}
-        <div class="alert alert-danger alert-dismissible fade show alert-animated" role="alert">
-            <strong><i class="fa-solid fa-circle-xmark me-1"></i> Aviso:</strong> {{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
+            <div class="col-12 col-lg-5">
+                <div class="info-card h-100">
+                    <span class="info-pill">
+                        <i class="fa-solid fa-shield-heart me-1"></i>
+                        Seguridad ciudadana
+                    </span>
 
-        {% if exito %}
-        <div class="alert alert-success alert-dismissible fade show alert-animated" role="alert">
-            <strong><i class="fa-solid fa-circle-check me-1"></i> Listo:</strong> {{ exito }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
+                    <h1>Bienvenido a SafeRoute MX</h1>
 
-        <form method="POST" action="/login">
+                    <p class="mt-3">
+                        Accede a tu cuenta para consultar zonas de riesgo, reportar incidentes y dar seguimiento a tus reportes.
+                    </p>
 
-            <div class="mb-3">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-envelope me-2"></i>
-                    Correo electrónico
-                </label>
-                <input
-                    type="email"
-                    name="correo"
-                    class="form-control"
-                    placeholder="ejemplo@correo.com"
-                    required>
-            </div>
+                    <div class="feature-line">
+                        <strong>
+                            <i class="fa-solid fa-map-location-dot me-1"></i>
+                            Mapa de reportes
+                        </strong>
+                        <div>Consulta incidentes aprobados por la comunidad.</div>
+                    </div>
 
-            <div class="mb-2">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-key me-2"></i>
-                    Contraseña
-                </label>
+                    <div class="feature-line">
+                        <strong>
+                            <i class="fa-solid fa-bell me-1"></i>
+                            Seguimiento
+                        </strong>
+                        <div>Revisa el estado de tus reportes y comentarios del administrador.</div>
+                    </div>
 
-                <div class="password-wrapper">
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        class="form-control"
-                        placeholder="Ingresa tu contraseña"
-                        required>
-
-                    <button type="button" class="toggle-password" onclick="togglePassword()">
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
+                    <div class="feature-line">
+                        <strong>
+                            <i class="fa-solid fa-robot me-1"></i>
+                            SafeRoute IA
+                        </strong>
+                        <div>Recibe ayuda y recomendaciones dentro del sistema.</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="text-end mb-3">
-                <a href="/recuperar_password" class="text-danger fw-bold text-decoration-none">
-                    ¿Olvidaste tu contraseña?
-                </a>
+            <div class="col-12 col-lg-7">
+                <div class="card login-card h-100">
+
+                    <div class="login-top">
+                        <div class="icon-circle">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+
+                        <h2 class="text-center mb-2 title">Iniciar Sesión</h2>
+                        <p class="text-center descripcion mb-3">Accede a tu panel de SafeRoute MX</p>
+                    </div>
+
+                    <div class="login-body">
+
+                        {% if error %}
+                        <div class="alert alert-danger alert-dismissible fade show alert-animated" role="alert">
+                            <strong><i class="fa-solid fa-circle-xmark me-1"></i> Aviso:</strong> {{ error }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        {% if exito %}
+                        <div class="alert alert-success alert-dismissible fade show alert-animated" role="alert">
+                            <strong><i class="fa-solid fa-circle-check me-1"></i> Listo:</strong> {{ exito }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        <form method="POST" action="/login">
+
+                            <div class="field-box">
+                                <label class="form-label fw-bold">
+                                    <i class="fa-solid fa-envelope me-2"></i>
+                                    Correo electrónico
+                                </label>
+                                <input
+                                    type="email"
+                                    name="correo"
+                                    class="form-control"
+                                    placeholder="ejemplo@correo.com"
+                                    required>
+                            </div>
+
+                            <div class="field-box">
+                                <label class="form-label fw-bold">
+                                    <i class="fa-solid fa-key me-2"></i>
+                                    Contraseña
+                                </label>
+
+                                <div class="password-wrapper">
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        id="password"
+                                        class="form-control"
+                                        placeholder="Ingresa tu contraseña"
+                                        required>
+
+                                    <button type="button" class="toggle-password" onclick="togglePassword()">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="text-end mb-3">
+                                <a href="/recuperar_password" class="text-danger fw-bold text-decoration-none">
+                                    ¿Olvidaste tu contraseña?
+                                </a>
+                            </div>
+
+                            <button type="submit" class="btn btn-danger w-100 btn-custom">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i>
+                                Entrar
+                            </button>
+
+                            <div class="helper-links mt-3">
+                                <small>¿No tienes cuenta?</small>
+                                <a href="/registro" class="text-danger fw-bold text-decoration-none">
+                                    Regístrate
+                                </a>
+                            </div>
+
+                            <div class="secure-note">
+                                <i class="fa-solid fa-lock me-1"></i>
+                                Tu cuenta está protegida con verificación por correo.
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-danger w-100 btn-custom">
-                <i class="fa-solid fa-right-to-bracket me-2"></i>
-                Entrar
-            </button>
-
-            <div class="text-center mt-3">
-                <small>¿No tienes cuenta?</small>
-                <a href="/registro" class="text-danger fw-bold text-decoration-none">
-                    Regístrate
-                </a>
-            </div>
-
-        </form>
-
+        </div>
     </div>
 </div>
 

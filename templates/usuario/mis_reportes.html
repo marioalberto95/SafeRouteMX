@@ -13,6 +13,7 @@
         body {
             background: linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -33,15 +34,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: .3s ease;
+        }
+
+        #modoOscuro:hover {
+            transform: rotate(180deg) scale(1.08);
+            background: white;
+            color: #dc3545;
         }
 
         .hero-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 30%),
+                white;
+            border-radius: 24px;
+            padding: 28px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             margin-bottom: 24px;
             animation: fadeUp .7s ease;
+            border-left: 8px solid #dc3545;
         }
 
         .title {
@@ -49,32 +60,141 @@
             color: #222;
         }
 
-        .report-card {
+        .stats-card {
             background: white;
             border-radius: 20px;
-            padding: 22px;
-            margin-bottom: 16px;
-            border-left: 6px solid #dc3545;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            transition: 0.3s ease;
+            padding: 20px;
+            box-shadow: 0 7px 20px rgba(0,0,0,.08);
             height: 100%;
+            transition: .3s ease;
+            border-top: 5px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp .75s ease;
+        }
+
+        .stats-card::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.04);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.13);
+        }
+
+        .stats-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 23px;
+        }
+
+        .stats-number {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .stats-label {
+            font-weight: 800;
+            color: #555;
+            margin: 0;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            animation: fadeUp .75s ease;
+        }
+
+        .filters-title {
+            font-weight: 900;
+            color: #222;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 14px;
+            padding: 11px 13px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 .20rem rgba(220,53,69,.15);
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border-left: 7px solid #dc3545;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            transition: 0.35s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp .8s ease;
+        }
+
+        .report-card::after {
+            content: "";
+            position: absolute;
+            right: -26px;
+            bottom: -26px;
+            width: 98px;
+            height: 98px;
+            border-radius: 50%;
+            background: rgba(220,53,69,.05);
+            pointer-events: none;
         }
 
         .report-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 26px rgba(0,0,0,0.13);
+            transform: translateY(-8px);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.15);
         }
 
-        .alta {
-            border-left-color: #dc3545;
+        .alta { border-left-color: #dc3545; }
+        .media { border-left-color: #ffc107; }
+        .baja { border-left-color: #198754; }
+
+        .report-icon {
+            width: 58px;
+            height: 58px;
+            min-width: 58px;
+            border-radius: 18px;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
         }
 
-        .media {
-            border-left-color: #ffc107;
+        .media .report-icon {
+            background: #fff6db;
+            color: #b88600;
         }
 
-        .baja {
-            border-left-color: #198754;
+        .baja .report-icon {
+            background: #e7f7ee;
+            color: #198754;
         }
 
         .badge-custom {
@@ -86,11 +206,19 @@
         .btn-custom {
             border-radius: 12px;
             font-weight: bold;
+            transition: .3s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
         }
 
         .info-line {
             margin-bottom: 9px;
             color: #444;
+            word-break: break-word;
+            position: relative;
+            z-index: 2;
         }
 
         .info-line i {
@@ -98,12 +226,78 @@
             color: #dc3545;
         }
 
-        .empty-card {
+        .status-panel {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px;
+            border-left: 5px solid #6c757d;
+            position: relative;
+            z-index: 2;
+        }
+
+        .status-panel.pendiente { border-left-color: #ffc107; }
+        .status-panel.aprobado { border-left-color: #198754; }
+        .status-panel.rechazado { border-left-color: #dc3545; }
+        .status-panel.seguimiento { border-left-color: #0d6efd; }
+        .status-panel.resuelto { border-left-color: #198754; }
+
+        .admin-comment {
+            border-radius: 16px;
+            border-left: 5px solid #0d6efd;
+            box-shadow: 0 5px 14px rgba(0,0,0,.06);
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 22px;
+            margin-top: 12px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 7px;
+            top: 2px;
+            bottom: 2px;
+            width: 3px;
+            background: #ddd;
+            border-radius: 10px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -20px;
+            top: 4px;
+            width: 13px;
+            height: 13px;
+            background: #dc3545;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 1px #dc3545;
+        }
+
+        .empty-card,
+        .no-results {
             background: white;
             border-radius: 22px;
             padding: 35px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             animation: fadeUp .7s ease;
+            text-align: center;
+        }
+
+        .no-results {
+            display: none;
         }
 
         .empty-icon {
@@ -119,6 +313,13 @@
             margin: 0 auto 16px;
         }
 
+        .modal-content {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 18px 45px rgba(0,0,0,.25);
+        }
+
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -128,6 +329,43 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        body.dark .hero-card,
+        body.dark .stats-card,
+        body.dark .filters-card,
+        body.dark .report-card,
+        body.dark .empty-card,
+        body.dark .no-results,
+        body.dark .status-panel {
+            background: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .title,
+        body.dark .filters-title {
+            color: #ffffff !important;
+        }
+
+        body.dark .info-line,
+        body.dark .stats-label,
+        body.dark .timeline-item {
+            color: #ffffff !important;
+        }
+
+        body.dark .form-select,
+        body.dark .form-control {
+            background: #2f2f2f !important;
+            color: #ffffff !important;
+            border: 1px solid #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
+        }
+
+        body.dark .timeline::before {
+            background: #555;
         }
 
         @media (max-width: 768px) {
@@ -180,22 +418,145 @@
 <div class="container my-4">
 
     <div class="hero-card">
-        <h2 class="title">
-            <i class="fa-solid fa-clipboard-list text-danger me-2"></i>
-            Mis Reportes
-        </h2>
-        <p class="text-muted mb-0">
-            Consulta, edita o elimina los reportes registrados desde tu cuenta.
-        </p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="title">
+                    <i class="fa-solid fa-clipboard-list text-danger me-2"></i>
+                    Mis Reportes
+                </h2>
+                <p class="text-muted mb-0">
+                    Consulta, edita, elimina y revisa el seguimiento de tus reportes.
+                </p>
+            </div>
+
+            <span class="badge bg-danger rounded-pill p-2">
+                <i class="fa-solid fa-bell me-1"></i>
+                Seguimiento de reportes
+            </span>
+        </div>
     </div>
 
     {% if reportes %}
 
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <div class="stats-number" id="statTotal">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Total visible</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="stats-number" id="statPendientes">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Pendientes</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div class="stats-number" id="statSeguimiento">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Seguimiento</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="stats-number" id="statResueltos">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Resueltos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-card mb-4">
+            <h5 class="filters-title">
+                <i class="fa-solid fa-magnifying-glass text-danger me-2"></i>
+                Buscar y filtrar mis reportes
+            </h5>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-5">
+                    <label class="form-label fw-bold">Buscar</label>
+                    <input type="text"
+                           id="buscarReporte"
+                           class="form-control"
+                           placeholder="Buscar por tipo, ubicación, descripción o seguimiento...">
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2">
+                    <label class="form-label fw-bold">Gravedad</label>
+                    <select id="filtroGravedad" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label class="form-label fw-bold">Estado</label>
+                    <select id="filtroEstado" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="En seguimiento">En seguimiento</option>
+                        <option value="Resuelto">Resuelto</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2 d-grid">
+                    <button class="btn btn-danger fw-bold btn-custom" onclick="limpiarFiltros()">
+                        <i class="fa-solid fa-rotate-right me-1"></i>
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results mb-4" id="noResults">
+            <div class="empty-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <h4 class="fw-bold">No se encontraron reportes</h4>
+            <p class="text-muted mb-0">
+                Cambia la búsqueda o limpia los filtros para ver todos tus reportes.
+            </p>
+        </div>
+
+        <div class="row g-4" id="reportesGrid">
 
             {% for reporte in reportes %}
 
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6 reporte-item"
+                 data-tipo="{{ reporte.tipo or '' }}"
+                 data-ubicacion="{{ reporte.ubicacion or '' }}"
+                 data-descripcion="{{ reporte.descripcion or '' }}"
+                 data-seguimiento="{{ reporte.seguimiento or '' }}"
+                 data-comentario="{{ reporte.comentario_admin or '' }}"
+                 data-gravedad="{{ reporte.gravedad or '' }}"
+                 data-estado="{{ reporte.estado or 'Pendiente' }}">
                 <div class="report-card
                     {% if reporte.gravedad == 'Alta' %}alta
                     {% elif reporte.gravedad == 'Media' %}media
@@ -203,19 +564,32 @@
                     {% endif %}
                 ">
 
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h4 class="fw-bold mb-0">
-                            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
-                            {{ reporte.tipo }}
-                        </h4>
+                    <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="report-icon">
+                                {% if reporte.gravedad == 'Alta' %}
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                {% elif reporte.gravedad == 'Media' %}
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                {% endif %}
+                            </div>
 
-                        {% if reporte.gravedad == 'Alta' %}
-                            <span class="badge bg-danger badge-custom">Alta</span>
-                        {% elif reporte.gravedad == 'Media' %}
-                            <span class="badge bg-warning text-dark badge-custom">Media</span>
-                        {% else %}
-                            <span class="badge bg-success badge-custom">Baja</span>
-                        {% endif %}
+                            <div>
+                                <h4 class="fw-bold mb-1">
+                                    {{ reporte.tipo }}
+                                </h4>
+
+                                {% if reporte.gravedad == 'Alta' %}
+                                    <span class="badge bg-danger badge-custom">Alta</span>
+                                {% elif reporte.gravedad == 'Media' %}
+                                    <span class="badge bg-warning text-dark badge-custom">Media</span>
+                                {% else %}
+                                    <span class="badge bg-success badge-custom">Baja</span>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
 
                     <p class="info-line">
@@ -238,30 +612,55 @@
                         <strong>Descripción:</strong> {{ reporte.descripcion }}
                     </p>
 
-                    
-                    <hr>
+                    <div class="status-panel mt-3
+                        {% if reporte.estado == 'Aprobado' %}aprobado
+                        {% elif reporte.estado == 'Rechazado' %}rechazado
+                        {% elif reporte.estado == 'En seguimiento' %}seguimiento
+                        {% elif reporte.estado == 'Resuelto' %}resuelto
+                        {% else %}pendiente
+                        {% endif %}
+                    ">
+                        <p class="info-line mb-2">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <strong>Estado:</strong>
+                            {% if reporte.estado == "Aprobado" %}
+                                <span class="badge bg-success">{{ reporte.estado }}</span>
+                            {% elif reporte.estado == "Rechazado" %}
+                                <span class="badge bg-danger">{{ reporte.estado }}</span>
+                            {% elif reporte.estado == "En seguimiento" %}
+                                <span class="badge bg-primary">{{ reporte.estado }}</span>
+                            {% elif reporte.estado == "Resuelto" %}
+                                <span class="badge bg-success">{{ reporte.estado }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ reporte.estado or 'Pendiente' }}</span>
+                            {% endif %}
+                        </p>
 
-                    <p class="info-line">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <strong>Estado:</strong>
-                        <span class="badge bg-secondary">{{ reporte.estado or 'Pendiente' }}</span>
-                    </p>
+                        <p class="info-line mb-0">
+                            <i class="fa-solid fa-route"></i>
+                            <strong>Seguimiento:</strong>
+                            {{ reporte.seguimiento or 'Sin seguimiento' }}
+                        </p>
 
-                    <p class="info-line">
-                        <i class="fa-solid fa-route"></i>
-                        <strong>Seguimiento:</strong>
-                        {{ reporte.seguimiento or 'Sin seguimiento' }}
-                    </p>
+                        <div class="timeline">
+                            <div class="timeline-item">Reporte registrado por el usuario.</div>
+                            {% if reporte.estado and reporte.estado != 'Pendiente' %}
+                                <div class="timeline-item">Estado actualizado: {{ reporte.estado }}.</div>
+                            {% endif %}
+                            {% if reporte.seguimiento and reporte.seguimiento != 'Sin seguimiento' %}
+                                <div class="timeline-item">Seguimiento: {{ reporte.seguimiento }}.</div>
+                            {% endif %}
+                        </div>
+                    </div>
 
                     {% if reporte.comentario_admin %}
-                    <div class="alert alert-info mt-2 mb-3">
+                    <div class="alert alert-info mt-3 mb-3 admin-comment">
                         <strong><i class="fa-solid fa-user-shield me-1"></i>Comentario del administrador</strong><br>
                         {{ reporte.comentario_admin }}
                     </div>
                     {% endif %}
 
-
-                    <div class="d-flex gap-2 flex-wrap">
+                    <div class="d-flex gap-2 flex-wrap mt-3 position-relative" style="z-index:2;">
                         <a href="/usuario/reporte/editar/{{ reporte.id }}"
                            class="btn btn-warning btn-sm btn-custom">
                             <i class="fa-solid fa-pen-to-square me-1"></i>
@@ -352,6 +751,92 @@
         const url = button.getAttribute('data-url');
         document.getElementById('formEliminarReporteUsuario').action = url;
     });
+
+    const buscador = document.getElementById("buscarReporte");
+    const filtroGravedad = document.getElementById("filtroGravedad");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const reportesItems = document.querySelectorAll(".reporte-item");
+    const noResults = document.getElementById("noResults");
+
+    function normalizar(texto) {
+        return (texto || "")
+            .toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function actualizarEstadisticas() {
+        let visibles = 0;
+        let pendientes = 0;
+        let seguimiento = 0;
+        let resueltos = 0;
+
+        reportesItems.forEach(item => {
+            if (item.style.display !== "none") {
+                visibles++;
+
+                const estado = item.dataset.estado || "Pendiente";
+
+                if (estado === "Pendiente") pendientes++;
+                if (estado === "En seguimiento") seguimiento++;
+                if (estado === "Resuelto") resueltos++;
+            }
+        });
+
+        if (document.getElementById("statTotal")) document.getElementById("statTotal").textContent = visibles;
+        if (document.getElementById("statPendientes")) document.getElementById("statPendientes").textContent = pendientes;
+        if (document.getElementById("statSeguimiento")) document.getElementById("statSeguimiento").textContent = seguimiento;
+        if (document.getElementById("statResueltos")) document.getElementById("statResueltos").textContent = resueltos;
+    }
+
+    function filtrarReportes() {
+        const texto = normalizar(buscador.value);
+        const gravedad = filtroGravedad.value;
+        const estado = filtroEstado.value;
+
+        let encontrados = 0;
+
+        reportesItems.forEach(item => {
+            const contenido = normalizar(
+                item.dataset.tipo + " " +
+                item.dataset.ubicacion + " " +
+                item.dataset.descripcion + " " +
+                item.dataset.seguimiento + " " +
+                item.dataset.comentario
+            );
+
+            const coincideTexto = contenido.includes(texto);
+            const coincideGravedad = gravedad === "Todos" || item.dataset.gravedad === gravedad;
+            const coincideEstado = estado === "Todos" || item.dataset.estado === estado;
+
+            if (coincideTexto && coincideGravedad && coincideEstado) {
+                item.style.display = "";
+                encontrados++;
+            } else {
+                item.style.display = "none";
+            }
+        });
+
+        if (noResults) {
+            noResults.style.display = encontrados === 0 ? "block" : "none";
+        }
+
+        actualizarEstadisticas();
+    }
+
+    function limpiarFiltros() {
+        buscador.value = "";
+        filtroGravedad.value = "Todos";
+        filtroEstado.value = "Todos";
+        filtrarReportes();
+    }
+
+    if (buscador) buscador.addEventListener("input", filtrarReportes);
+    if (filtroGravedad) filtroGravedad.addEventListener("change", filtrarReportes);
+    if (filtroEstado) filtroEstado.addEventListener("change", filtrarReportes);
+
+    actualizarEstadisticas();
 </script>
 
 </body>
