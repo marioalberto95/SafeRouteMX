@@ -357,7 +357,8 @@
         }
 
         #map {
-            height: 74vh;
+            height: 86vh;
+            min-height: 760px;
             width: 100%;
             border-radius: 18px;
             z-index: 1;
@@ -460,9 +461,9 @@
 
         .side-detail {
             position: fixed;
-            right: -430px;
+            right: -410px;
             top: 0;
-            width: 410px;
+            width: 390px;
             height: 100vh;
             background: white;
             z-index: 2000;
@@ -643,12 +644,12 @@
         }
 
         @media (max-width: 1200px) {
-            #map { height: 68vh; }
+            #map { height: 78vh; min-height: 650px; }
             .admin-list { max-height: 280px; }
         }
 
         @media (max-width: 992px) {
-            #map { height: 65vh; }
+            #map { height: 70vh; min-height: 560px; }
             .side-detail {
                 width: 100%;
                 right: -100%;
@@ -674,7 +675,7 @@
                 min-height: 110px;
             }
 
-            #map { height: 60vh; }
+            #map { height: 65vh; min-height: 500px; }
 
             .map-toolbar,
             .map-floating-summary {
@@ -692,7 +693,7 @@
         }
 
         @media (max-width: 480px) {
-            #map { height: 55vh; }
+            #map { height: 58vh; min-height: 430px; }
             .risk-number { font-size: 26px; }
             .icon-risk {
                 width: 48px;
@@ -853,7 +854,7 @@
     </div>
 
     <div class="row g-4">
-        <div class="col-12 col-xl-3">
+        <div class="col-12 col-xl-2">
             <div class="admin-panel">
 
                 <h5 class="panel-title">
@@ -921,7 +922,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-xl-9">
+        <div class="col-12 col-xl-10">
             <div class="map-card">
 
                 <div class="map-loading" id="mapLoading">
@@ -1065,6 +1066,26 @@
 
     var reportes = JSON.parse('{{ reportes | tojson | safe | replace("\n", "") | replace("\r", "") }}');
 
+    /*
+        UID interno para que cada marcador, popup y panel lateral siempre
+        apunte al reporte correcto aunque falte id o se repita algún valor.
+    */
+    reportes = reportes.map(function(r, index) {
+        r._uid = String(
+            r.id ||
+            r.document_id ||
+            r.firestore_id ||
+            (
+                (r.tipo || "reporte") + "_" +
+                (r.latitud || "lat") + "_" +
+                (r.longitud || "lng") + "_" +
+                (r.fecha || "fecha") + "_" +
+                index
+            )
+        );
+        return r;
+    });
+
     var markerGroup = L.layerGroup().addTo(map);
     var bounds = [];
     var markersPorId = {};
@@ -1130,6 +1151,7 @@
 
     function renderizarMapa(lista) {
         limpiarTimers();
+        map.closePopup();
         markerGroup.clearLayers();
         bounds = [];
         markersPorId = {};
@@ -1219,7 +1241,7 @@
 
                         <hr>
                         <div class="popup-actions d-grid gap-2">
-                            <button class="btn btn-danger btn-sm" onclick="abrirDetalleDesdePopup('${r.id}')">
+                            <button class="btn btn-danger btn-sm" onclick="abrirDetalleDesdePopup('${r._uid}')">
                                 <i class="fa-solid fa-circle-info me-1"></i>
                                 Ver panel lateral
                             </button>
@@ -1232,11 +1254,11 @@
                 `);
 
                 circle.on("click", function() {
-                    activarItemLista(r.id);
+                    activarItemLista(r._uid);
                 });
 
                 bounds.push([r.latitud, r.longitud]);
-                markersPorId[r.id] = circle;
+                markersPorId[r._uid] = circle;
             }
         });
 
@@ -1300,10 +1322,10 @@
             const estado = getEstado(r);
             const item = document.createElement("div");
             item.className = "admin-report-item";
-            item.dataset.id = r.id;
+            item.dataset.id = r._uid;
 
             item.onclick = function() {
-                enfocarReporte(r.id);
+                enfocarReporte(r._uid);
                 abrirDetalle(r);
             };
 
@@ -1381,7 +1403,7 @@
     }
 
     function buscarReportePorId(id) {
-        return reportes.find(r => String(r.id) === String(id));
+        return reportes.find(r => String(r._uid) === String(id));
     }
 
     function enfocarReporte(id) {
@@ -1406,7 +1428,10 @@
 
     function abrirDetalleDesdePopup(id) {
         const r = buscarReportePorId(id);
-        if (r) abrirDetalle(r);
+        if (r) {
+            activarItemLista(id);
+            abrirDetalle(r);
+        }
     }
 
     function abrirDetalle(r) {
@@ -1440,15 +1465,23 @@
         }
 
         document.getElementById("sideDetail").classList.add("show");
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 300);
     }
 
     function cerrarDetalle() {
         document.getElementById("sideDetail").classList.remove("show");
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 300);
     }
 
     document.getElementById("detailMapBtn").addEventListener("click", function() {
         if (reporteSeleccionado) {
-            enfocarReporte(reporteSeleccionado.id);
+            enfocarReporte(reporteSeleccionado._uid);
         }
     });
 
