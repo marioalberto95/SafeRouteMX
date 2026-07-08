@@ -18,42 +18,99 @@
 
         .navbar {
             background: #dc3545;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 18px rgba(0,0,0,.25);
             padding: 16px 0;
         }
 
         .navbar-brand {
             font-size: 1.35rem;
+            font-weight: 900;
+            color: white !important;
+            transition: .35s ease;
         }
 
-        #modoOscuro {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+            color: white !important;
+        }
+
+        .navbar-brand i {
+            transition: .35s ease;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(-10deg) scale(1.15);
+        }
+
+        .btn-nav {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: .3s;
+            gap: 8px;
+            min-height: 46px;
+            padding: 11px 22px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,.45);
+            background: transparent;
+            color: white !important;
+            text-decoration: none;
+            font-weight: 900;
+            transition: .35s ease;
         }
 
-        #modoOscuro:hover {
-            transform: rotate(180deg) scale(1.08);
+        .btn-nav:hover {
+            background: rgba(255,255,255,.12);
+            color: white !important;
+            border-color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,0,0,.18);
+        }
+
+        .btn-nav i {
+            transition: .35s ease;
+        }
+
+        .btn-nav:hover i {
+            transform: scale(1.15);
+        }
+
+        .btn-theme {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.45);
+            background: transparent;
+            color: white;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            transition: .35s ease;
+        }
+
+        .btn-theme:hover {
             background: white;
             color: #dc3545;
+            transform: rotate(180deg) scale(1.08);
+            box-shadow: 0 10px 24px rgba(255,255,255,.22);
+        }
+
+        .btn-theme i {
+            transition: .35s ease;
         }
 
         .profile-mini {
-            width: 46px;
-            height: 46px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(0,0,0,.25);
-            transition: .3s ease;
+            box-shadow: 0 8px 18px rgba(0,0,0,.25);
+            transition: .35s ease;
         }
 
         .profile-mini:hover {
-            transform: scale(1.08);
+            transform: translateY(-3px) scale(1.08);
+            box-shadow: 0 14px 28px rgba(255,255,255,.22);
         }
 
         .hero-card {
@@ -392,6 +449,15 @@
                 gap: 12px;
             }
 
+            .navbar .d-flex {
+                justify-content: center;
+            }
+
+            .btn-nav {
+                min-height: 44px;
+                padding: 10px 20px;
+            }
+
             .hero-card {
                 text-align: center;
                 padding: 24px;
@@ -413,38 +479,6 @@
                 text-align: center;
             }
         }
-        .btn-nav{
-    border-radius:12px;
-    font-weight:700;
-    transition:all .35s ease;
-}
-
-.btn-nav:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 20px rgba(0,0,0,.25);
-}
-
-.btn-nav i{
-    transition:.35s;
-}
-
-.btn-nav:hover i{
-    transform:scale(1.2);
-}
-
-.profile-mini{
-    width:45px;
-    height:45px;
-    object-fit:cover;
-    border-radius:50%;
-    border:3px solid white;
-    transition:.35s;
-}
-
-.profile-mini:hover{
-    transform:scale(1.1) rotate(5deg);
-    box-shadow:0 0 15px rgba(255,255,255,.6);
-}
     </style>
 </head>
 
@@ -458,15 +492,14 @@
             SafeRoute MX
         </a>
 
-        <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
 
-            <!-- BOTÓN INICIO -->
-            <a href="/" class="btn btn-danger btn-nav">
-                <i class="fa-solid fa-house me-1"></i>
+            <a href="/" class="btn-nav">
+                <i class="fa-solid fa-house"></i>
                 Inicio
             </a>
 
-            <button id="modoOscuro" class="btn btn-outline-light btn-sm">
+            <button id="modoOscuro" class="btn-theme" type="button" title="Cambiar tema">
                 <i class="fa-solid fa-moon"></i>
             </button>
 
@@ -478,8 +511,8 @@
                 {% endif %}
             </a>
 
-            <a href="/logout" class="btn btn-outline-light btn-sm btn-nav">
-                <i class="fa-solid fa-right-from-bracket me-1"></i>
+            <a href="/logout" class="btn-nav">
+                <i class="fa-solid fa-right-from-bracket"></i>
                 Salir
             </a>
 
