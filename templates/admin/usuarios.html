@@ -514,6 +514,7 @@
                             {{ usuario.rol }}
                         </p>
 
+                        {% if usuario.id != session.get("user_id") %}
                         <form method="POST"
                               action="/admin/usuarios/rol/{{ usuario.id }}"
                               class="mt-3 role-form">
@@ -534,6 +535,7 @@
                                 </button>
                             </div>
                         </form>
+                        {% endif %}
 
                         {% if usuario.rol != 'admin' %}
                         <button type="button"
