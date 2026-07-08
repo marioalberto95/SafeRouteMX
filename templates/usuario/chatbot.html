@@ -10,8 +10,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 
     <style>
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
-            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(220,53,69,.08), transparent 22%),
+                radial-gradient(circle at 85% 70%, rgba(220,53,69,.10), transparent 24%),
+                linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
             min-height: 100vh;
         }
@@ -22,7 +30,9 @@
             padding: 14px 0;
         }
 
-        .navbar-brand { font-size: 1.25rem; }
+        .navbar-brand {
+            font-size: 1.25rem;
+        }
 
         #modoOscuro {
             width: 38px;
@@ -32,6 +42,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: .3s ease;
+        }
+
+        #modoOscuro:hover {
+            transform: rotate(180deg) scale(1.08);
+            background: white;
+            color: #dc3545;
         }
 
         .profile-mini {
@@ -41,24 +58,52 @@
             object-fit: cover;
             border: 2px solid white;
             box-shadow: 0 4px 12px rgba(0,0,0,.18);
+            transition: .3s ease;
+        }
+
+        .profile-mini:hover {
+            transform: scale(1.08);
         }
 
         .chat-shell {
             background: white;
-            border-radius: 28px;
-            box-shadow: 0 12px 34px rgba(0,0,0,.14);
+            border-radius: 30px;
+            box-shadow: 0 14px 38px rgba(0,0,0,.15);
             overflow: hidden;
-            animation: fadeUp .7s ease;
+            animation: fadeUp .75s ease;
+            position: relative;
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #dc3545, #8f1d2b);
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 24%),
+                linear-gradient(135deg, #dc3545, #8f1d2b);
             color: white;
-            padding: 24px 26px;
+            padding: 26px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::after {
+            content: "";
+            position: absolute;
+            width: 185px;
+            height: 185px;
+            right: -65px;
+            bottom: -80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            animation: floatShape 7s ease-in-out infinite;
+        }
+
+        .chat-title,
+        .header-actions {
+            position: relative;
+            z-index: 2;
         }
 
         .chat-title h2 {
@@ -68,7 +113,7 @@
 
         .chat-title p {
             margin: 0;
-            opacity: .9;
+            opacity: .92;
         }
 
         .header-actions {
@@ -89,13 +134,72 @@
             white-space: nowrap;
         }
 
+        .chat-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 660px;
+        }
+
+        .chat-sidebar {
+            background: #fff7f7;
+            border-right: 1px solid #f0d6d9;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.07);
+            border-left: 5px solid #dc3545;
+            transition: .3s ease;
+        }
+
+        .sidebar-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0,0,0,.11);
+        }
+
+        .sidebar-card strong {
+            display: block;
+            color: #222;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-card small {
+            color: #666;
+        }
+
+        .category-chip {
+            border-radius: 999px;
+            margin: 3px;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 7px 11px;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
         .chat-body {
-            height: 520px;
+            height: 540px;
             overflow-y: auto;
             padding: 24px;
             background:
                 radial-gradient(circle at top left, rgba(220,53,69,.08), transparent 30%),
                 #f8f9fa;
+            scroll-behavior: smooth;
         }
 
         .welcome-panel {
@@ -105,6 +209,7 @@
             box-shadow: 0 8px 22px rgba(0,0,0,.08);
             margin-bottom: 22px;
             border-left: 6px solid #dc3545;
+            animation: fadeUp .7s ease;
         }
 
         .welcome-panel h3 {
@@ -162,7 +267,9 @@
             margin-bottom: 4px;
         }
 
-        .suggestion-card small { color: #666; }
+        .suggestion-card small {
+            color: #666;
+        }
 
         .message-row {
             display: flex;
@@ -171,7 +278,9 @@
             animation: popIn .35s ease;
         }
 
-        .message-row.user-row { justify-content: flex-end; }
+        .message-row.user-row {
+            justify-content: flex-end;
+        }
 
         .avatar-chat {
             width: 42px;
@@ -203,6 +312,7 @@
             line-height: 1.5;
             box-shadow: 0 5px 15px rgba(0,0,0,.08);
             white-space: pre-line;
+            overflow-wrap: anywhere;
         }
 
         .bot-bubble {
@@ -228,19 +338,26 @@
             padding: 16px 22px 6px;
             background: white;
             border-top: 1px solid #eee;
+            max-height: 155px;
+            overflow-y: auto;
         }
 
         .quick-title {
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 900;
             color: #555;
-            margin-bottom: 8px;
+            margin: 8px 0;
         }
 
         .quick-btn {
             border-radius: 22px;
             margin: 4px;
             font-weight: bold;
+            transition: .25s ease;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-2px);
         }
 
         .chat-footer {
@@ -253,10 +370,20 @@
             padding: 13px 15px;
         }
 
+        .input-chat:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 .20rem rgba(220,53,69,.15);
+        }
+
         .btn-send {
             border-radius: 18px;
             font-weight: 900;
             height: 100%;
+            transition: .25s ease;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-2px);
         }
 
         .typing {
@@ -285,7 +412,66 @@
             display: none;
         }
 
-        .analysis-box.show { display: block; }
+        .analysis-box.show {
+            display: block;
+        }
+
+        .empty-search {
+            display: none;
+            font-size: 13px;
+            color: #666;
+            padding: 8px 4px;
+        }
+
+        body.dark .chat-shell,
+        body.dark .quick-area,
+        body.dark .chat-footer,
+        body.dark .welcome-panel,
+        body.dark .suggestion-card,
+        body.dark .sidebar-card {
+            background: #202020 !important;
+            color: white !important;
+        }
+
+        body.dark .chat-sidebar {
+            background: #171717 !important;
+            border-right-color: #333 !important;
+        }
+
+        body.dark .chat-body {
+            background: #121212 !important;
+        }
+
+        body.dark .welcome-panel h3,
+        body.dark .suggestion-card strong,
+        body.dark .sidebar-title,
+        body.dark .sidebar-card strong {
+            color: white !important;
+        }
+
+        body.dark .welcome-panel p,
+        body.dark .suggestion-card small,
+        body.dark .sidebar-card small,
+        body.dark .quick-title,
+        body.dark .analysis-box,
+        body.dark .empty-search {
+            color: #d8d8d8 !important;
+        }
+
+        body.dark .bot-bubble {
+            background: #252525 !important;
+            color: white !important;
+        }
+
+        body.dark .input-chat {
+            background: #2f2f2f !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+
+        body.dark .input-chat::placeholder {
+            color: #bdbdbd !important;
+        }
 
         @keyframes typingBounce {
             0%, 80%, 100% { transform: scale(.7); opacity: .5; }
@@ -302,280 +488,237 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-18px) scale(1.05); }
+        }
+
+        @media (max-width: 992px) {
+            .chat-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-sidebar {
+                border-right: none;
+                border-bottom: 1px solid #f0d6d9;
+                max-height: 240px;
+            }
+        }
+
         @media (max-width: 768px) {
+            body {
+                min-height: 100dvh;
+            }
+
+            .navbar {
+                padding: 10px 0;
+            }
+
             .navbar .container {
                 flex-direction: column;
                 gap: 10px;
+                align-items: stretch !important;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+                text-align: center;
+            }
+
+            .navbar .d-flex {
+                justify-content: center;
+                gap: 8px !important;
+            }
+
+            .navbar .btn {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .profile-mini {
+                width: 34px;
+                height: 34px;
+            }
+
+            #modoOscuro {
+                width: 34px;
+                height: 34px;
+            }
+
+            .container.my-4 {
+                margin-top: 12px !important;
+                margin-bottom: 12px !important;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .chat-shell {
+                border-radius: 20px;
+                min-height: calc(100dvh - 120px);
+            }
+
+            .chat-header {
+                padding: 18px 16px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .chat-title h2 {
+                font-size: 1.35rem;
+                line-height: 1.2;
+            }
+
+            .chat-title p {
+                font-size: .9rem;
+                line-height: 1.35;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .status-pill {
+                font-size: 12px;
+                padding: 7px 10px;
+            }
+
+            .chat-sidebar {
+                display: none;
             }
 
             .chat-body {
-                height: 470px;
+                height: calc(100dvh - 360px);
+                min-height: 360px;
+                padding: 14px;
+            }
+
+            .message-row {
+                gap: 7px;
+                margin-bottom: 14px;
+            }
+
+            .avatar-chat,
+            .bot-avatar {
+                width: 34px;
+                height: 34px;
+                font-size: 15px;
+            }
+
+            .bubble {
+                max-width: 82vw;
+                padding: 12px 14px;
+                border-radius: 16px;
+                font-size: .94rem;
+                line-height: 1.45;
+            }
+
+            .bot-bubble {
+                border-left-width: 4px;
+                border-bottom-left-radius: 5px;
+            }
+
+            .user-bubble {
+                border-bottom-right-radius: 5px;
+            }
+
+            .welcome-panel {
                 padding: 18px;
+                border-radius: 18px;
+                margin-bottom: 16px;
             }
 
-            .bubble { max-width: 88%; }
-
-            .chat-header {
-                flex-direction: column;
-                align-items: flex-start;
+            .welcome-panel h3 {
+                font-size: 1.2rem;
             }
 
-            .header-actions { justify-content: flex-start; }
+            .welcome-panel p {
+                font-size: .92rem;
+                margin-bottom: 14px;
+            }
 
-            .suggestion-grid { grid-template-columns: 1fr; }
+            .suggestion-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .quick-area {
+                padding: 12px 12px 8px;
+                overflow-x: auto;
+                white-space: nowrap;
+                max-height: 105px;
+                scrollbar-width: thin;
+            }
+
+            .quick-title {
+                font-size: 13px;
+                white-space: normal;
+            }
+
+            .quick-btn {
+                display: inline-flex;
+                align-items: center;
+                margin: 4px 3px;
+                font-size: 12px;
+                padding: 7px 10px;
+                border-radius: 18px;
+                white-space: nowrap;
+            }
+
+            .chat-footer {
+                padding: 12px;
+            }
+
+            .input-chat {
+                border-radius: 15px;
+                padding: 12px 13px;
+                font-size: 14px;
+            }
+
+            .btn-send {
+                border-radius: 15px;
+                padding: 11px;
+            }
         }
-        /* Evita scroll horizontal en móvil */
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-}
 
-/* Mejor vista para celulares */
-@media (max-width: 768px) {
+        @media (max-width: 420px) {
+            .chat-title h2 {
+                font-size: 1.2rem;
+            }
 
-    body {
-        min-height: 100dvh;
-    }
+            .chat-title p {
+                font-size: .82rem;
+            }
 
-    /* Navbar más compacta */
-    .navbar {
-        padding: 10px 0;
-    }
+            .chat-body {
+                height: calc(100dvh - 350px);
+                min-height: 330px;
+                padding: 12px;
+            }
 
-    .navbar .container {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch !important;
-    }
+            .avatar-chat,
+            .bot-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 13px;
+            }
 
-    .navbar-brand {
-        font-size: 1rem;
-        text-align: center;
-    }
+            .bubble {
+                max-width: 80vw;
+                font-size: .9rem;
+                padding: 11px 12px;
+            }
 
-    .navbar .d-flex {
-        justify-content: center;
-        gap: 8px !important;
-    }
+            .quick-btn {
+                font-size: 11px;
+                padding: 6px 9px;
+            }
 
-    .navbar .btn {
-        font-size: 12px;
-        padding: 6px 8px;
-    }
-
-    .profile-mini {
-        width: 34px;
-        height: 34px;
-    }
-
-    #modoOscuro {
-        width: 34px;
-        height: 34px;
-    }
-
-    /* Contenedor del chat */
-    .container.my-4 {
-        margin-top: 12px !important;
-        margin-bottom: 12px !important;
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    .chat-shell {
-        border-radius: 18px;
-        min-height: calc(100dvh - 120px);
-    }
-
-    /* Header del chat */
-    .chat-header {
-        padding: 18px 16px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .chat-title h2 {
-        font-size: 1.35rem;
-        line-height: 1.2;
-    }
-
-    .chat-title p {
-        font-size: 0.9rem;
-        line-height: 1.35;
-    }
-
-    .header-actions {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .status-pill {
-        font-size: 12px;
-        padding: 7px 10px;
-    }
-
-    /* Área de mensajes */
-    .chat-body {
-        height: calc(100dvh - 360px);
-        min-height: 360px;
-        padding: 14px;
-    }
-
-    .message-row {
-        gap: 7px;
-        margin-bottom: 14px;
-    }
-
-    .avatar-chat,
-    .bot-avatar {
-        width: 34px;
-        height: 34px;
-        font-size: 15px;
-    }
-
-    .bubble {
-        max-width: 82vw;
-        padding: 12px 14px;
-        border-radius: 16px;
-        font-size: 0.94rem;
-        line-height: 1.45;
-        word-wrap: break-word;
-        overflow-wrap: anywhere;
-    }
-
-    .bot-bubble {
-        border-left-width: 4px;
-        border-bottom-left-radius: 5px;
-    }
-
-    .user-bubble {
-        border-bottom-right-radius: 5px;
-    }
-
-    .time {
-        font-size: 10px;
-    }
-
-    /* Panel de bienvenida */
-    .welcome-panel {
-        padding: 18px;
-        border-radius: 18px;
-        margin-bottom: 16px;
-    }
-
-    .welcome-panel h3 {
-        font-size: 1.2rem;
-    }
-
-    .welcome-panel p {
-        font-size: 0.92rem;
-        margin-bottom: 14px;
-    }
-
-    .suggestion-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .suggestion-card {
-        padding: 14px;
-        border-radius: 16px;
-    }
-
-    .suggestion-card i {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-
-    .suggestion-card strong {
-        font-size: 14px;
-    }
-
-    .suggestion-card small {
-        font-size: 12px;
-    }
-
-    /* Preguntas rápidas con scroll horizontal */
-    .quick-area {
-        padding: 12px 12px 8px;
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: thin;
-    }
-
-    .quick-title {
-        font-size: 13px;
-        white-space: normal;
-    }
-
-    .quick-btn {
-        display: inline-flex;
-        align-items: center;
-        margin: 4px 3px;
-        font-size: 12px;
-        padding: 7px 10px;
-        border-radius: 18px;
-        white-space: nowrap;
-    }
-
-    /* Input del chat */
-    .chat-footer {
-        padding: 12px;
-    }
-
-    .input-chat {
-        border-radius: 15px;
-        padding: 12px 13px;
-        font-size: 14px;
-    }
-
-    .btn-send {
-        border-radius: 15px;
-        padding: 11px;
-    }
-}
-
-/* Extra pequeño: celulares muy angostos */
-@media (max-width: 420px) {
-
-    .chat-title h2 {
-        font-size: 1.2rem;
-    }
-
-    .chat-title p {
-        font-size: 0.82rem;
-    }
-
-    .chat-body {
-        height: calc(100dvh - 350px);
-        min-height: 330px;
-        padding: 12px;
-    }
-
-    .avatar-chat,
-    .bot-avatar {
-        width: 30px;
-        height: 30px;
-        font-size: 13px;
-    }
-
-    .bubble {
-        max-width: 80vw;
-        font-size: 0.9rem;
-        padding: 11px 12px;
-    }
-
-    .quick-btn {
-        font-size: 11px;
-        padding: 6px 9px;
-    }
-
-    .navbar .btn {
-        font-size: 11px;
-    }
-}
+            .navbar .btn {
+                font-size: 11px;
+            }
+        }
     </style>
 </head>
 
@@ -623,7 +766,7 @@ html, body {
 
 <div class="container my-4">
     <div class="row justify-content-center">
-        <div class="col-12 col-xl-10">
+        <div class="col-12 col-xl-11">
 
             <div class="chat-shell">
 
@@ -645,289 +788,236 @@ html, body {
                     </div>
                 </div>
 
-                <div class="chat-body" id="chatBody">
+                <div class="chat-layout">
 
-                    <div class="welcome-panel" id="welcomePanel">
-                        <h3>Hola {{ session.get("nombre") }}.</h3>
-                        <p>
-                            Soy SafeRoute IA. Puedo ayudarte a analizar reportes, detectar zonas de riesgo,
-                            revisar tu actividad y darte recomendaciones de seguridad.
-                        </p>
+                    <aside class="chat-sidebar">
+                        <h5 class="sidebar-title">
+                            <i class="fa-solid fa-lightbulb text-danger me-1"></i>
+                            Temas disponibles
+                        </h5>
 
-                        <div class="suggestion-grid">
-                            <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
-                                <i class="fa-solid fa-location-dot"></i>
-                                <strong>Zonas de riesgo</strong>
-                                <small>Pregúntame qué lugares conviene revisar antes de salir.</small>
-                            </button>
-
-                            <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
-                                <i class="fa-solid fa-shield-halved"></i>
-                                <strong>Consejos de seguridad</strong>
-                                <small>Recibe recomendaciones para moverte con mayor precaución.</small>
-                            </button>
-
-                            <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
-                                <i class="fa-solid fa-chart-line"></i>
-                                <strong>Mi actividad</strong>
-                                <small>Consulta tus reportes, zonas e incidentes más frecuentes.</small>
-                            </button>
-
-                            <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un incidente?')">
-                                <i class="fa-solid fa-file-circle-plus"></i>
-                                <strong>Reportar incidente</strong>
-                                <small>Te explico paso a paso cómo crear un reporte.</small>
-                            </button>
+                        <div class="sidebar-card">
+                            <strong><i class="fa-solid fa-map-location-dot text-danger me-1"></i> Zonas</strong>
+                            <small>Riesgo alto, zonas a evitar, mapa y reportes cercanos.</small>
                         </div>
-                    </div>
 
-                    <div class="message-row">
-                        <div class="bot-avatar">
-                            <i class="fa-solid fa-robot"></i>
+                        <div class="sidebar-card">
+                            <strong><i class="fa-solid fa-clipboard-list text-danger me-1"></i> Reportes</strong>
+                            <small>Crear, editar, eliminar, revisar estado y seguimiento.</small>
                         </div>
-                        <div>
-                            <div class="bubble bot-bubble">
+
+                        <div class="sidebar-card">
+                            <strong><i class="fa-solid fa-shield-halved text-danger me-1"></i> Seguridad</strong>
+                            <small>Consejos para caminar, evitar robos y actuar en emergencia.</small>
+                        </div>
+
+                        {% if session.get("rol") == "admin" %}
+                        <div class="sidebar-card">
+                            <strong><i class="fa-solid fa-user-shield text-danger me-1"></i> Admin</strong>
+                            <small>Usuarios, reportes totales, estadísticas y resumen del sistema.</small>
+                        </div>
+                        {% endif %}
+
+                        <h6 class="sidebar-title mt-3">Categorías</h6>
+
+                        <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('reportes')">Reportes</button>
+                        <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('seguridad')">Seguridad</button>
+                        <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('mapa')">Mapa</button>
+                        <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('cuenta')">Cuenta</button>
+                        {% if session.get("rol") == "admin" %}
+                        <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('admin')">Admin</button>
+                        {% endif %}
+                        <button class="btn btn-danger btn-sm category-chip" onclick="filtrarRapidas('todos')">Todo</button>
+
+                        <div class="empty-search" id="emptyQuickSearch">
+                            No hay preguntas en esta categoría.
+                        </div>
+                    </aside>
+
+                    <main class="chat-main">
+
+                        <div class="chat-body" id="chatBody">
+
+                            <div class="welcome-panel" id="welcomePanel">
+                                <h3>Hola {{ session.get("nombre") }}.</h3>
+                                <p>
+                                    Soy SafeRoute IA. Puedo ayudarte con reportes, zonas de riesgo,
+                                    recomendaciones de seguridad, mapa, perfil y estadísticas.
+                                </p>
+
+                                <div class="suggestion-grid">
+                                    <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
+                                        <i class="fa-solid fa-comments"></i>
+                                        <strong>Preguntas disponibles</strong>
+                                        <small>Te muestro ejemplos de lo que puedo responder.</small>
+                                    </button>
+
+                                    <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                        <strong>Consejos de seguridad</strong>
+                                        <small>Recibe recomendaciones para moverte con mayor precaución.</small>
+                                    </button>
+
+                                    <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un incidente?')">
+                                        <i class="fa-solid fa-file-circle-plus"></i>
+                                        <strong>Reportar incidente</strong>
+                                        <small>Te explico paso a paso cómo crear un reporte.</small>
+                                    </button>
+
+                                    <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                        <strong>Mi actividad</strong>
+                                        <small>Consulta tus reportes y actividad dentro del sistema.</small>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="message-row">
+                                <div class="bot-avatar">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div>
+                                    <div class="bubble bot-bubble">
 Hola {{ session.get("nombre") }}.
 
-Estoy listo para ayudarte. Puedes escribirme preguntas como:
-- ¿Cuál es la zona más peligrosa?
-- ¿Qué significa riesgo alto?
-- ¿Cómo edito un reporte?
-- Dame recomendaciones de seguridad.
+Estoy listo para ayudarte. Puedes preguntarme sobre:
+- Reportes y seguimiento.
+- Mapa y zonas de riesgo.
+- Consejos de seguridad.
+- Perfil y contraseña.
+- Estadísticas del sistema.
+                                    </div>
+                                    <div class="time">Ahora</div>
+                                </div>
                             </div>
-                            <div class="time">Ahora</div>
                         </div>
-                    </div>
+
+                        <div class="quick-area">
+                            <div class="quick-title">
+                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i>
+                                Preguntas rápidas
+                            </div>
+
+                            <span id="quickButtons">
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="mapa seguridad" onclick="enviarPreguntaRapida('¿Qué zona es la más peligrosa actualmente?')">
+                                    <i class="fa-solid fa-location-dot me-1"></i> Zona más peligrosa
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="mapa seguridad" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
+                                    <i class="fa-solid fa-map-location-dot me-1"></i> Zonas a evitar
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="seguridad" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> Recomendaciones
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta" onclick="enviarPreguntaRapida('¿Cuántos reportes tengo registrados?')">
+                                    <i class="fa-solid fa-clipboard-list me-1"></i> Mis reportes
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="cuenta reportes" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
+                                    <i class="fa-solid fa-chart-line me-1"></i> Mi actividad
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un nuevo incidente?')">
+                                    <i class="fa-solid fa-file-circle-plus me-1"></i> Reportar
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes" onclick="enviarPreguntaRapida('¿Cómo puedo editar o eliminar uno de mis reportes?')">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> Editar o eliminar
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="seguridad mapa" onclick="enviarPreguntaRapida('¿Qué significa que una zona tenga riesgo alto?')">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Riesgo alto
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta" onclick="enviarPreguntaRapida('¿Cuál fue mi último reporte?')">
+                                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Último reporte
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta" onclick="enviarPreguntaRapida('¿Qué tipo de incidente reporto más?')">
+                                    <i class="fa-solid fa-chart-simple me-1"></i> Incidente común
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta mapa" onclick="enviarPreguntaRapida('¿En qué zona reporto más incidentes?')">
+                                    <i class="fa-solid fa-location-dot me-1"></i> Mi zona frecuente
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="seguridad" onclick="enviarPreguntaRapida('¿Qué debo hacer si estoy en peligro?')">
+                                    <i class="fa-solid fa-phone-volume me-1"></i> Emergencia
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="seguridad" onclick="enviarPreguntaRapida('Dame recomendaciones para caminar seguro')">
+                                    <i class="fa-solid fa-person-walking me-1"></i> Caminar seguro
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="seguridad" onclick="enviarPreguntaRapida('¿Cómo puedo evitar robos?')">
+                                    <i class="fa-solid fa-user-shield me-1"></i> Evitar robos
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="ayuda cuenta" onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
+                                    <i class="fa-solid fa-comments me-1"></i> Ayuda
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="mapa ayuda" onclick="enviarPreguntaRapida('¿Cómo funciona el mapa?')">
+                                    <i class="fa-solid fa-map me-1"></i> Mapa
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="cuenta seguridad" onclick="enviarPreguntaRapida('¿Cómo protege mis datos SafeRoute MX?')">
+                                    <i class="fa-solid fa-lock me-1"></i> Privacidad
+                                </button>
+
+                                {% if session.get("rol") == "admin" %}
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin" onclick="enviarPreguntaRapida('¿Cuántos usuarios están registrados en el sistema?')">
+                                    <i class="fa-solid fa-users me-1"></i> Usuarios registrados
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin reportes" onclick="enviarPreguntaRapida('¿Cuántos reportes existen actualmente?')">
+                                    <i class="fa-solid fa-database me-1"></i> Reportes totales
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin seguridad" onclick="enviarPreguntaRapida('¿Cuántos reportes de riesgo alto hay?')">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Riesgo alto
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin reportes" onclick="enviarPreguntaRapida('¿Qué usuario tiene más reportes registrados?')">
+                                    <i class="fa-solid fa-user-check me-1"></i> Usuario más activo
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin mapa" onclick="enviarPreguntaRapida('¿Cuál es la zona más conflictiva del sistema?')">
+                                    <i class="fa-solid fa-location-crosshairs me-1"></i> Zona conflictiva
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin" onclick="enviarPreguntaRapida('Dame un resumen general del sistema')">
+                                    <i class="fa-solid fa-chart-pie me-1"></i> Resumen general
+                                </button>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="chat-footer">
+                            <form id="chatForm">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-9 col-md-10">
+                                        <input type="text"
+                                               id="pregunta"
+                                               class="form-control input-chat"
+                                               placeholder="Escribe tu pregunta..."
+                                               autocomplete="off"
+                                               required>
+                                    </div>
+
+                                    <div class="col-3 col-md-2">
+                                        <button type="submit" class="btn btn-danger w-100 btn-send">
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </main>
                 </div>
-
-                <div class="quick-area">
-                    <div class="quick-title">
-                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>
-                        Preguntas rápidas
-                    </div>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué zona es la más peligrosa actualmente?')">
-                        <i class="fa-solid fa-location-dot me-1"></i> Zona más peligrosa
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
-                        <i class="fa-solid fa-map-location-dot me-1"></i> Zonas a evitar
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
-                        <i class="fa-solid fa-shield-halved me-1"></i> Recomendaciones
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cuántos reportes tengo registrados?')">
-                        <i class="fa-solid fa-clipboard-list me-1"></i> Mis reportes
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
-                        <i class="fa-solid fa-chart-line me-1"></i> Mi actividad
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un nuevo incidente?')">
-                        <i class="fa-solid fa-file-circle-plus me-1"></i> Reportar
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Cómo puedo editar o eliminar uno de mis reportes?')">
-                        <i class="fa-solid fa-pen-to-square me-1"></i> Editar o eliminar
-                    </button>
-
-                    <button class="btn btn-outline-danger btn-sm quick-btn" onclick="enviarPreguntaRapida('¿Qué significa que una zona tenga riesgo alto?')">
-                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Riesgo alto
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cuál fue mi último reporte?')">
-<i class="fa-solid fa-clock-rotate-left me-1"></i>
-Último reporte
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cuántos reportes he realizado?')">
-<i class="fa-solid fa-list-check me-1"></i>
-Total de reportes
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cuál es mi nivel de riesgo?')">
-<i class="fa-solid fa-shield-halved me-1"></i>
-Mi riesgo
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué tipo de incidente reporto más?')">
-<i class="fa-solid fa-chart-simple me-1"></i>
-Incidente común
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿En qué zona reporto más incidentes?')">
-<i class="fa-solid fa-location-dot me-1"></i>
-Mi zona frecuente
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cómo puedo reportar un incidente?')">
-<i class="fa-solid fa-circle-plus me-1"></i>
-Cómo reportar
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cómo edito un reporte?')">
-<i class="fa-solid fa-pen-to-square me-1"></i>
-Editar reporte
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cómo elimino un reporte?')">
-<i class="fa-solid fa-trash me-1"></i>
-Eliminar reporte
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué significa riesgo alto?')">
-<i class="fa-solid fa-triangle-exclamation me-1"></i>
-Riesgo alto
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué significa riesgo medio?')">
-<i class="fa-solid fa-circle-exclamation me-1"></i>
-Riesgo medio
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué significa riesgo bajo?')">
-<i class="fa-solid fa-circle-check me-1"></i>
-Riesgo bajo
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué debo hacer si estoy en peligro?')">
-<i class="fa-solid fa-phone-volume me-1"></i>
-Emergencia
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('Dame recomendaciones para caminar seguro')">
-<i class="fa-solid fa-person-walking me-1"></i>
-Caminar seguro
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cómo puedo evitar robos?')">
-<i class="fa-solid fa-user-shield me-1"></i>
-Evitar robos
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué zonas debería evitar?')">
-<i class="fa-solid fa-ban me-1"></i>
-Zonas peligrosas
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('Muéstrame un resumen de mi actividad')">
-<i class="fa-solid fa-chart-column me-1"></i>
-Mi actividad
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
-<i class="fa-solid fa-comments me-1"></i>
-Ayuda
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Qué hace SafeRoute MX?')">
-<i class="fa-solid fa-map-location-dot me-1"></i>
-Acerca de SafeRoute
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cómo funciona el mapa?')">
-<i class="fa-solid fa-map me-1"></i>
-Mapa
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-onclick="enviarPreguntaRapida('¿Cómo protege mis datos SafeRoute MX?')">
-<i class="fa-solid fa-lock me-1"></i>
-Privacidad
-</button>
-                    {% if session.get("rol") == "admin" %}
-
-<div class="quick-title mt-3">
-    <i class="fa-solid fa-user-shield me-1"></i>
-    Preguntas de administrador
-</div>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('¿Cuántos usuarios están registrados en el sistema?')">
-    <i class="fa-solid fa-users me-1"></i>
-    Usuarios registrados
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('¿Cuántos reportes existen actualmente?')">
-    <i class="fa-solid fa-database me-1"></i>
-    Reportes totales
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('¿Cuántos reportes de riesgo alto hay?')">
-    <i class="fa-solid fa-triangle-exclamation me-1"></i>
-    Riesgo alto
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('¿Qué usuario tiene más reportes registrados?')">
-    <i class="fa-solid fa-user-check me-1"></i>
-    Usuario más activo
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('¿Cuál es la zona más conflictiva del sistema?')">
-    <i class="fa-solid fa-location-crosshairs me-1"></i>
-    Zona conflictiva
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('Dame un resumen general del sistema')">
-    <i class="fa-solid fa-chart-pie me-1"></i>
-    Resumen general
-</button>
-
-<button class="btn btn-outline-danger btn-sm quick-btn"
-        onclick="enviarPreguntaRapida('¿Qué puede hacer un administrador?')">
-    <i class="fa-solid fa-screwdriver-wrench me-1"></i>
-    Funciones admin
-</button>
-
-{% endif %}
-                </div>
-
-                <div class="chat-footer">
-    <form id="chatForm">
-        <div class="row g-2 align-items-center">
-            <div class="col-9 col-md-10">
-                <input type="text"
-                       id="pregunta"
-                       class="form-control input-chat"
-                       placeholder="Escribe tu pregunta..."
-                       autocomplete="off"
-                       required>
-            </div>
-
-            <div class="col-3 col-md-2">
-                <button type="submit" class="btn btn-danger w-100 btn-send">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
 
             </div>
 
@@ -943,7 +1033,7 @@ Privacidad
     const chatForm = document.getElementById("chatForm");
     const preguntaInput = document.getElementById("pregunta");
     const limpiarChat = document.getElementById("limpiarChat");
-    const welcomePanel = document.getElementById("welcomePanel");
+    let welcomePanel = document.getElementById("welcomePanel");
 
     const userPhoto = "{% if usuario and usuario.get('foto_perfil') %}{{ usuario.get('foto_perfil') }}{% else %}https://cdn-icons-png.flaticon.com/512/149/149071.png{% endif %}";
 
@@ -962,7 +1052,7 @@ Privacidad
     }
 
     function limpiarTexto(texto) {
-        return texto
+        return String(texto || "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
@@ -971,6 +1061,7 @@ Privacidad
     }
 
     function ocultarBienvenida() {
+        welcomePanel = document.getElementById("welcomePanel");
         if (welcomePanel) {
             welcomePanel.style.display = "none";
         }
@@ -994,47 +1085,47 @@ Privacidad
         bajarChat();
     }
 
-function agregarMensajeBot(texto) {
-    const row = document.createElement("div");
-    row.className = "message-row";
+    function agregarMensajeBot(texto) {
+        const row = document.createElement("div");
+        row.className = "message-row";
 
-    row.innerHTML = `
-        <div class="bot-avatar">
-            <i class="fa-solid fa-robot"></i>
-        </div>
-        <div>
-            <div class="bubble bot-bubble"></div>
-            <div class="time">${horaActual()}</div>
-        </div>
-    `;
+        row.innerHTML = `
+            <div class="bot-avatar">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+                <div class="bubble bot-bubble"></div>
+                <div class="time">${horaActual()}</div>
+            </div>
+        `;
 
-    chatBody.appendChild(row);
+        chatBody.appendChild(row);
 
-    const bubble = row.querySelector(".bot-bubble");
-    escribirRespuesta(bubble, texto);
-}
+        const bubble = row.querySelector(".bot-bubble");
+        escribirRespuesta(bubble, texto);
+    }
 
-function formatearRespuesta(texto) {
-    return texto
-        .replace(/<br\s*\/?>/gi, "\n")
-        .replace(/&lt;br&gt;/gi, "\n")
-        .replace(/&lt;br\/&gt;/gi, "\n");
-}
+    function formatearRespuesta(texto) {
+        return String(texto || "No encontré una respuesta disponible.")
+            .replace(/<br\s*\/?>/gi, "\n")
+            .replace(/&lt;br&gt;/gi, "\n")
+            .replace(/&lt;br\/&gt;/gi, "\n");
+    }
 
-function escribirRespuesta(elemento, texto) {
-    let i = 0;
-    const limpio = formatearRespuesta(texto);
+    function escribirRespuesta(elemento, texto) {
+        let i = 0;
+        const limpio = formatearRespuesta(texto);
 
-    const intervalo = setInterval(() => {
-        elemento.textContent += limpio[i];
-        i++;
-        bajarChat();
+        const intervalo = setInterval(() => {
+            elemento.textContent += limpio[i];
+            i++;
+            bajarChat();
 
-        if (i >= limpio.length) {
-            clearInterval(intervalo);
-        }
-    }, 8);
-}
+            if (i >= limpio.length) {
+                clearInterval(intervalo);
+            }
+        }, 7);
+    }
 
     function mostrarEscribiendo() {
         const row = document.createElement("div");
@@ -1075,6 +1166,7 @@ function escribirRespuesta(elemento, texto) {
 
         agregarMensajeUsuario(texto);
         preguntaInput.value = "";
+        preguntaInput.disabled = true;
         mostrarEscribiendo();
 
         const formData = new FormData();
@@ -1090,18 +1182,46 @@ function escribirRespuesta(elemento, texto) {
 
             setTimeout(() => {
                 quitarEscribiendo();
-                historialConversacion.push({ rol: "bot", mensaje: data.respuesta });
-                agregarMensajeBot(data.respuesta);
-            }, 800);
+
+                const respuesta = data.respuesta || "No encontré una respuesta para esa pregunta. Prueba con: ¿Qué puedo preguntarte?";
+                historialConversacion.push({ rol: "bot", mensaje: respuesta });
+                agregarMensajeBot(respuesta);
+
+                preguntaInput.disabled = false;
+                preguntaInput.focus();
+            }, 700);
 
         } catch (error) {
             quitarEscribiendo();
             agregarMensajeBot("Ocurrió un error al conectar con SafeRoute IA. Intenta nuevamente.");
+            preguntaInput.disabled = false;
+            preguntaInput.focus();
         }
     }
 
     function enviarPreguntaRapida(texto) {
         mandarPregunta(texto);
+    }
+
+    function filtrarRapidas(categoria) {
+        const botones = document.querySelectorAll(".quick-btn");
+        const empty = document.getElementById("emptyQuickSearch");
+        let visibles = 0;
+
+        botones.forEach(btn => {
+            const cats = btn.dataset.cat || "";
+
+            if (categoria === "todos" || cats.includes(categoria)) {
+                btn.style.display = "";
+                visibles++;
+            } else {
+                btn.style.display = "none";
+            }
+        });
+
+        if (empty) {
+            empty.style.display = visibles === 0 ? "block" : "none";
+        }
     }
 
     chatForm.addEventListener("submit", function(e) {
@@ -1116,14 +1236,14 @@ function escribirRespuesta(elemento, texto) {
                 <h3>Hola {{ session.get("nombre") }}.</h3>
                 <p>
                     Soy SafeRoute IA. Puedes iniciar una nueva conversación sobre reportes,
-                    zonas de riesgo o recomendaciones de seguridad.
+                    zonas de riesgo, mapa o recomendaciones de seguridad.
                 </p>
 
                 <div class="suggestion-grid">
-                    <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué zonas debo evitar?')">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <strong>Zonas de riesgo</strong>
-                        <small>Consulta lugares que conviene revisar antes de salir.</small>
+                    <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
+                        <i class="fa-solid fa-comments"></i>
+                        <strong>Preguntas disponibles</strong>
+                        <small>Consulta ejemplos de preguntas que puedo responder.</small>
                     </button>
 
                     <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
@@ -1134,6 +1254,7 @@ function escribirRespuesta(elemento, texto) {
                 </div>
             </div>
         `;
+        welcomePanel = document.getElementById("welcomePanel");
         bajarChat();
     });
 </script>

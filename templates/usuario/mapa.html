@@ -12,8 +12,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
 
     <style>
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
-            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(220,53,69,.08), transparent 22%),
+                radial-gradient(circle at 85% 70%, rgba(220,53,69,.10), transparent 24%),
+                linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
             overflow-x: hidden;
         }
@@ -36,44 +44,84 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: .3s ease;
+        }
+
+        #modoOscuro:hover {
+            transform: rotate(180deg) scale(1.08);
+            background: white;
+            color: #dc3545;
         }
 
         .hero-card {
             background:
-                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 25%),
-                white;
-            border-radius: 24px;
-            padding: 26px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
+                radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 24%),
+                linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            border-radius: 30px;
+            padding: 32px;
+            box-shadow: 0 14px 36px rgba(220,53,69,.28);
+            margin-bottom: 22px;
             animation: fadeUp 0.8s ease;
-            border-left: 8px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            right: -60px;
+            bottom: -70px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            animation: floatShape 7s ease-in-out infinite;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
 
         .title {
             font-weight: 900;
-            color: #222;
+            color: white;
         }
 
         .subtitle {
-            color: #6c757d;
+            color: rgba(255,255,255,.92);
             margin-bottom: 0;
         }
 
         .hero-actions .btn {
             border-radius: 14px;
+            font-weight: 900;
+            transition: .3s ease;
+        }
+
+        .hero-actions .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .map-status-pill {
+            display: inline-block;
+            margin-top: 14px;
+            border: 1px solid rgba(255,255,255,.35);
+            background: rgba(255,255,255,.15);
+            border-radius: 999px;
+            padding: 9px 14px;
             font-weight: 800;
         }
 
         .stats-box {
-            border-radius: 20px;
+            border-radius: 22px;
             padding: 22px;
             background: white;
-            text-align: center;
             font-weight: bold;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            box-shadow: 0 7px 22px rgba(0,0,0,0.09);
             transition: 0.3s ease;
-            min-height: 120px;
+            min-height: 126px;
             animation: fadeUp 0.8s ease;
             position: relative;
             overflow: hidden;
@@ -82,8 +130,8 @@
         .stats-box::after {
             content: "";
             position: absolute;
-            width: 85px;
-            height: 85px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
             background: rgba(0,0,0,.04);
             right: -25px;
@@ -91,23 +139,38 @@
         }
 
         .stats-box:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.13);
+            transform: translateY(-7px);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.14);
+        }
+
+        .stats-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
         }
 
         .icon-risk {
-            font-size: 32px;
-            display: block;
-            margin-bottom: 8px;
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 27px;
+            flex-shrink: 0;
         }
 
         .risk-number {
-            font-size: 28px;
+            font-size: 36px;
             font-weight: 900;
+            line-height: 1;
         }
 
         .risk-text {
             font-size: 15px;
+            margin-top: 14px;
+            color: #555;
         }
 
         .alto {
@@ -130,13 +193,19 @@
             color: #0d6efd;
         }
 
+        .icon-total { background: #e8f1ff; color: #0d6efd; }
+        .icon-alto { background: #ffe5e9; color: #dc3545; }
+        .icon-medio { background: #fff6db; color: #d39e00; }
+        .icon-bajo { background: #e7f7ee; color: #198754; }
+
         .filter-panel {
             background: white;
-            border-radius: 22px;
-            padding: 18px;
+            border-radius: 24px;
+            padding: 20px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.10);
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             animation: fadeUp 0.8s ease;
+            border-left: 7px solid #dc3545;
         }
 
         .filter-title {
@@ -148,21 +217,30 @@
         .form-select,
         .form-control {
             border-radius: 14px;
+            padding: 11px 13px;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 .20rem rgba(220,53,69,.15);
         }
 
         .map-card {
             background: white;
             padding: 16px;
-            border-radius: 22px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-radius: 24px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.13);
             animation: fadeUp 0.8s ease;
             position: relative;
+            overflow: hidden;
         }
 
         #map {
             height: 72vh;
             width: 100%;
-            border-radius: 16px;
+            border-radius: 18px;
+            z-index: 1;
         }
 
         .map-toolbar {
@@ -177,17 +255,23 @@
             padding: 10px;
             border-radius: 16px;
             box-shadow: 0 6px 20px rgba(0,0,0,.18);
+            backdrop-filter: blur(6px);
         }
 
         .map-toolbar .btn {
             border-radius: 12px;
             font-weight: 800;
+            transition: .3s ease;
+        }
+
+        .map-toolbar .btn:hover {
+            transform: translateY(-2px);
         }
 
         .legend {
             background: white;
             padding: 12px 14px;
-            border-radius: 12px;
+            border-radius: 14px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.18);
             font-size: 14px;
             line-height: 1.7;
@@ -197,14 +281,14 @@
             width: 18px;
         }
 
-        .pulse-soft {
-            animation: pulseSoft 1.8s infinite;
-        }
-
-        @keyframes pulseSoft {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-            100% { transform: scale(1); }
+        .map-empty-alert {
+            display: none;
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 16px;
+            box-shadow: 0 8px 22px rgba(0,0,0,.08);
+            text-align: center;
         }
 
         .fade-up {
@@ -218,25 +302,41 @@
             transform: translateY(0);
         }
 
+        .pulse-soft {
+            animation: pulseSoft 1.8s infinite;
+        }
+
+        @keyframes pulseSoft {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.035); }
+            100% { transform: scale(1); }
+        }
+
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-18px) scale(1.05); }
         }
 
         .community-reports {
-            margin-top: 42px;
-            margin-bottom: 55px;
+            margin-top: 46px;
+            margin-bottom: 60px;
         }
 
         .community-header {
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.08), transparent 28%),
+                white;
+            border-radius: 26px;
+            padding: 28px;
             text-align: center;
             margin-bottom: 28px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            border-left: 8px solid #dc3545;
         }
 
         .community-badge {
@@ -245,12 +345,12 @@
             color: #dc3545;
             padding: 8px 16px;
             border-radius: 999px;
-            font-weight: 800;
+            font-weight: 900;
             margin-bottom: 12px;
         }
 
         .community-header h3 {
-            font-size: 30px;
+            font-size: 31px;
             font-weight: 900;
             color: #222;
             margin-bottom: 8px;
@@ -258,8 +358,16 @@
 
         .community-header p {
             color: #6c757d;
-            max-width: 760px;
+            max-width: 780px;
             margin: 0 auto;
+        }
+
+        .community-tools {
+            background: white;
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.08);
+            margin-bottom: 24px;
         }
 
         .report-grid {
@@ -270,7 +378,7 @@
 
         .sr-report-card {
             background: #ffffff;
-            border-radius: 24px;
+            border-radius: 26px;
             padding: 22px;
             box-shadow: 0 10px 28px rgba(0,0,0,0.10);
             transition: 0.35s ease;
@@ -292,9 +400,22 @@
             background: rgba(220,53,69,.06);
         }
 
+        .sr-report-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(220,53,69,.04), transparent 50%);
+            opacity: 0;
+            transition: .35s ease;
+        }
+
+        .sr-report-card:hover::before {
+            opacity: 1;
+        }
+
         .sr-report-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 36px rgba(0,0,0,0.16);
+            transform: translateY(-9px) scale(1.01);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.17);
         }
 
         .sr-report-card.risk-high {
@@ -319,30 +440,35 @@
         }
 
         .sr-avatar-img {
-            width: 56px !important;
-            height: 56px !important;
-            min-width: 56px !important;
-            max-width: 56px !important;
-            min-height: 56px !important;
-            max-height: 56px !important;
+            width: 58px !important;
+            height: 58px !important;
+            min-width: 58px !important;
+            max-width: 58px !important;
+            min-height: 58px !important;
+            max-height: 58px !important;
             border-radius: 50% !important;
             object-fit: cover !important;
             display: block !important;
             border: 3px solid #f1f1f1;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: .3s ease;
+        }
+
+        .sr-report-card:hover .sr-avatar-img {
+            transform: scale(1.06);
         }
 
         .sr-avatar-letter {
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
+            width: 58px;
+            height: 58px;
+            min-width: 58px;
             border-radius: 50%;
             background: #dc3545;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 23px;
             font-weight: 900;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
@@ -402,18 +528,23 @@
             color: #198754;
         }
 
-        .sr-description {
-            color: #555;
-            font-size: 15px;
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
+.sr-description {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+}
 
         .sr-report-photo {
             width: 100%;
-            height: 180px;
+            height: 190px;
             object-fit: cover;
-            border-radius: 16px;
+            border-radius: 18px;
             margin-bottom: 16px;
             box-shadow: 0 6px 16px rgba(0,0,0,0.12);
             transition: .35s ease;
@@ -462,14 +593,25 @@
         .sr-card-actions .btn {
             border-radius: 12px;
             font-weight: 800;
+            transition: .3s ease;
         }
 
-        .sr-empty {
+        .sr-card-actions .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .sr-empty,
+        .sr-no-results {
             background: white;
-            border-radius: 22px;
-            padding: 35px;
+            border-radius: 24px;
+            padding: 36px;
             text-align: center;
             box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .sr-no-results {
+            display: none;
+            margin-bottom: 24px;
         }
 
         .sr-empty-icon {
@@ -487,7 +629,7 @@
 
         .modal-content {
             border: none;
-            border-radius: 24px;
+            border-radius: 26px;
             overflow: hidden;
             box-shadow: 0 18px 44px rgba(0,0,0,.25);
         }
@@ -504,7 +646,7 @@
 
         .modal-img {
             width: 100%;
-            max-height: 320px;
+            max-height: 340px;
             object-fit: cover;
             border-radius: 18px;
             box-shadow: 0 8px 20px rgba(0,0,0,.14);
@@ -522,21 +664,27 @@
             color: #222;
         }
 
-        body.dark .hero-card,
+        body.dark .hero-card {
+            box-shadow: 0 14px 36px rgba(0,0,0,.35);
+        }
+
         body.dark .stats-box,
         body.dark .map-card,
         body.dark .filter-panel,
         body.dark .sr-report-card,
         body.dark .sr-empty,
+        body.dark .sr-no-results,
         body.dark .legend,
         body.dark .map-toolbar,
         body.dark .detail-box,
-        body.dark .sr-info-box {
+        body.dark .sr-info-box,
+        body.dark .community-header,
+        body.dark .community-tools,
+        body.dark .map-empty-alert {
             background: #1f1f1f !important;
             color: white !important;
         }
 
-        body.dark .title,
         body.dark .community-header h3,
         body.dark .sr-user-row h5,
         body.dark .sr-report-top h4,
@@ -545,7 +693,7 @@
             color: white !important;
         }
 
-        body.dark .subtitle,
+        body.dark .risk-text,
         body.dark .community-header p,
         body.dark .sr-user-row small,
         body.dark .sr-description {
@@ -554,6 +702,17 @@
 
         body.dark .sr-info-box p {
             color: white !important;
+        }
+
+        body.dark .form-select,
+        body.dark .form-control {
+            background: #2f2f2f !important;
+            color: #ffffff !important;
+            border-color: #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
         }
 
         @media (max-width: 992px) {
@@ -567,27 +726,28 @@
         }
 
         @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
             .hero-card {
-                padding: 18px;
+                padding: 24px;
                 text-align: center;
+                border-radius: 24px;
             }
 
             .title {
-                font-size: 22px;
+                font-size: 24px;
             }
 
             .stats-box {
                 padding: 18px;
-                min-height: 105px;
+                min-height: 112px;
             }
 
             #map {
                 height: 60vh;
-            }
-
-            .navbar .container {
-                flex-direction: column;
-                gap: 10px;
             }
 
             .report-grid {
@@ -608,6 +768,10 @@
                 box-shadow: none;
                 justify-content: center;
             }
+
+            .map-card {
+                padding: 12px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -616,11 +780,17 @@
             }
 
             .risk-number {
-                font-size: 24px;
+                font-size: 28px;
             }
 
             .icon-risk {
-                font-size: 28px;
+                width: 50px;
+                height: 50px;
+                font-size: 23px;
+            }
+
+            .community-header {
+                padding: 22px;
             }
         }
     </style>
@@ -658,22 +828,34 @@
 <div class="container my-4">
 
     <div class="hero-card fade-up">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <h3 class="title">
-                    <i class="fa-solid fa-map-location-dot text-danger me-2"></i>
-                    Mapa General de Reportes
-                </h3>
-                <p class="subtitle">
-                    Consulta reportes aprobados por la comunidad, revisa detalles y ubica zonas de riesgo antes de salir.
-                </p>
-            </div>
+        <div class="hero-content">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h3 class="title">
+                        <i class="fa-solid fa-map-location-dot me-2"></i>
+                        Mapa General de Reportes
+                    </h3>
+                    <p class="subtitle">
+                        Consulta reportes aprobados por la comunidad, revisa detalles y ubica zonas de riesgo antes de salir.
+                    </p>
 
-            <div class="hero-actions">
-                <a href="#comunidad" class="btn btn-danger">
-                    <i class="fa-solid fa-users me-1"></i>
-                    Ver comunidad
-                </a>
+                    <span class="map-status-pill">
+                        <i class="fa-solid fa-circle-check me-1"></i>
+                        Reportes comunitarios activos
+                    </span>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="#comunidad" class="btn btn-light text-danger me-1 mb-2">
+                        <i class="fa-solid fa-users me-1"></i>
+                        Ver comunidad
+                    </a>
+
+                    <a href="/reportar" class="btn btn-outline-light mb-2">
+                        <i class="fa-solid fa-plus me-1"></i>
+                        Crear reporte
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -682,40 +864,48 @@
 
         <div class="col-6 col-md-3">
             <div class="stats-box total pulse-soft">
-                <span class="icon-risk">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                </span>
-                <div class="risk-number" id="totalCount">0</div>
+                <div class="stats-head">
+                    <span class="icon-risk icon-total">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </span>
+                    <div class="risk-number" id="totalCount">0</div>
+                </div>
                 <div class="risk-text">Reportes visibles</div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stats-box alto pulse-soft">
-                <span class="icon-risk">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </span>
-                <div class="risk-number" id="altoCount">0</div>
+                <div class="stats-head">
+                    <span class="icon-risk icon-alto">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </span>
+                    <div class="risk-number" id="altoCount">0</div>
+                </div>
                 <div class="risk-text">Alto riesgo</div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stats-box medio pulse-soft">
-                <span class="icon-risk">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                </span>
-                <div class="risk-number" id="medioCount">0</div>
+                <div class="stats-head">
+                    <span class="icon-risk icon-medio">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </span>
+                    <div class="risk-number" id="medioCount">0</div>
+                </div>
                 <div class="risk-text">Medio riesgo</div>
             </div>
         </div>
 
         <div class="col-6 col-md-3">
             <div class="stats-box bajo pulse-soft">
-                <span class="icon-risk">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </span>
-                <div class="risk-number" id="bajoCount">0</div>
+                <div class="stats-head">
+                    <span class="icon-risk icon-bajo">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </span>
+                    <div class="risk-number" id="bajoCount">0</div>
+                </div>
                 <div class="risk-text">Bajo riesgo</div>
             </div>
         </div>
@@ -729,7 +919,7 @@
         </h5>
 
         <div class="row g-3 align-items-end">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 <label class="form-label fw-bold">Gravedad</label>
                 <select id="filtroGravedad" class="form-select">
                     <option value="Todos">Todos</option>
@@ -741,13 +931,20 @@
 
             <div class="col-12 col-md-5">
                 <label class="form-label fw-bold">Buscar reporte</label>
-                <input type="text" id="buscarReporte" class="form-control" placeholder="Ej. robo, colonia, calle...">
+                <input type="text" id="buscarReporte" class="form-control" placeholder="Ej. robo, colonia, calle, usuario...">
             </div>
 
-            <div class="col-12 col-md-3 d-grid">
+            <div class="col-12 col-md-2 d-grid">
                 <button class="btn btn-danger fw-bold" onclick="aplicarFiltros()">
                     <i class="fa-solid fa-magnifying-glass me-1"></i>
                     Buscar
+                </button>
+            </div>
+
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-outline-danger fw-bold" onclick="limpiarFiltros()">
+                    <i class="fa-solid fa-rotate-right me-1"></i>
+                    Limpiar
                 </button>
             </div>
         </div>
@@ -772,6 +969,11 @@
         </div>
 
         <div id="map"></div>
+
+        <div class="map-empty-alert" id="mapEmptyAlert">
+            <i class="fa-solid fa-magnifying-glass text-danger me-1"></i>
+            No hay reportes que coincidan con los filtros actuales.
+        </div>
     </div>
 
     <section class="community-reports fade-up" id="comunidad">
@@ -790,6 +992,35 @@
         </div>
 
         {% if reportes %}
+
+        <div class="community-tools">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-8">
+                    <strong>
+                        <i class="fa-solid fa-layer-group text-danger me-1"></i>
+                        Vista comunitaria
+                    </strong>
+                    <div class="text-muted small">
+                        Los reportes mostrados son los que pasaron revisión y están disponibles para la comunidad.
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4 d-grid">
+                    <a href="/reportar" class="btn btn-danger fw-bold">
+                        <i class="fa-solid fa-plus me-1"></i>
+                        Aportar reporte
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="sr-no-results" id="noCardsResults">
+            <div class="sr-empty-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h4 class="fw-bold">No se encontraron reportes</h4>
+            <p class="text-muted mb-0">Cambia los filtros o limpia la búsqueda para volver a ver la comunidad.</p>
+        </div>
 
         <div class="report-grid" id="reportGrid">
 
@@ -815,7 +1046,10 @@
 
                     <div>
                         <h5>{{ reporte.nombre_usuario or "Usuario SafeRoute" }}</h5>
-                        <small>Reportó este incidente</small>
+                        <small>
+                            <i class="fa-solid fa-circle-check text-success me-1"></i>
+                            Reporte comunitario
+                        </small>
                     </div>
 
                 </div>
@@ -974,6 +1208,7 @@
     var markersPorId = {};
     var bounds = [];
     var reporteActual = null;
+    var pulseTimers = [];
 
     function getColor(gravedad) {
         if (gravedad === "Alta") return "#dc3545";
@@ -998,7 +1233,13 @@
         return String(valor).toLowerCase();
     }
 
+    function limpiarTimers() {
+        pulseTimers.forEach(t => clearInterval(t));
+        pulseTimers = [];
+    }
+
     function renderizarMapa(lista) {
+        limpiarTimers();
         markerGroup.clearLayers();
         markersPorId = {};
         bounds = [];
@@ -1017,23 +1258,23 @@
 
                 var circle = L.circleMarker([r.latitud, r.longitud], {
                     radius: 10,
-                    color: getColor(r.gravedad),
+                    color: "#ffffff",
                     fillColor: getColor(r.gravedad),
-                    fillOpacity: 0.9,
+                    fillOpacity: 0.95,
                     weight: 3
                 }).addTo(markerGroup);
 
                 let radius = 40;
                 let grow = true;
 
-                setInterval(() => {
+                const timer = setInterval(() => {
                     radius += 18;
 
                     pulseCircle.setRadius(radius);
 
                     pulseCircle.setStyle({
-                        opacity: 1 - (radius / 260),
-                        fillOpacity: 0.16 - (radius / 2200)
+                        opacity: Math.max(0, 1 - (radius / 260)),
+                        fillOpacity: Math.max(0, 0.16 - (radius / 2200))
                     });
 
                     if (radius > 250) {
@@ -1041,24 +1282,20 @@
                     }
 
                     if (grow) {
-                        circle.setRadius(16);
-                        circle.setStyle({
-                            fillOpacity: 1,
-                            opacity: 1
-                        });
+                        circle.setRadius(15);
+                        circle.setStyle({ fillOpacity: 1, opacity: 1 });
                     } else {
                         circle.setRadius(9);
-                        circle.setStyle({
-                            fillOpacity: 0.55,
-                            opacity: 0.75
-                        });
+                        circle.setStyle({ fillOpacity: 0.65, opacity: 0.8 });
                     }
 
                     grow = !grow;
-                }, 450);
+                }, 500);
+
+                pulseTimers.push(timer);
 
                 circle.bindPopup(`
-                    <div style="font-family:Arial; font-size:14px; min-width:240px;">
+                    <div style="font-family:Arial; font-size:14px; min-width:245px;">
                         ${r.foto_reporte ? `<img src="${r.foto_reporte}" class="popup-report-photo" alt="Foto del incidente">` : ""}
 
                         <b style="font-size:16px;">
@@ -1091,8 +1328,14 @@
             }
         });
 
+        const emptyAlert = document.getElementById("mapEmptyAlert");
+
         if (bounds.length > 0) {
             map.fitBounds(bounds, { padding: [30, 30] });
+            emptyAlert.style.display = "none";
+        } else {
+            map.setView([19.4326, -99.1332], 12);
+            emptyAlert.style.display = "block";
         }
     }
 
@@ -1158,11 +1401,19 @@
 
     function filtrarCards(lista) {
         const idsVisibles = lista.map(r => String(r.id));
+        let visibles = 0;
 
         document.querySelectorAll(".sr-report-card").forEach(card => {
             const id = String(card.dataset.id);
-            card.style.display = idsVisibles.includes(id) ? "block" : "none";
+            const visible = idsVisibles.includes(id);
+            card.style.display = visible ? "block" : "none";
+            if (visible) visibles++;
         });
+
+        const noResults = document.getElementById("noCardsResults");
+        if (noResults) {
+            noResults.style.display = visibles === 0 ? "block" : "none";
+        }
     }
 
     function buscarReportePorId(id) {
@@ -1236,10 +1487,10 @@
     });
 
     document.getElementById("buscarReporte").addEventListener("keyup", function(e) {
-        if (e.key === "Enter") {
-            aplicarFiltros();
-        }
+        aplicarFiltros();
     });
+
+    document.getElementById("filtroGravedad").addEventListener("change", aplicarFiltros);
 
     var legend = L.control({ position: "bottomright" });
 
