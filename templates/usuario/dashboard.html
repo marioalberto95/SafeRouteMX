@@ -413,6 +413,38 @@
                 text-align: center;
             }
         }
+        .btn-nav{
+    border-radius:12px;
+    font-weight:700;
+    transition:all .35s ease;
+}
+
+.btn-nav:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.btn-nav i{
+    transition:.35s;
+}
+
+.btn-nav:hover i{
+    transform:scale(1.2);
+}
+
+.profile-mini{
+    width:45px;
+    height:45px;
+    object-fit:cover;
+    border-radius:50%;
+    border:3px solid white;
+    transition:.35s;
+}
+
+.profile-mini:hover{
+    transform:scale(1.1) rotate(5deg);
+    box-shadow:0 0 15px rgba(255,255,255,.6);
+}
     </style>
 </head>
 
@@ -428,6 +460,12 @@
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
 
+            <!-- BOTÓN INICIO -->
+            <a href="/" class="btn btn-danger btn-nav">
+                <i class="fa-solid fa-house me-1"></i>
+                Inicio
+            </a>
+
             <button id="modoOscuro" class="btn btn-outline-light btn-sm">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -440,7 +478,7 @@
                 {% endif %}
             </a>
 
-            <a href="/logout" class="btn btn-outline-light btn-sm">
+            <a href="/logout" class="btn btn-outline-light btn-sm btn-nav">
                 <i class="fa-solid fa-right-from-bracket me-1"></i>
                 Salir
             </a>
