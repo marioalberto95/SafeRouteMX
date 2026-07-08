@@ -13,6 +13,7 @@
         body {
             background: linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -36,16 +37,102 @@
         }
 
         .hero-card {
-            background: white;
-            border-radius: 22px;
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 28%),
+                white;
+            border-radius: 24px;
             padding: 28px;
             box-shadow: 0 8px 25px rgba(0,0,0,.08);
             animation: fadeUp .7s ease;
+            border-left: 8px solid #dc3545;
         }
 
         .title {
             font-weight: 900;
             color: #222;
+        }
+
+        .admin-badge {
+            border-radius: 30px;
+            padding: 9px 14px;
+            font-weight: 800;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 7px 20px rgba(0,0,0,.08);
+            height: 100%;
+            transition: .3s ease;
+            border-top: 5px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.04);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.13);
+        }
+
+        .stats-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 23px;
+        }
+
+        .stats-number {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .stats-label {
+            font-weight: 800;
+            color: #555;
+            margin: 0;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            animation: fadeUp .75s ease;
+        }
+
+        .filters-title {
+            font-weight: 900;
+            color: #222;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 14px;
+            padding: 11px 13px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 .20rem rgba(220,53,69,.15);
         }
 
         .user-card {
@@ -56,6 +143,21 @@
             box-shadow: 0 6px 18px rgba(0,0,0,.08);
             transition: .3s;
             border-left: 8px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp .7s ease;
+        }
+
+        .user-card::after {
+            content: "";
+            position: absolute;
+            right: -26px;
+            bottom: -26px;
+            width: 98px;
+            height: 98px;
+            border-radius: 50%;
+            background: rgba(220,53,69,.05);
+            pointer-events: none;
         }
 
         .user-card:hover {
@@ -74,6 +176,7 @@
         .user-icon {
             width: 58px;
             height: 58px;
+            min-width: 58px;
             border-radius: 50%;
             background: #ffe5e9;
             color: #dc3545;
@@ -82,11 +185,22 @@
             align-items: center;
             font-size: 24px;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,.13);
         }
 
         .user-role .user-icon {
             background: #e7f7ee;
             color: #198754;
+        }
+
+        .admin-user-photo {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f1f1f1;
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+            flex-shrink: 0;
         }
 
         .badge-custom {
@@ -99,6 +213,8 @@
             margin-bottom: 10px;
             color: #444;
             word-break: break-word;
+            position: relative;
+            z-index: 2;
         }
 
         .info-line i {
@@ -111,11 +227,17 @@
             font-weight: bold;
         }
 
-        .empty-card {
+        .empty-card,
+        .no-results {
             background: white;
             border-radius: 22px;
             padding: 34px;
             box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            text-align: center;
+        }
+
+        .no-results {
+            display: none;
         }
 
         .empty-icon {
@@ -129,6 +251,11 @@
             align-items: center;
             font-size: 34px;
             margin: 0 auto 16px;
+        }
+
+        .role-form {
+            position: relative;
+            z-index: 2;
         }
 
         @keyframes fadeUp {
@@ -153,15 +280,37 @@
                 padding: 22px;
             }
         }
-        .admin-user-photo {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #f1f1f1;
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    flex-shrink: 0;
-}
+
+        body.dark .hero-card,
+        body.dark .stats-card,
+        body.dark .filters-card,
+        body.dark .user-card,
+        body.dark .empty-card,
+        body.dark .no-results {
+            background: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .title,
+        body.dark .filters-title {
+            color: #ffffff !important;
+        }
+
+        body.dark .info-line,
+        body.dark .stats-label {
+            color: #ffffff !important;
+        }
+
+        body.dark .form-select,
+        body.dark .form-control {
+            background: #2f2f2f !important;
+            color: #ffffff !important;
+            border: 1px solid #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
+        }
     </style>
 </head>
 
@@ -192,40 +341,145 @@
 <div class="container my-4">
 
     <div class="hero-card mb-4">
-        <h2 class="title">
-            <i class="fa-solid fa-users text-danger me-2"></i>
-            Usuarios registrados
-        </h2>
-        <p class="text-muted mb-0">
-            Consulta los usuarios registrados y sus roles dentro del sistema.
-        </p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="title">
+                    <i class="fa-solid fa-users text-danger me-2"></i>
+                    Usuarios registrados
+                </h2>
+                <p class="text-muted mb-0">
+                    Consulta, busca, filtra y administra los roles de los usuarios dentro del sistema.
+                </p>
+            </div>
+
+            <span class="badge bg-danger admin-badge">
+                <i class="fa-solid fa-user-shield me-1"></i>
+                Control de usuarios
+            </span>
+        </div>
     </div>
 
     {% if usuarios %}
 
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="stats-number" id="statTotal">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Total visible</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="stats-number" id="statUsuarios">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Usuarios</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div class="stats-number" id="statAdmins">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Admins</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <div class="stats-number" id="statFoto">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Con foto</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-card mb-4">
+            <h5 class="filters-title">
+                <i class="fa-solid fa-magnifying-glass text-danger me-2"></i>
+                Buscar y filtrar usuarios
+            </h5>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-6">
+                    <label class="form-label fw-bold">Buscar</label>
+                    <input type="text"
+                           id="buscarUsuario"
+                           class="form-control"
+                           placeholder="Buscar por nombre, correo o rol...">
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label class="form-label fw-bold">Rol</label>
+                    <select id="filtroRol" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="admin">Administradores</option>
+                        <option value="usuario">Usuarios</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3 d-grid">
+                    <button class="btn btn-danger fw-bold btn-custom" onclick="limpiarFiltros()">
+                        <i class="fa-solid fa-rotate-right me-1"></i>
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results mb-4" id="noResults">
+            <div class="empty-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <h4 class="fw-bold">No se encontraron usuarios</h4>
+            <p class="text-muted mb-0">
+                Cambia la búsqueda o limpia los filtros para ver todos los usuarios.
+            </p>
+        </div>
+
+        <div class="row g-4" id="usuariosGrid">
 
             {% for usuario in usuarios %}
 
-                <div class="col-12 col-md-6 col-lg-4">
+                <div class="col-12 col-md-6 col-lg-4 usuario-item"
+                     data-nombre="{{ usuario.nombre or '' }}"
+                     data-correo="{{ usuario.correo or '' }}"
+                     data-rol="{{ usuario.rol or '' }}"
+                     data-foto="{% if usuario.get('foto_perfil') %}si{% else %}no{% endif %}">
                     <div class="user-card {% if usuario.rol == 'admin' %}admin-role{% else %}user-role{% endif %}">
 
                         <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
 
                             <div class="d-flex align-items-center gap-3">
-                                <div class="user-icon">
-                                    {% if usuario.get("foto_perfil") %}
-    <img src="{{ usuario.get('foto_perfil') }}" class="admin-user-photo" alt="Foto de usuario">
-{% else %}
-    <div class="user-icon">
-        {% if usuario.rol == 'admin' %}
-            <i class="fa-solid fa-user-shield"></i>
-        {% else %}
-            <i class="fa-solid fa-user"></i>
-        {% endif %}
-    </div>
-{% endif %}
-                                </div>
+                                {% if usuario.get("foto_perfil") %}
+                                    <img src="{{ usuario.get('foto_perfil') }}" class="admin-user-photo" alt="Foto de usuario">
+                                {% else %}
+                                    <div class="user-icon">
+                                        {% if usuario.rol == 'admin' %}
+                                            <i class="fa-solid fa-user-shield"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-user"></i>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 
                                 <div>
                                     <h4 class="fw-bold mb-1">
@@ -234,10 +488,12 @@
 
                                     {% if usuario.rol == 'admin' %}
                                         <span class="badge bg-danger badge-custom">
+                                            <i class="fa-solid fa-user-shield me-1"></i>
                                             Administrador
                                         </span>
                                     {% else %}
                                         <span class="badge bg-success badge-custom">
+                                            <i class="fa-solid fa-user me-1"></i>
                                             Usuario
                                         </span>
                                     {% endif %}
@@ -258,26 +514,27 @@
                             {{ usuario.rol }}
                         </p>
 
-     <form method="POST"
-      action="/admin/usuarios/rol/{{ usuario.id }}"
-      class="mt-3">
+                        <form method="POST"
+                              action="/admin/usuarios/rol/{{ usuario.id }}"
+                              class="mt-3 role-form">
 
-    <div class="input-group">
-        <select name="rol" class="form-select">
-            <option value="usuario" {% if usuario.rol == "usuario" %}selected{% endif %}>
-                Usuario
-            </option>
-            <option value="admin" {% if usuario.rol == "admin" %}selected{% endif %}>
-                Administrador
-            </option>
-        </select>
+                            <div class="input-group">
+                                <select name="rol" class="form-select">
+                                    <option value="usuario" {% if usuario.rol == "usuario" %}selected{% endif %}>
+                                        Usuario
+                                    </option>
+                                    <option value="admin" {% if usuario.rol == "admin" %}selected{% endif %}>
+                                        Administrador
+                                    </option>
+                                </select>
 
-        <button type="submit" class="btn btn-warning btn-custom">
-            <i class="fa-solid fa-pen-to-square me-1"></i>
-            Cambiar
-        </button>
-    </div>
-</form>
+                                <button type="submit" class="btn btn-warning btn-custom">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i>
+                                    Cambiar
+                                </button>
+                            </div>
+                        </form>
+
                         {% if usuario.rol != 'admin' %}
                         <button type="button"
                                 class="btn btn-danger btn-sm mt-3 btn-custom"
@@ -357,6 +614,86 @@
         const url = button.getAttribute('data-url');
         document.getElementById('formEliminarUsuario').action = url;
     });
+
+    const buscador = document.getElementById("buscarUsuario");
+    const filtroRol = document.getElementById("filtroRol");
+    const usuariosItems = document.querySelectorAll(".usuario-item");
+    const noResults = document.getElementById("noResults");
+
+    function normalizar(texto) {
+        return (texto || "")
+            .toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function actualizarEstadisticas() {
+        let visibles = 0;
+        let usuarios = 0;
+        let admins = 0;
+        let conFoto = 0;
+
+        usuariosItems.forEach(item => {
+            if (item.style.display !== "none") {
+                visibles++;
+
+                const rol = item.dataset.rol || "";
+                const foto = item.dataset.foto || "";
+
+                if (rol === "admin") admins++;
+                if (rol === "usuario") usuarios++;
+                if (foto === "si") conFoto++;
+            }
+        });
+
+        if (document.getElementById("statTotal")) document.getElementById("statTotal").textContent = visibles;
+        if (document.getElementById("statUsuarios")) document.getElementById("statUsuarios").textContent = usuarios;
+        if (document.getElementById("statAdmins")) document.getElementById("statAdmins").textContent = admins;
+        if (document.getElementById("statFoto")) document.getElementById("statFoto").textContent = conFoto;
+    }
+
+    function filtrarUsuarios() {
+        const texto = normalizar(buscador.value);
+        const rol = filtroRol.value;
+
+        let encontrados = 0;
+
+        usuariosItems.forEach(item => {
+            const contenido = normalizar(
+                item.dataset.nombre + " " +
+                item.dataset.correo + " " +
+                item.dataset.rol
+            );
+
+            const coincideTexto = contenido.includes(texto);
+            const coincideRol = rol === "Todos" || item.dataset.rol === rol;
+
+            if (coincideTexto && coincideRol) {
+                item.style.display = "";
+                encontrados++;
+            } else {
+                item.style.display = "none";
+            }
+        });
+
+        if (noResults) {
+            noResults.style.display = encontrados === 0 ? "block" : "none";
+        }
+
+        actualizarEstadisticas();
+    }
+
+    function limpiarFiltros() {
+        buscador.value = "";
+        filtroRol.value = "Todos";
+        filtrarUsuarios();
+    }
+
+    if (buscador) buscador.addEventListener("input", filtrarUsuarios);
+    if (filtroRol) filtroRol.addEventListener("change", filtrarUsuarios);
+
+    actualizarEstadisticas();
 </script>
 
 </body>

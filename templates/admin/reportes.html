@@ -231,6 +231,128 @@
         body.dark .form-control::placeholder {
             color: #bdbdbd !important;
         }
+
+        .admin-badge {
+            border-radius: 30px;
+            padding: 9px 14px;
+            font-weight: 800;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 7px 20px rgba(0,0,0,.08);
+            height: 100%;
+            transition: .3s ease;
+            border-top: 5px solid #dc3545;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(0,0,0,.04);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,.13);
+        }
+
+        .stats-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 23px;
+        }
+
+        .stats-number {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .stats-label {
+            font-weight: 800;
+            color: #555;
+            margin: 0;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            animation: fadeUp .75s ease;
+        }
+
+        .filters-title {
+            font-weight: 900;
+            color: #222;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 .20rem rgba(220,53,69,.15);
+        }
+
+        .report-card::after {
+            content: "";
+            position: absolute;
+            right: -26px;
+            bottom: -26px;
+            width: 98px;
+            height: 98px;
+            border-radius: 50%;
+            background: rgba(220,53,69,.05);
+            pointer-events: none;
+        }
+
+        .report-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .no-results {
+            display: none;
+            background: white;
+            border-radius: 22px;
+            padding: 32px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            text-align: center;
+        }
+
+        .modal-img {
+            width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            background: #111;
+        }
+
+        body.dark .filters-card,
+        body.dark .stats-card,
+        body.dark .no-results {
+            background: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .filters-title {
+            color: #ffffff !important;
+        }
+
     </style>
 </head>
 
@@ -261,22 +383,144 @@
 <div class="container my-4">
 
     <div class="hero-card mb-4">
-        <h2 class="title">
-            <i class="fa-solid fa-file-lines text-danger me-2"></i>
-            Reportes registrados
-        </h2>
-        <p class="text-muted mb-0">
-            Visualiza, aprueba y da seguimiento a todos los incidentes reportados por los usuarios.
-        </p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="title">
+                    <i class="fa-solid fa-file-lines text-danger me-2"></i>
+                    Reportes registrados
+                </h2>
+                <p class="text-muted mb-0">
+                    Visualiza, busca, aprueba y da seguimiento a todos los incidentes reportados por los usuarios.
+                </p>
+            </div>
+
+            <span class="badge bg-danger admin-badge">
+                <i class="fa-solid fa-user-shield me-1"></i>
+                Gestión administrativa
+            </span>
+        </div>
     </div>
 
     {% if reportes %}
 
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div class="stats-number" id="statTotal">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Total visible</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="stats-number" id="statPendientes">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Pendientes</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div class="stats-number" id="statSeguimiento">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Seguimiento</p>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-icon">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="stats-number" id="statAlta">0</div>
+                    </div>
+                    <p class="stats-label mt-3">Riesgo alto</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-card mb-4">
+            <h5 class="filters-title">
+                <i class="fa-solid fa-magnifying-glass text-danger me-2"></i>
+                Buscar y filtrar reportes
+            </h5>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-5">
+                    <label class="form-label fw-bold">Buscar</label>
+                    <input type="text"
+                           id="buscarReporte"
+                           class="form-control"
+                           placeholder="Buscar por tipo, ubicación, usuario, descripción o comentario...">
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2">
+                    <label class="form-label fw-bold">Gravedad</label>
+                    <select id="filtroGravedad" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label class="form-label fw-bold">Estado</label>
+                    <select id="filtroEstado" class="form-select">
+                        <option value="Todos">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="En seguimiento">En seguimiento</option>
+                        <option value="Resuelto">Resuelto</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2 d-grid">
+                    <button class="btn btn-danger fw-bold btn-custom" onclick="limpiarFiltros()">
+                        <i class="fa-solid fa-rotate-right me-1"></i>
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results mb-4" id="noResults">
+            <div class="empty-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h4 class="fw-bold">No se encontraron reportes</h4>
+            <p class="text-muted mb-0">
+                Cambia la búsqueda o limpia los filtros para ver todos los reportes.
+            </p>
+        </div>
+
+        <div class="row g-4" id="reportesGrid">
 
             {% for reporte in reportes %}
 
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6 reporte-item"
+                 data-tipo="{{ reporte.tipo or '' }}"
+                 data-ubicacion="{{ reporte.ubicacion or '' }}"
+                 data-usuario="{{ reporte.usuario or '' }}"
+                 data-descripcion="{{ reporte.descripcion or '' }}"
+                 data-comentario="{{ reporte.comentario_admin or '' }}"
+                 data-gravedad="{{ reporte.gravedad or '' }}"
+                 data-estado="{{ reporte.estado or ('Aprobado' if reporte.aprobado else 'Pendiente') }}">
                 <div class="report-card
                     {% if reporte.gravedad == 'Alta' %}alta
                     {% elif reporte.gravedad == 'Media' %}media
@@ -378,7 +622,12 @@
                     </div>
 
                     {% if reporte.foto_reporte %}
-                        <img src="{{ reporte.foto_reporte }}" class="report-photo" alt="Foto del reporte">
+                        <img src="{{ reporte.foto_reporte }}"
+                             class="report-photo"
+                             alt="Foto del reporte"
+                             data-bs-toggle="modal"
+                             data-bs-target="#modalFotoReporte"
+                             data-img="{{ reporte.foto_reporte }}">
                     {% endif %}
 
                     <p class="info-line">
@@ -570,6 +819,25 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="modalFotoReporte" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius:22px; overflow:hidden;">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-image me-2"></i>
+                    Foto del reporte
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-0">
+                <img src="" id="imagenModalReporte" class="modal-img" alt="Foto del reporte">
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
 
@@ -581,7 +849,106 @@
         const url = button.getAttribute('data-url');
         document.getElementById('formEliminarReporte').action = url;
     });
+
+    const modalFotoReporte = document.getElementById('modalFotoReporte');
+
+    if (modalFotoReporte) {
+        modalFotoReporte.addEventListener('show.bs.modal', function (event) {
+            const img = event.relatedTarget;
+            const url = img.getAttribute('data-img');
+            document.getElementById('imagenModalReporte').src = url;
+        });
+    }
+
+    const buscador = document.getElementById("buscarReporte");
+    const filtroGravedad = document.getElementById("filtroGravedad");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const reportesItems = document.querySelectorAll(".reporte-item");
+    const noResults = document.getElementById("noResults");
+
+    function normalizar(texto) {
+        return (texto || "")
+            .toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function actualizarEstadisticas() {
+        let visibles = 0;
+        let pendientes = 0;
+        let seguimiento = 0;
+        let alta = 0;
+
+        reportesItems.forEach(item => {
+            if (item.style.display !== "none") {
+                visibles++;
+
+                const estado = item.dataset.estado || "";
+                const gravedad = item.dataset.gravedad || "";
+
+                if (estado === "Pendiente") pendientes++;
+                if (estado === "En seguimiento") seguimiento++;
+                if (gravedad === "Alta") alta++;
+            }
+        });
+
+        if (document.getElementById("statTotal")) document.getElementById("statTotal").textContent = visibles;
+        if (document.getElementById("statPendientes")) document.getElementById("statPendientes").textContent = pendientes;
+        if (document.getElementById("statSeguimiento")) document.getElementById("statSeguimiento").textContent = seguimiento;
+        if (document.getElementById("statAlta")) document.getElementById("statAlta").textContent = alta;
+    }
+
+    function filtrarReportes() {
+        const texto = normalizar(buscador.value);
+        const gravedad = filtroGravedad.value;
+        const estado = filtroEstado.value;
+
+        let encontrados = 0;
+
+        reportesItems.forEach(item => {
+            const contenido = normalizar(
+                item.dataset.tipo + " " +
+                item.dataset.ubicacion + " " +
+                item.dataset.usuario + " " +
+                item.dataset.descripcion + " " +
+                item.dataset.comentario
+            );
+
+            const coincideTexto = contenido.includes(texto);
+            const coincideGravedad = gravedad === "Todos" || item.dataset.gravedad === gravedad;
+            const coincideEstado = estado === "Todos" || item.dataset.estado === estado;
+
+            if (coincideTexto && coincideGravedad && coincideEstado) {
+                item.style.display = "";
+                encontrados++;
+            } else {
+                item.style.display = "none";
+            }
+        });
+
+        if (noResults) {
+            noResults.style.display = encontrados === 0 ? "block" : "none";
+        }
+
+        actualizarEstadisticas();
+    }
+
+    function limpiarFiltros() {
+        buscador.value = "";
+        filtroGravedad.value = "Todos";
+        filtroEstado.value = "Todos";
+        filtrarReportes();
+    }
+
+    if (buscador) buscador.addEventListener("input", filtrarReportes);
+    if (filtroGravedad) filtroGravedad.addEventListener("change", filtrarReportes);
+    if (filtroEstado) filtroEstado.addEventListener("change", filtrarReportes);
+
+    actualizarEstadisticas();
+
 </script>
 
 </body>
+
 </html>

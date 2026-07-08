@@ -15,6 +15,7 @@
         body {
             background: linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -38,15 +39,19 @@
         }
 
         .hero-card {
-            background: white;
-            border-radius: 18px;
-            padding: 24px;
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 30%),
+                white;
+            border-radius: 24px;
+            padding: 28px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             margin-bottom: 24px;
+            border-left: 8px solid #dc3545;
+            animation: fadeUp 0.8s ease;
         }
 
         .title-app {
-            font-weight: 800;
+            font-weight: 900;
             color: #222;
         }
 
@@ -56,31 +61,130 @@
         }
 
         .report-card {
-            border-radius: 22px;
+            border-radius: 26px;
             border: none;
             background: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            animation: fadeUp 0.85s ease;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-header::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            right: -45px;
+            bottom: -55px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            animation: floatShape 7s ease-in-out infinite;
+        }
+
+        .form-header h4,
+        .form-header p {
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-header h4 {
+            font-weight: 900;
+        }
+
+        .step-indicator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 18px 24px;
+            background: #fff7f7;
+        }
+
+        .step-pill {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 5px 14px rgba(0,0,0,.07);
+            font-weight: 800;
+            color: #555;
+            transition: .3s;
+        }
+
+        .step-pill i {
+            color: #dc3545;
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .step-pill:hover {
+            transform: translateY(-4px);
+        }
+
+        .form-body {
+            padding: 26px;
         }
 
         .section-box {
             background: #f8f9fa;
-            padding: 18px;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 18px;
             margin-bottom: 18px;
             border-left: 5px solid #dc3545;
             transition: 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-box::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: rgba(220,53,69,.04);
         }
 
         .section-box:hover {
             background: white;
             transform: translateX(4px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .field-help {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 7px;
+            display: block;
+            position: relative;
+            z-index: 2;
         }
 
         .form-control,
         .form-select {
-            border-radius: 12px;
-            padding: 10px 12px;
+            border-radius: 14px;
+            padding: 12px 14px;
+            position: relative;
+            z-index: 2;
         }
 
         .form-control:focus,
@@ -89,39 +193,173 @@
             box-shadow: 0 0 0 0.20rem rgba(220,53,69,0.15);
         }
 
-        #miniMapa {
-            height: 330px;
-            width: 100%;
+        .severity-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .severity-option input {
+            display: none;
+        }
+
+        .severity-label {
+            display: block;
+            background: white;
+            border: 2px solid #eee;
             border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: .3s ease;
+            font-weight: 900;
+        }
+
+        .severity-label i {
+            display: block;
+            font-size: 25px;
+            margin-bottom: 6px;
+        }
+
+        .severity-option input:checked + .severity-label {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,.12);
+        }
+
+        .sev-baja i,
+        #gravedadBaja:checked + .sev-baja {
+            color: #198754;
+            border-color: #198754;
+            background: #e7f7ee;
+        }
+
+        .sev-media i,
+        #gravedadMedia:checked + .sev-media {
+            color: #b88600;
+            border-color: #ffc107;
+            background: #fff6db;
+        }
+
+        .sev-alta i,
+        #gravedadAlta:checked + .sev-alta {
+            color: #dc3545;
+            border-color: #dc3545;
+            background: #ffe5e9;
+        }
+
+        #miniMapa {
+            height: 350px;
+            width: 100%;
+            border-radius: 18px;
             border: 2px solid #ddd;
-            box-shadow: 0 5px 16px rgba(0,0,0,0.10);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            position: relative;
+            z-index: 2;
+        }
+
+        .map-actions,
+        .search-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .search-actions .form-control {
+            flex: 1;
         }
 
         .btn-custom {
-            border-radius: 12px;
-            padding: 11px;
-            font-weight: bold;
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 900;
+            transition: .3s ease;
+        }
+
+        .btn-custom:hover,
+        .btn-location:hover {
+            transform: translateY(-2px);
         }
 
         .btn-location {
-            border-radius: 12px;
-            font-weight: bold;
+            border-radius: 14px;
+            font-weight: 900;
+            transition: .3s ease;
         }
 
+        .photo-upload {
+            background: white;
+            border: 2px dashed #dc3545;
+            border-radius: 18px;
+            padding: 22px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            transition: .3s ease;
+        }
+
+        .photo-upload:hover {
+            background: #fff7f7;
+            transform: translateY(-3px);
+        }
+
+        .photo-upload i {
+            font-size: 36px;
+            color: #dc3545;
+            margin-bottom: 8px;
+        }
 
         .preview-foto-reporte {
             display: block;
             width: 100%;
-            max-height: 320px;
+            max-height: 330px;
             object-fit: cover;
-            border-radius: 16px;
+            border-radius: 18px;
             margin-top: 14px;
             border: 2px solid #eee;
-            box-shadow: 0 5px 16px rgba(0,0,0,0.10);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.14);
+            animation: fadeUp .45s ease;
         }
 
         .preview-foto-reporte.is-hidden {
             display: none;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 22px rgba(0,0,0,.08);
+            position: sticky;
+            top: 20px;
+            animation: fadeUp .85s ease;
+        }
+
+        .summary-title {
+            font-weight: 900;
+            color: #222;
+        }
+
+        .summary-line {
+            color: #555;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .summary-line i {
+            width: 22px;
+            color: #dc3545;
+        }
+
+        .floating-tip {
+            background: #fff7f7;
+            border-left: 5px solid #dc3545;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
         }
 
         .fade-up {
@@ -139,37 +377,98 @@
             }
         }
 
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-18px) scale(1.05); }
+        }
+
+        body.dark .hero-card,
+        body.dark .report-card,
+        body.dark .section-box,
+        body.dark .step-indicator,
+        body.dark .step-pill,
+        body.dark .summary-card,
+        body.dark .floating-tip,
+        body.dark .photo-upload,
+        body.dark .severity-label {
+            background: #1f1f1f !important;
+            color: white !important;
+        }
+
+        body.dark .title-app,
+        body.dark .summary-title {
+            color: white !important;
+        }
+
+        body.dark .subtitle,
+        body.dark .field-help,
+        body.dark .summary-line {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .form-control,
+        body.dark .form-select {
+            background: #2f2f2f !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
+        }
+
+        @media (max-width: 992px) {
+            .summary-card {
+                position: static;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero-card {
                 text-align: center;
-                padding: 18px;
+                padding: 20px;
             }
 
             .title-app {
                 font-size: 24px;
             }
 
-            .report-card {
-                padding: 18px !important;
+            .form-body {
+                padding: 18px;
             }
 
             .section-box {
-                padding: 15px;
+                padding: 16px;
             }
 
             #miniMapa {
-                height: 280px;
+                height: 290px;
             }
 
             .navbar .container {
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .step-indicator,
+            .severity-options {
+                grid-template-columns: 1fr;
+            }
+
+            .map-actions,
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .map-actions .btn,
+            .search-actions .btn {
+                width: 100%;
+            }
         }
 
         @media (max-width: 480px) {
             #miniMapa {
-                height: 240px;
+                height: 250px;
             }
 
             .container {
@@ -207,166 +506,314 @@
 <div class="container my-4 mb-5">
 
     <div class="hero-card fade-up">
-        <h2 class="title-app">
-            <i class="fa-solid fa-pen-to-square text-danger me-2"></i>
-            Editar Incidente
-        </h2>
-        <p class="subtitle">Modifica la información de tu reporte y guarda los cambios</p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="title-app">
+                    <i class="fa-solid fa-pen-to-square text-danger me-2"></i>
+                    Editar Incidente
+                </h2>
+                <p class="subtitle">Modifica la información de tu reporte y guarda los cambios.</p>
+            </div>
+
+            <span class="badge bg-danger rounded-pill p-2">
+                <i class="fa-solid fa-file-pen me-1"></i>
+                Edición de reporte
+            </span>
+        </div>
     </div>
 
-    <div class="card report-card p-4 fade-up">
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
 
-        <form method="POST" enctype="multipart/form-data">
+            <div class="card report-card fade-up">
 
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-list-check me-2"></i>
-                    Tipo de incidente
-                </label>
-                <select name="tipo" class="form-select">
-                    <option value="Asalto" {% if reporte.tipo == "Asalto" %}selected{% endif %}>Asalto</option>
-                    <option value="Robo" {% if reporte.tipo == "Robo" %}selected{% endif %}>Robo</option>
-                    <option value="Accidente" {% if reporte.tipo == "Accidente" %}selected{% endif %}>Accidente</option>
-                    <option value="Vandalismo" {% if reporte.tipo == "Vandalismo" %}selected{% endif %}>Vandalismo</option>
-                    <option value="Alumbrado dañado" {% if reporte.tipo == "Alumbrado dañado" %}selected{% endif %}>Alumbrado dañado</option>
-                    <option value="Zona peligrosa" {% if reporte.tipo == "Zona peligrosa" %}selected{% endif %}>Zona peligrosa</option>
-                </select>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-align-left me-2"></i>
-                    Descripción
-                </label>
-                <textarea name="descripcion" class="form-control" rows="3">{{ reporte.descripcion }}</textarea>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-calendar-days me-2"></i>
-                    Fecha
-                </label>
-                <input name="fecha" type="date" class="form-control" value="{{ reporte.fecha }}">
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-location-dot me-2"></i>
-                    Ubicación
-                </label>
-                <input type="text" class="form-control" name="ubicacion" id="ubicacion" value="{{ reporte.ubicacion }}" placeholder="Ejemplo: Centro, CDMX">
-
-                <button type="button" class="btn btn-primary btn-sm mt-3 btn-location" onclick="obtenerUbicacion()">
-                    <i class="fa-solid fa-location-crosshairs me-1"></i>
-                    Usar mi ubicación actual
-                </button>
-
-                <small class="text-muted d-block mt-2" id="mensajeUbicacion">
-                    Puedes mantener la ubicación actual, buscar una dirección o seleccionar una nueva en el mapa.
-                </small>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-magnifying-glass me-2"></i>
-                    Buscar dirección
-                </label>
-
-                <div class="input-group">
-                    <input type="text"
-                           class="form-control"
-                           id="buscarDireccion"
-                           placeholder="Ejemplo: Palacio de Bellas Artes, CDMX">
-
-                    <button type="button" class="btn btn-danger btn-location" onclick="buscarDireccionMapa()">
-                        <i class="fa-solid fa-magnifying-glass me-1"></i>
-                        Buscar
-                    </button>
+                <div class="form-header">
+                    <h4 class="mb-1">
+                        <i class="fa-solid fa-clipboard-list me-2"></i>
+                        Información editable
+                    </h4>
+                    <p class="mb-0">Actualiza solo los campos necesarios. Tu reporte puede volver a ser revisado por administración.</p>
                 </div>
 
-                <small class="text-muted d-block mt-2">
-                    También puedes escribir una dirección para ubicarla automáticamente en el mapa.
-                </small>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-map-location-dot me-2"></i>
-                    Selecciona en el mapa
-                </label>
-                <div id="miniMapa"></div>
-            </div>
-
-            <div class="row section-box">
-                <div class="col-12 col-md-6 mb-3 mb-md-0">
-                    <label class="form-label fw-bold">Latitud</label>
-                    <input type="number" step="any" class="form-control" name="latitud" id="latitud" value="{{ reporte.latitud }}" required>
+                <div class="step-indicator">
+                    <div class="step-pill">
+                        <i class="fa-solid fa-list-check"></i>
+                        Incidente
+                    </div>
+                    <div class="step-pill">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Ubicación
+                    </div>
+                    <div class="step-pill">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        Riesgo
+                    </div>
+                    <div class="step-pill">
+                        <i class="fa-solid fa-camera"></i>
+                        Foto
+                    </div>
                 </div>
 
-                <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold">Longitud</label>
-                    <input type="number" step="any" class="form-control" name="longitud" id="longitud" value="{{ reporte.longitud }}" required>
+                <div class="form-body">
+                    <form method="POST" enctype="multipart/form-data">
+
+                        <div class="section-box">
+                            <div class="section-title">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-list-check me-2"></i>
+                                    Tipo de incidente
+                                </label>
+                                <span class="badge bg-danger">Paso 1</span>
+                            </div>
+
+                            <select name="tipo" id="tipo" class="form-select mt-3" required>
+                                <option value="Asalto" {% if reporte.tipo == "Asalto" %}selected{% endif %}>Asalto</option>
+                                <option value="Robo" {% if reporte.tipo == "Robo" %}selected{% endif %}>Robo</option>
+                                <option value="Accidente" {% if reporte.tipo == "Accidente" %}selected{% endif %}>Accidente</option>
+                                <option value="Vandalismo" {% if reporte.tipo == "Vandalismo" %}selected{% endif %}>Vandalismo</option>
+                                <option value="Alumbrado dañado" {% if reporte.tipo == "Alumbrado dañado" %}selected{% endif %}>Alumbrado dañado</option>
+                                <option value="Zona peligrosa" {% if reporte.tipo == "Zona peligrosa" %}selected{% endif %}>Zona peligrosa</option>
+                            </select>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-align-left me-2"></i>
+                                Descripción
+                            </label>
+                            <textarea name="descripcion" id="descripcion" class="form-control" rows="4" maxlength="300" required>{{ reporte.descripcion }}</textarea>
+                            <small class="field-help">
+                                <span id="contadorDescripcion">0</span>/300 caracteres.
+                            </small>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-calendar-days me-2"></i>
+                                Fecha
+                            </label>
+                            <input name="fecha" id="fecha" type="date" class="form-control" value="{{ reporte.fecha }}" required>
+                        </div>
+
+                        <div class="section-box">
+                            <div class="section-title">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-location-dot me-2"></i>
+                                    Ubicación
+                                </label>
+                                <span class="badge bg-danger">Paso 2</span>
+                            </div>
+
+                            <input type="text" class="form-control mt-3" name="ubicacion" id="ubicacion" value="{{ reporte.ubicacion }}" placeholder="Ejemplo: Centro, CDMX" required>
+
+                            <div class="map-actions mt-3">
+                                <button type="button" class="btn btn-primary btn-sm btn-location" onclick="obtenerUbicacion()">
+                                    <i class="fa-solid fa-location-crosshairs me-1"></i>
+                                    Usar mi ubicación actual
+                                </button>
+
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-location" onclick="centrarActual()">
+                                    <i class="fa-solid fa-map-pin me-1"></i>
+                                    Volver a ubicación actual
+                                </button>
+                            </div>
+
+                            <small class="field-help" id="mensajeUbicacion">
+                                Puedes mantener la ubicación actual, buscar una dirección o seleccionar una nueva en el mapa.
+                            </small>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-magnifying-glass me-2"></i>
+                                Buscar dirección
+                            </label>
+
+                            <div class="search-actions">
+                                <input type="text"
+                                       class="form-control"
+                                       id="buscarDireccion"
+                                       placeholder="Ejemplo: Palacio de Bellas Artes, CDMX">
+
+                                <button type="button" class="btn btn-danger btn-location" onclick="buscarDireccionMapa()">
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i>
+                                    Buscar
+                                </button>
+                            </div>
+
+                            <small class="field-help">
+                                También puedes escribir una dirección para ubicarla automáticamente en el mapa.
+                            </small>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-map-location-dot me-2"></i>
+                                Selecciona en el mapa
+                            </label>
+                            <div id="miniMapa"></div>
+                        </div>
+
+                        <div class="row section-box">
+                            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                                <label class="form-label fw-bold">Latitud</label>
+                                <input type="number" step="any" class="form-control" name="latitud" id="latitud" value="{{ reporte.latitud }}" required readonly>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Longitud</label>
+                                <input type="number" step="any" class="form-control" name="longitud" id="longitud" value="{{ reporte.longitud }}" required readonly>
+                            </div>
+                        </div>
+
+                        <div class="section-box">
+                            <div class="section-title mb-3">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-gauge-high me-2"></i>
+                                    Gravedad
+                                </label>
+                                <span class="badge bg-danger">Paso 3</span>
+                            </div>
+
+                            <div class="severity-options">
+                                <label class="severity-option">
+                                    <input type="radio" name="gravedad" id="gravedadBaja" value="Baja" {% if reporte.gravedad == "Baja" %}checked{% endif %}>
+                                    <span class="severity-label sev-baja">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                        Baja
+                                    </span>
+                                </label>
+
+                                <label class="severity-option">
+                                    <input type="radio" name="gravedad" id="gravedadMedia" value="Media" {% if reporte.gravedad == "Media" %}checked{% endif %}>
+                                    <span class="severity-label sev-media">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        Media
+                                    </span>
+                                </label>
+
+                                <label class="severity-option">
+                                    <input type="radio" name="gravedad" id="gravedadAlta" value="Alta" {% if reporte.gravedad == "Alta" %}checked{% endif %}>
+                                    <span class="severity-label sev-alta">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                        Alta
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="section-box">
+                            <div class="section-title">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-camera me-2"></i>
+                                    Fotografía del incidente
+                                </label>
+                                <span class="badge bg-danger">Paso 4</span>
+                            </div>
+
+                            <div class="photo-upload mt-3">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p class="fw-bold mb-2">Reemplaza o agrega una imagen</p>
+
+                                {% if reporte.foto_reporte %}
+                                    <img src="{{ reporte.foto_reporte }}"
+                                         class="preview-foto-reporte"
+                                         id="previewFoto"
+                                         alt="Foto actual del reporte">
+                                    <small class="field-help">
+                                        Foto actual del reporte. Puedes seleccionar otra imagen para reemplazarla.
+                                    </small>
+                                {% else %}
+                                    <img src=""
+                                         class="preview-foto-reporte is-hidden"
+                                         id="previewFoto"
+                                         alt="Vista previa de la foto">
+                                    <small class="field-help">
+                                        Este reporte aún no tiene foto. Puedes agregar una imagen del incidente.
+                                    </small>
+                                {% endif %}
+
+                                <input type="file"
+                                       class="form-control mt-3"
+                                       name="foto_reporte"
+                                       id="foto_reporte"
+                                       accept="image/*">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg btn-custom">
+                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                Guardar cambios
+                            </button>
+
+                            <a href="/dashboard" class="btn btn-secondary btn-custom">
+                                <i class="fa-solid fa-xmark me-2"></i>
+                                Cancelar
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="summary-card fade-up">
+                <h5 class="summary-title">
+                    <i class="fa-solid fa-clipboard-list text-danger me-2"></i>
+                    Resumen actualizado
+                </h5>
+
+                <hr>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-list-check"></i>
+                    <strong>Tipo:</strong> <span id="resumenTipo">{{ reporte.tipo }}</span>
+                </p>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <strong>Fecha:</strong> <span id="resumenFecha">{{ reporte.fecha }}</span>
+                </p>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <strong>Ubicación:</strong> <span id="resumenUbicacion">{{ reporte.ubicacion }}</span>
+                </p>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <strong>Gravedad:</strong> <span id="resumenGravedad">{{ reporte.gravedad }}</span>
+                </p>
+
+                <hr>
+
+                <div class="floating-tip">
+                    <strong>
+                        <i class="fa-solid fa-circle-info text-danger me-1"></i>
+                        Importante
+                    </strong>
+                    <p class="mb-0 mt-2">
+                        Si cambias datos importantes, el reporte podría requerir revisión administrativa nuevamente.
+                    </p>
+                </div>
+
+                <div class="floating-tip mt-3">
+                    <strong>
+                        <i class="fa-solid fa-map-location-dot text-danger me-1"></i>
+                        Ubicación
+                    </strong>
+                    <p class="mb-0 mt-2">
+                        Da clic en el mapa para corregir la ubicación exacta del incidente.
+                    </p>
                 </div>
             </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-gauge-high me-2"></i>
-                    Gravedad
-                </label>
-                <select name="gravedad" class="form-select">
-                    <option value="Baja" {% if reporte.gravedad == "Baja" %}selected{% endif %}>Baja</option>
-                    <option value="Media" {% if reporte.gravedad == "Media" %}selected{% endif %}>Media</option>
-                    <option value="Alta" {% if reporte.gravedad == "Alta" %}selected{% endif %}>Alta</option>
-                </select>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-camera me-2"></i>
-                    Fotografía del incidente
-                </label>
-
-                {% if reporte.foto_reporte %}
-                    <img src="{{ reporte.foto_reporte }}"
-                         class="preview-foto-reporte"
-                         id="previewFoto"
-                         alt="Foto actual del reporte">
-                    <small class="text-muted d-block mt-2">
-                        Foto actual del reporte. Puedes seleccionar otra imagen para reemplazarla.
-                    </small>
-                {% else %}
-                    <img src=""
-                         class="preview-foto-reporte is-hidden"
-                         id="previewFoto"
-                         alt="Vista previa de la foto">
-                    <small class="text-muted d-block mt-2">
-                        Este reporte aún no tiene foto. Puedes agregar una imagen del incidente.
-                    </small>
-                {% endif %}
-
-                <input type="file"
-                       class="form-control mt-3"
-                       name="foto_reporte"
-                       id="foto_reporte"
-                       accept="image/*">
-            </div>
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-danger btn-lg btn-custom">
-                    <i class="fa-solid fa-floppy-disk me-2"></i>
-                    Guardar cambios
-                </button>
-
-                <a href="/dashboard" class="btn btn-secondary btn-custom">
-                    <i class="fa-solid fa-xmark me-2"></i>
-                    Cancelar
-                </a>
-            </div>
-
-        </form>
-
+        </div>
     </div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -390,11 +837,39 @@
 
     var marcador = L.marker([latInicial, lngInicial]).addTo(miniMapa);
 
+    const tipoInput = document.getElementById("tipo");
+    const descripcionInput = document.getElementById("descripcion");
+    const fechaInput = document.getElementById("fecha");
+    const ubicacionInput = document.getElementById("ubicacion");
+    const contadorDescripcion = document.getElementById("contadorDescripcion");
+
+    function actualizarResumen() {
+        document.getElementById("resumenTipo").innerText = tipoInput.value || "Sin tipo";
+        document.getElementById("resumenFecha").innerText = fechaInput.value || "Sin fecha";
+        document.getElementById("resumenUbicacion").innerText = ubicacionInput.value || "Sin ubicación";
+
+        const gravedadSeleccionada = document.querySelector("input[name='gravedad']:checked");
+        document.getElementById("resumenGravedad").innerText = gravedadSeleccionada ? gravedadSeleccionada.value : "Sin gravedad";
+
+        contadorDescripcion.innerText = descripcionInput.value.length;
+    }
+
+    tipoInput.addEventListener("change", actualizarResumen);
+    fechaInput.addEventListener("change", actualizarResumen);
+    ubicacionInput.addEventListener("input", actualizarResumen);
+    descripcionInput.addEventListener("input", actualizarResumen);
+
+    document.querySelectorAll("input[name='gravedad']").forEach(function(radio) {
+        radio.addEventListener("change", actualizarResumen);
+    });
+
+    actualizarResumen();
+
     miniMapa.on('click', function(e){
+        actualizarMarcador(e.latlng.lat, e.latlng.lng, "Nueva ubicación seleccionada correctamente");
+    });
 
-        var lat = e.latlng.lat;
-        var lng = e.latlng.lng;
-
+    function actualizarMarcador(lat, lng, mensajeTexto){
         document.getElementById("latitud").value = lat.toFixed(6);
         document.getElementById("longitud").value = lng.toFixed(6);
 
@@ -403,39 +878,36 @@
         }
 
         marcador = L.marker([lat, lng]).addTo(miniMapa);
-        miniMapa.setView([lat, lng], 15);
+        miniMapa.setView([lat, lng], 16);
 
-        document.getElementById("mensajeUbicacion").innerText =
-        "Nueva ubicación seleccionada correctamente";
-    });
+        if(mensajeTexto){
+            document.getElementById("mensajeUbicacion").innerText = mensajeTexto;
+        }
+    }
+
+    function centrarActual() {
+        miniMapa.setView([latInicial, lngInicial], 15);
+        document.getElementById("mensajeUbicacion").innerText = "Mapa centrado en la ubicación actual del reporte.";
+    }
 
     function obtenerUbicacion(){
-
         const mensaje = document.getElementById("mensajeUbicacion");
 
         if(navigator.geolocation){
-
             mensaje.innerText = "Obteniendo ubicación...";
 
             navigator.geolocation.getCurrentPosition(function(position){
-
                 var lat = position.coords.latitude;
                 var lng = position.coords.longitude;
 
-                document.getElementById("latitud").value = lat.toFixed(6);
-                document.getElementById("longitud").value = lng.toFixed(6);
+                actualizarMarcador(lat, lng, "Ubicación actual obtenida correctamente");
 
-                if(marcador){
-                    miniMapa.removeLayer(marcador);
+                if (!ubicacionInput.value) {
+                    ubicacionInput.value = "Ubicación actual";
+                    actualizarResumen();
                 }
 
-                marcador = L.marker([lat, lng]).addTo(miniMapa);
-                miniMapa.setView([lat, lng], 16);
-
-                mensaje.innerText = "Ubicación actual obtenida correctamente";
-
             }, function(){
-
                 mensaje.innerText = "No se pudo obtener ubicación";
             });
 
@@ -443,8 +915,8 @@
             mensaje.innerText = "Tu navegador no soporta geolocalización";
         }
     }
-    async function buscarDireccionMapa(){
 
+    async function buscarDireccionMapa(){
         const inputBusqueda = document.getElementById("buscarDireccion");
         const mensaje = document.getElementById("mensajeUbicacion");
         const direccion = inputBusqueda.value.trim();
@@ -471,30 +943,27 @@
             const lat = parseFloat(datos[0].lat);
             const lng = parseFloat(datos[0].lon);
 
-            document.getElementById("latitud").value = lat.toFixed(6);
-            document.getElementById("longitud").value = lng.toFixed(6);
             document.getElementById("ubicacion").value = datos[0].display_name || direccion;
+            actualizarResumen();
 
-            if(marcador){
-                miniMapa.removeLayer(marcador);
-            }
-
-            marcador = L.marker([lat, lng]).addTo(miniMapa);
-            miniMapa.setView([lat, lng], 16);
-
-            mensaje.innerText = "Dirección encontrada correctamente";
+            actualizarMarcador(lat, lng, "Dirección encontrada correctamente");
 
         }catch(error){
             mensaje.innerText = "No se pudo buscar la dirección. Intenta nuevamente.";
         }
     }
 
+    document.getElementById("buscarDireccion").addEventListener("keyup", function(e) {
+        if (e.key === "Enter") {
+            buscarDireccionMapa();
+        }
+    });
+
     const inputFotoReporte = document.getElementById("foto_reporte");
     const previewFoto = document.getElementById("previewFoto");
 
     if(inputFotoReporte){
         inputFotoReporte.addEventListener("change", function(){
-
             const archivo = this.files[0];
 
             if(!archivo){

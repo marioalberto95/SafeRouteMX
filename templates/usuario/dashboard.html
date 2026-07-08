@@ -13,6 +13,7 @@
         body {
             background: linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -48,56 +49,151 @@
             object-fit: cover;
             border: 3px solid white;
             box-shadow: 0 4px 12px rgba(0,0,0,.25);
+            transition: .3s ease;
+        }
+
+        .profile-mini:hover {
+            transform: scale(1.08);
         }
 
         .hero-card {
-            background: white;
-            border-radius: 22px;
-            padding: 26px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 24%),
+                linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            border-radius: 28px;
+            padding: 34px;
+            box-shadow: 0 12px 32px rgba(220,53,69,.28);
             margin-bottom: 24px;
             animation: fadeUp .7s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            right: -60px;
+            bottom: -70px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            animation: floatShape 7s ease-in-out infinite;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
 
         .title {
             font-weight: 900;
-            color: #222;
+            color: white;
         }
 
         .subtitle {
-            color: #6c757d;
+            color: rgba(255,255,255,.92);
             margin-bottom: 0;
         }
 
+        .hero-pill {
+            display: inline-block;
+            margin-top: 14px;
+            border: 1px solid rgba(255,255,255,.35);
+            background: rgba(255,255,255,.15);
+            border-radius: 30px;
+            padding: 9px 14px;
+            font-weight: 800;
+        }
+
+        .quick-panel {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            margin-bottom: 24px;
+            animation: fadeUp .75s ease;
+        }
+
+        .quick-title {
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .quick-panel .form-control {
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+
+        .quick-panel .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 .20rem rgba(220,53,69,.15);
+        }
+
+        .quick-btn {
+            border-radius: 14px;
+            font-weight: 800;
+            padding: 11px 14px;
+        }
+
         .stats-box {
-            border-radius: 20px;
+            border-radius: 22px;
             padding: 24px;
             background: white;
-            text-align: center;
             font-weight: bold;
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
             transition: 0.3s ease;
-            min-height: 130px;
+            min-height: 135px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-box::after {
+            content: "";
+            position: absolute;
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            right: -24px;
+            bottom: -24px;
+            background: rgba(0,0,0,.04);
         }
 
         .stats-box:hover {
             transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.13);
+        }
+
+        .stats-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
         }
 
         .stats-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 27px;
+            flex-shrink: 0;
         }
 
         .stats-number {
-            font-size: 32px;
+            font-size: 38px;
             font-weight: 900;
-            margin-bottom: 5px;
+            line-height: 1;
         }
 
         .stats-text {
             font-size: 15px;
             color: #555;
+            margin-top: 15px;
         }
 
         .total {
@@ -120,15 +216,36 @@
             color: #198754;
         }
 
+        .icon-total { background: #e8f1ff; color: #0d6efd; }
+        .icon-alto { background: #ffe5e9; color: #dc3545; }
+        .icon-medio { background: #fff6db; color: #d39e00; }
+        .icon-bajo { background: #e7f7ee; color: #198754; }
+
+        .section-card {
+            background: white;
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            margin-bottom: 24px;
+            border-left: 7px solid #dc3545;
+            animation: fadeUp .8s ease;
+        }
+
+        .section-title {
+            font-weight: 900;
+            color: #222;
+        }
+
         .action-card {
             background: white;
-            border-radius: 22px;
+            border-radius: 24px;
             padding: 26px;
             height: 100%;
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            transition: 0.3s ease;
+            transition: 0.35s ease;
             position: relative;
             overflow: hidden;
+            border-left: 7px solid #dc3545;
         }
 
         .action-card::before {
@@ -149,13 +266,13 @@
 
         .action-card:hover {
             transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.14);
+            box-shadow: 0 14px 34px rgba(0,0,0,0.15);
         }
 
         .action-icon {
             width: 70px;
             height: 70px;
-            border-radius: 18px;
+            border-radius: 20px;
             background: #ffe5e9;
             color: #dc3545;
             display: flex;
@@ -163,6 +280,8 @@
             align-items: center;
             font-size: 32px;
             transition: .35s;
+            position: relative;
+            z-index: 2;
         }
 
         .action-card:hover .action-icon {
@@ -172,10 +291,83 @@
         .action-card h4 {
             font-weight: 900;
             color: #222;
+            position: relative;
+            z-index: 2;
+        }
+
+        .action-card p {
+            position: relative;
+            z-index: 2;
+        }
+
+        .action-card .btn {
+            position: relative;
+            z-index: 2;
+            border-radius: 13px;
+            font-weight: 800;
+        }
+
+        .mapa-card { border-left-color: #0d6efd; }
+        .reportar-card { border-left-color: #dc3545; }
+        .mis-card { border-left-color: #198754; }
+        .ia-card { border-left-color: #6f42c1; }
+
+        .mapa-card .action-icon { background: #e8f1ff; color: #0d6efd; }
+        .reportar-card .action-icon { background: #ffe5e9; color: #dc3545; }
+        .mis-card .action-icon { background: #e7f7ee; color: #198754; }
+        .ia-card .action-icon { background: #f0e7ff; color: #6f42c1; }
+
+        .tips-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            height: 100%;
+            animation: fadeUp .85s ease;
+        }
+
+        .tip-item {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 14px;
+            border-left: 5px solid #dc3545;
+            margin-bottom: 12px;
         }
 
         .fade-up {
             animation: fadeUp 0.8s ease;
+        }
+
+        body.dark .quick-panel,
+        body.dark .stats-box,
+        body.dark .section-card,
+        body.dark .action-card,
+        body.dark .tips-card,
+        body.dark .tip-item {
+            background: #1f1f1f !important;
+            color: white !important;
+        }
+
+        body.dark .quick-title,
+        body.dark .section-title,
+        body.dark .action-card h4 {
+            color: white !important;
+        }
+
+        body.dark .stats-text,
+        body.dark .action-card p,
+        body.dark .tip-item p {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .quick-panel .form-control {
+            background: #2f2f2f !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+
+        body.dark .quick-panel .form-control::placeholder {
+            color: #bdbdbd !important;
         }
 
         @keyframes fadeUp {
@@ -189,6 +381,11 @@
             }
         }
 
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-18px) scale(1.05); }
+        }
+
         @media (max-width: 768px) {
             .navbar .container {
                 flex-direction: column;
@@ -197,15 +394,23 @@
 
             .hero-card {
                 text-align: center;
-                padding: 20px;
+                padding: 24px;
             }
 
             .title {
-                font-size: 24px;
+                font-size: 26px;
             }
 
             .stats-box {
-                min-height: 115px;
+                min-height: 120px;
+            }
+
+            .stats-number {
+                font-size: 32px;
+            }
+
+            .section-card {
+                text-align: center;
             }
         }
     </style>
@@ -214,94 +419,169 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
+    <div class="container d-flex justify-content-between align-items-center">
 
         <a class="navbar-brand fw-bold" href="/">
             <i class="fa-solid fa-shield-halved me-2"></i>
             SafeRoute MX
         </a>
 
-  <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
 
-    <button id="modoOscuro" class="btn btn-outline-light btn-sm">
-        <i class="fa-solid fa-moon"></i>
-    </button>
+            <button id="modoOscuro" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-moon"></i>
+            </button>
 
-<a href="/perfil" title="Mi perfil">
-    {% if usuario and usuario.get("foto_perfil") %}
-        <img src="{{ usuario.get('foto_perfil') }}" class="profile-mini">
-    {% else %}
-        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-mini">
-    {% endif %}
-</a>
+            <a href="/perfil" title="Mi perfil">
+                {% if usuario and usuario.get("foto_perfil") %}
+                    <img src="{{ usuario.get('foto_perfil') }}" class="profile-mini">
+                {% else %}
+                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-mini">
+                {% endif %}
+            </a>
 
-    <a href="/logout" class="btn btn-outline-light btn-sm">
-        <i class="fa-solid fa-right-from-bracket me-1"></i>
-        Salir
-    </a>
+            <a href="/logout" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-right-from-bracket me-1"></i>
+                Salir
+            </a>
 
-</div>
+        </div>
+    </div>
 </nav>
 
 <div class="container my-4">
 
     <div class="hero-card fade-up">
-        <h2 class="title">
-            <i class="fa-solid fa-chart-line me-2 text-danger"></i>
-            Panel principal
-        </h2>
-        <p class="subtitle">Monitoreo general de reportes y zonas de riesgo</p>
+        <div class="hero-content">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h2 class="title">
+                        <i class="fa-solid fa-chart-line me-2"></i>
+                        Panel principal
+                    </h2>
+                    <p class="subtitle">
+                        Monitoreo general de reportes, zonas de riesgo y herramientas de seguridad.
+                    </p>
+
+                    <span class="hero-pill">
+                        <i class="fa-solid fa-circle-check me-1"></i>
+                        Bienvenido/a {{ session.get("nombre", "Usuario SafeRoute") }}
+                    </span>
+                </div>
+
+                <div class="text-lg-end">
+                    <a href="/reportar" class="btn btn-light text-danger fw-bold me-1 mb-2">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                        Reportar
+                    </a>
+                    <a href="/mapa" class="btn btn-outline-light fw-bold mb-2">
+                        <i class="fa-solid fa-map-location-dot me-1"></i>
+                        Ver mapa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-panel">
+        <h5 class="quick-title">
+            <i class="fa-solid fa-magnifying-glass text-danger me-2"></i>
+            Búsqueda rápida
+        </h5>
+
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-lg-8">
+                <input type="text"
+                       id="buscarAcceso"
+                       class="form-control"
+                       placeholder="Busca una opción: mapa, reportar, mis reportes o SafeRoute IA...">
+            </div>
+
+            <div class="col-12 col-lg-4 d-grid">
+                <button class="btn btn-danger quick-btn" onclick="limpiarBusqueda()">
+                    <i class="fa-solid fa-rotate-right me-1"></i>
+                    Mostrar todo
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 mb-4 fade-up">
 
-        <div class="col-12 col-md-3">
+        <div class="col-6 col-md-3">
             <div class="stats-box total">
-                <div class="stats-icon">
-                    <i class="fa-solid fa-file-lines"></i>
+                <div class="stats-head">
+                    <div class="stats-icon icon-total">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <div class="stats-number">{{ total_reportes }}</div>
                 </div>
-                <div class="stats-number">{{ total_reportes }}</div>
                 <div class="stats-text">Total reportes</div>
             </div>
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-6 col-md-3">
             <div class="stats-box alto">
-                <div class="stats-icon">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="stats-head">
+                    <div class="stats-icon icon-alto">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="stats-number">{{ riesgo_alto }}</div>
                 </div>
-                <div class="stats-number">{{ riesgo_alto }}</div>
                 <div class="stats-text">Riesgo alto</div>
             </div>
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-6 col-md-3">
             <div class="stats-box medio">
-                <div class="stats-icon">
-                    <i class="fa-solid fa-circle-exclamation"></i>
+                <div class="stats-head">
+                    <div class="stats-icon icon-medio">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <div class="stats-number">{{ riesgo_medio }}</div>
                 </div>
-                <div class="stats-number">{{ riesgo_medio }}</div>
                 <div class="stats-text">Riesgo medio</div>
             </div>
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-6 col-md-3">
             <div class="stats-box bajo">
-                <div class="stats-icon">
-                    <i class="fa-solid fa-shield-halved"></i>
+                <div class="stats-head">
+                    <div class="stats-icon icon-bajo">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="stats-number">{{ riesgo_bajo }}</div>
                 </div>
-                <div class="stats-number">{{ riesgo_bajo }}</div>
                 <div class="stats-text">Riesgo bajo</div>
             </div>
         </div>
 
     </div>
 
-    <div class="row g-4 mb-5 fade-up">
+    <div class="section-card">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="section-title">
+                    <i class="fa-solid fa-layer-group text-danger me-2"></i>
+                    Accesos principales
+                </h3>
+                <p class="text-muted mb-0">
+                    Usa estas herramientas para consultar, reportar y dar seguimiento a incidentes.
+                </p>
+            </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+            <a href="/perfil" class="btn btn-outline-danger fw-bold">
+                <i class="fa-solid fa-user-gear me-1"></i>
+                Mi perfil
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5 fade-up" id="accesosGrid">
+
+        <div class="col-12 col-md-6 col-xl-3 acceso-item" data-keywords="mapa zonas riesgo ubicacion incidentes">
             <a href="/mapa" class="text-decoration-none">
-                <div class="action-card">
+                <div class="action-card mapa-card">
                     <div class="action-icon">
                         <i class="fa-solid fa-map-location-dot"></i>
                     </div>
@@ -309,15 +589,20 @@
                     <h4 class="mt-3">Ver mapa</h4>
 
                     <p class="text-muted">
-                        Consulta zonas de riesgo e incidentes registrados en tiempo real.
+                        Consulta zonas de riesgo e incidentes aprobados por la comunidad.
                     </p>
+
+                    <span class="btn btn-primary btn-sm">
+                        Abrir mapa
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </span>
                 </div>
             </a>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 acceso-item" data-keywords="reportar incidente robo accidente asalto peligro">
             <a href="/reportar" class="text-decoration-none">
-                <div class="action-card">
+                <div class="action-card reportar-card">
                     <div class="action-icon">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
@@ -325,15 +610,20 @@
                     <h4 class="mt-3">Reportar</h4>
 
                     <p class="text-muted">
-                        Registra robos, accidentes o cualquier zona de riesgo.
+                        Registra robos, accidentes, zonas peligrosas o incidentes con evidencia.
                     </p>
+
+                    <span class="btn btn-danger btn-sm">
+                        Crear reporte
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </span>
                 </div>
             </a>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 acceso-item" data-keywords="mis reportes seguimiento editar eliminar estado">
             <a href="/mis-reportes" class="text-decoration-none">
-                <div class="action-card">
+                <div class="action-card mis-card">
                     <div class="action-icon">
                         <i class="fa-solid fa-clipboard-list"></i>
                     </div>
@@ -341,15 +631,20 @@
                     <h4 class="mt-3">Mis Reportes</h4>
 
                     <p class="text-muted">
-                        Consulta, edita o elimina todos tus reportes registrados.
+                        Consulta estado, seguimiento, comentarios y administra tus reportes.
                     </p>
+
+                    <span class="btn btn-success btn-sm">
+                        Ver mis reportes
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </span>
                 </div>
             </a>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 acceso-item" data-keywords="chatbot ia asistente ayuda recomendaciones seguridad estadisticas">
             <a href="/chatbot" class="text-decoration-none">
-                <div class="action-card position-relative">
+                <div class="action-card ia-card position-relative">
 
                     <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger">
                         IA
@@ -362,8 +657,13 @@
                     <h4 class="mt-3">SafeRoute IA</h4>
 
                     <p class="text-muted">
-                        Consulta información, estadísticas, riesgos y recibe ayuda inteligente.
+                        Consulta información, estadísticas, riesgos y recomendaciones de seguridad.
                     </p>
+
+                    <span class="btn btn-sm" style="background:#6f42c1; color:white;">
+                        Abrir asistente
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </span>
 
                 </div>
             </a>
@@ -371,10 +671,90 @@
 
     </div>
 
+    <div class="row g-4 mb-5">
+        <div class="col-12 col-lg-7">
+            <div class="tips-card">
+                <h4 class="fw-bold mb-3">
+                    <i class="fa-solid fa-shield-heart text-danger me-2"></i>
+                    Recomendaciones rápidas
+                </h4>
+
+                <div class="tip-item">
+                    <strong><i class="fa-solid fa-map-location-dot text-danger me-1"></i> Revisa el mapa antes de salir</strong>
+                    <p class="mb-0 mt-1 text-muted">Consulta zonas con reportes recientes para tomar rutas más seguras.</p>
+                </div>
+
+                <div class="tip-item">
+                    <strong><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Reporta con evidencia</strong>
+                    <p class="mb-0 mt-1 text-muted">Agrega ubicación, descripción y fotografía para que el reporte sea más útil.</p>
+                </div>
+
+                <div class="tip-item mb-0">
+                    <strong><i class="fa-solid fa-bell text-primary me-1"></i> Da seguimiento</strong>
+                    <p class="mb-0 mt-1 text-muted">Consulta “Mis Reportes” para ver si administración actualizó tu reporte.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="tips-card">
+                <h4 class="fw-bold mb-3">
+                    <i class="fa-solid fa-circle-info text-danger me-2"></i>
+                    Aviso importante
+                </h4>
+
+                <p class="text-muted">
+                    SafeRoute MX ayuda a consultar y reportar zonas de riesgo, pero no sustituye servicios de emergencia.
+                </p>
+
+                <div class="alert alert-danger mb-0">
+                    <strong>
+                        <i class="fa-solid fa-phone me-1"></i>
+                        En caso de emergencia llama al 911.
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
+
+<script>
+    const buscador = document.getElementById("buscarAcceso");
+    const accesos = document.querySelectorAll(".acceso-item");
+
+    function normalizar(texto) {
+        return (texto || "")
+            .toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function filtrarAccesos() {
+        const texto = normalizar(buscador.value);
+
+        accesos.forEach(item => {
+            const contenido = normalizar(item.dataset.keywords + " " + item.textContent);
+
+            if (contenido.includes(texto)) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
+    function limpiarBusqueda() {
+        buscador.value = "";
+        filtrarAccesos();
+    }
+
+    buscador.addEventListener("input", filtrarAccesos);
+</script>
 
 </body>
 </html>

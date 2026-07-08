@@ -15,6 +15,7 @@
         body {
             background: linear-gradient(135deg, #f4f6f9, #eef1f5);
             font-family: Arial, sans-serif;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -38,15 +39,19 @@
         }
 
         .hero-card {
-            background: white;
-            border-radius: 18px;
-            padding: 24px;
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 30%),
+                white;
+            border-radius: 24px;
+            padding: 28px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             margin-bottom: 24px;
+            border-left: 8px solid #dc3545;
+            animation: fadeUp 0.8s ease;
         }
 
         .title-app {
-            font-weight: 800;
+            font-weight: 900;
             color: #222;
         }
 
@@ -56,31 +61,132 @@
         }
 
         .report-card {
-            border-radius: 22px;
+            border-radius: 26px;
             border: none;
             background: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            animation: fadeUp 0.85s ease;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #dc3545, #8f1d2b);
+            color: white;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-header::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            right: -45px;
+            bottom: -55px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            animation: floatShape 7s ease-in-out infinite;
+        }
+
+        .form-header h4 {
+            font-weight: 900;
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-header p {
+            opacity: .95;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-indicator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 18px 24px;
+            background: #fff7f7;
+        }
+
+        .step-pill {
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 5px 14px rgba(0,0,0,.07);
+            font-weight: 800;
+            color: #555;
+            transition: .3s;
+        }
+
+        .step-pill i {
+            color: #dc3545;
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .step-pill:hover {
+            transform: translateY(-4px);
+        }
+
+        .form-body {
+            padding: 26px;
         }
 
         .section-box {
             background: #f8f9fa;
-            padding: 18px;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 18px;
             margin-bottom: 18px;
             border-left: 5px solid #dc3545;
             transition: 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-box::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            background: rgba(220,53,69,.04);
         }
 
         .section-box:hover {
             background: white;
             transform: translateX(4px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .field-help {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 7px;
+            display: block;
+            position: relative;
+            z-index: 2;
         }
 
         .form-control,
         .form-select {
-            border-radius: 12px;
-            padding: 10px 12px;
+            border-radius: 14px;
+            padding: 12px 14px;
+            position: relative;
+            z-index: 2;
         }
 
         .form-control:focus,
@@ -89,23 +195,95 @@
             box-shadow: 0 0 0 0.20rem rgba(220,53,69,0.15);
         }
 
-        #miniMapa {
-            height: 330px;
-            width: 100%;
+        .severity-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .severity-option input {
+            display: none;
+        }
+
+        .severity-label {
+            display: block;
+            background: white;
+            border: 2px solid #eee;
             border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: .3s ease;
+            font-weight: 900;
+        }
+
+        .severity-label i {
+            display: block;
+            font-size: 25px;
+            margin-bottom: 6px;
+        }
+
+        .severity-option input:checked + .severity-label {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,.12);
+        }
+
+        .sev-baja i,
+        #gravedadBaja:checked + .sev-baja {
+            color: #198754;
+            border-color: #198754;
+            background: #e7f7ee;
+        }
+
+        .sev-media i,
+        #gravedadMedia:checked + .sev-media {
+            color: #b88600;
+            border-color: #ffc107;
+            background: #fff6db;
+        }
+
+        .sev-alta i,
+        #gravedadAlta:checked + .sev-alta {
+            color: #dc3545;
+            border-color: #dc3545;
+            background: #ffe5e9;
+        }
+
+        #miniMapa {
+            height: 350px;
+            width: 100%;
+            border-radius: 18px;
             border: 2px solid #ddd;
-            box-shadow: 0 5px 16px rgba(0,0,0,0.10);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            position: relative;
+            z-index: 2;
+        }
+
+        .map-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .btn-custom {
-            border-radius: 12px;
-            padding: 11px;
-            font-weight: bold;
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 900;
+            transition: .3s ease;
+        }
+
+        .btn-custom:hover,
+        .btn-location:hover {
+            transform: translateY(-2px);
         }
 
         .btn-location {
-            border-radius: 12px;
-            font-weight: bold;
+            border-radius: 14px;
+            font-weight: 900;
+            transition: .3s ease;
         }
 
         .fade-up {
@@ -129,75 +307,185 @@
 
         @keyframes pulseSoft {
             0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+            50% { transform: scale(1.025); }
             100% { transform: scale(1); }
         }
 
-        @media (max-width: 768px) {
-            .hero-card {
-                text-align: center;
-                padding: 18px;
-            }
-
-            .title-app {
-                font-size: 24px;
-            }
-
-            .report-card {
-                padding: 18px !important;
-            }
-
-            .section-box {
-                padding: 15px;
-            }
-
-            #miniMapa {
-                height: 280px;
-            }
-
-            .navbar .container {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #miniMapa {
-                height: 240px;
-            }
-
-            .container {
-                padding-left: 14px;
-                padding-right: 14px;
-            }
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-18px) scale(1.05); }
         }
 
         .search-actions {
             display: flex;
             gap: 10px;
+            position: relative;
+            z-index: 2;
         }
 
         .search-actions .form-control {
             flex: 1;
         }
 
+        .photo-upload {
+            background: white;
+            border: 2px dashed #dc3545;
+            border-radius: 18px;
+            padding: 22px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            transition: .3s ease;
+        }
+
+        .photo-upload:hover {
+            background: #fff7f7;
+            transform: translateY(-3px);
+        }
+
+        .photo-upload i {
+            font-size: 36px;
+            color: #dc3545;
+            margin-bottom: 8px;
+        }
+
         #previewFoto {
             display: none;
             width: 100%;
             margin-top: 15px;
-            border-radius: 15px;
-            max-height: 300px;
+            border-radius: 18px;
+            max-height: 330px;
             object-fit: cover;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.14);
+            animation: fadeUp .45s ease;
         }
 
-        @media (max-width: 576px) {
+        .floating-tip {
+            background: #fff7f7;
+            border-left: 5px solid #dc3545;
+            border-radius: 16px;
+            padding: 16px;
+            height: 100%;
+            box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 22px rgba(0,0,0,.08);
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-title {
+            font-weight: 900;
+            color: #222;
+        }
+
+        .summary-line {
+            color: #555;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .summary-line i {
+            width: 22px;
+            color: #dc3545;
+        }
+
+        body.dark .hero-card,
+        body.dark .report-card,
+        body.dark .section-box,
+        body.dark .step-indicator,
+        body.dark .step-pill,
+        body.dark .summary-card,
+        body.dark .floating-tip,
+        body.dark .photo-upload,
+        body.dark .severity-label {
+            background: #1f1f1f !important;
+            color: white !important;
+        }
+
+        body.dark .title-app,
+        body.dark .summary-title {
+            color: white !important;
+        }
+
+        body.dark .subtitle,
+        body.dark .field-help,
+        body.dark .summary-line {
+            color: #cfcfcf !important;
+        }
+
+        body.dark .form-control,
+        body.dark .form-select {
+            background: #2f2f2f !important;
+            color: white !important;
+            border-color: #555 !important;
+        }
+
+        body.dark .form-control::placeholder {
+            color: #bdbdbd !important;
+        }
+
+        @media (max-width: 992px) {
+            .summary-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-card {
+                text-align: center;
+                padding: 20px;
+            }
+
+            .title-app {
+                font-size: 24px;
+            }
+
+            .form-body {
+                padding: 18px;
+            }
+
+            .section-box {
+                padding: 16px;
+            }
+
+            #miniMapa {
+                height: 290px;
+            }
+
+            .navbar .container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .step-indicator,
+            .severity-options {
+                grid-template-columns: 1fr;
+            }
+
+            .map-actions,
             .search-actions {
                 flex-direction: column;
             }
 
+            .map-actions .btn,
             .search-actions .btn {
                 width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #miniMapa {
+                height: 250px;
+            }
+
+            .container {
+                padding-left: 14px;
+                padding-right: 14px;
             }
         }
     </style>
@@ -230,173 +518,323 @@
 <div class="container my-4 mb-5">
 
     <div class="hero-card fade-up">
-        <h2 class="title-app">
-            <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
-            Reportar Incidente
-        </h2>
-        <p class="subtitle">Registra un reporte ciudadano y selecciona su ubicación en el mapa</p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="title-app">
+                    <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+                    Reportar Incidente
+                </h2>
+                <p class="subtitle">Registra un reporte ciudadano con ubicación, evidencia y nivel de riesgo.</p>
+            </div>
+
+            <span class="badge bg-danger rounded-pill p-2">
+                <i class="fa-solid fa-shield-heart me-1"></i>
+                Reporte ciudadano
+            </span>
+        </div>
     </div>
 
-    <div class="card report-card p-4 fade-up">
-
-        {% if exito %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fa-solid fa-circle-check me-1"></i>
-            Reporte guardado correctamente. Quedará pendiente hasta que un administrador lo apruebe.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
-
-        {% if error %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fa-solid fa-circle-exclamation me-1"></i>
-            {{ error }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
-
-        <form method="POST" action="/reportar" enctype="multipart/form-data">
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-list-check me-2"></i>
-                    Tipo de incidente
-                </label>
-                <select name="tipo" class="form-select">
-                    <option value="Asalto">Asalto</option>
-                    <option value="Robo">Robo</option>
-                    <option value="Accidente">Accidente</option>
-                    <option value="Vandalismo">Vandalismo</option>
-                    <option value="Alumbrado dañado">Alumbrado dañado</option>
-                    <option value="Zona peligrosa">Zona peligrosa</option>
-                </select>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-align-left me-2"></i>
-                    Descripción
-                </label>
-                <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe brevemente lo ocurrido..."></textarea>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-calendar-days me-2"></i>
-                    Fecha
-                </label>
-                <input name="fecha" type="date" class="form-control">
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-location-dot me-2"></i>
-                    Ubicación
-                </label>
-
-                <input type="text" class="form-control" name="ubicacion" id="ubicacion" placeholder="Ejemplo: Centro, CDMX">
-
-                <button type="button" class="btn btn-primary btn-sm mt-3 btn-location" onclick="obtenerUbicacion()">
-                    <i class="fa-solid fa-location-crosshairs me-1"></i>
-                    Usar mi ubicación
-                </button>
-
-                <small class="text-muted d-block mt-2" id="mensajeUbicacion">
-                    Selecciona un punto en el mapa o usa tu ubicación actual.
-                </small>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-magnifying-glass-location me-2"></i>
-                    Buscar dirección
-                </label>
-
-                <div class="search-actions">
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="buscarDireccion"
-                        placeholder="Ejemplo: Zócalo, CDMX">
-
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-location"
-                        onclick="buscarDireccionMapa()">
-                        <i class="fa-solid fa-magnifying-glass me-1"></i>
-                        Buscar
-                    </button>
-                </div>
-
-                <small class="text-muted d-block mt-2">
-                    Puedes escribir una dirección, colonia o lugar para ubicarlo automáticamente en el mapa.
-                </small>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-map-location-dot me-2"></i>
-                    Selecciona en el mapa
-                </label>
-                <div id="miniMapa"></div>
-            </div>
-
-            <div class="row section-box">
-                <div class="col-12 col-md-6 mb-3 mb-md-0">
-                    <label class="form-label fw-bold">Latitud</label>
-                    <input type="number" step="any" class="form-control" name="latitud" id="latitud" required>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold">Longitud</label>
-                    <input type="number" step="any" class="form-control" name="longitud" id="longitud" required>
-                </div>
-            </div>
-
-            <div class="section-box">
-                <label class="form-label fw-bold">
-                    <i class="fa-solid fa-gauge-high me-2"></i>
-                    Gravedad
-                </label>
-                <select name="gravedad" class="form-select">
-                    <option value="Baja">Baja</option>
-                    <option value="Media">Media</option>
-                    <option value="Alta">Alta</option>
-                </select>
-            </div> 
-            <div class="section-box">
-
-    <label class="form-label fw-bold">
-        <i class="fa-solid fa-camera me-2"></i>
-        Fotografía del incidente
-    </label>
-
-    <input
-        type="file"
-        class="form-control"
-        name="foto_reporte"
-        id="foto_reporte"
-        accept="image/*">
-
-    <img id="previewFoto" alt="Vista previa del incidente">
-
-</div>
-            
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-danger btn-lg btn-custom pulse-soft">
-                    <i class="fa-solid fa-floppy-disk me-2"></i>
-                    Guardar reporte
-                </button>
-
-                <a href="/dashboard" class="btn btn-secondary btn-custom">
-                    <i class="fa-solid fa-arrow-left me-2"></i>
-                    Volver
-                </a>
-            </div>
-
-        </form>
-
+    {% if exito %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-1"></i>
+        Reporte guardado correctamente. Quedará pendiente hasta que un administrador lo apruebe.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-1"></i>
+        {{ error }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+
+            <div class="card report-card fade-up">
+
+                <div class="form-header">
+                    <h4 class="mb-1">
+                        <i class="fa-solid fa-file-circle-plus me-2"></i>
+                        Datos del reporte
+                    </h4>
+                    <p class="mb-0">Completa la información para que el reporte pueda ser revisado correctamente.</p>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-pill">
+                        <i class="fa-solid fa-list-check"></i>
+                        Incidente
+                    </div>
+                    <div class="step-pill">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Ubicación
+                    </div>
+                    <div class="step-pill">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        Riesgo
+                    </div>
+                    <div class="step-pill">
+                        <i class="fa-solid fa-camera"></i>
+                        Evidencia
+                    </div>
+                </div>
+
+                <div class="form-body">
+                    <form method="POST" action="/reportar" enctype="multipart/form-data">
+
+                        <div class="section-box">
+                            <div class="section-title">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-list-check me-2"></i>
+                                    Tipo de incidente
+                                </label>
+                                <span class="badge bg-danger">Paso 1</span>
+                            </div>
+
+                            <select name="tipo" id="tipo" class="form-select mt-3" required>
+                                <option value="Asalto">Asalto</option>
+                                <option value="Robo">Robo</option>
+                                <option value="Accidente">Accidente</option>
+                                <option value="Vandalismo">Vandalismo</option>
+                                <option value="Alumbrado dañado">Alumbrado dañado</option>
+                                <option value="Zona peligrosa">Zona peligrosa</option>
+                            </select>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-align-left me-2"></i>
+                                Descripción
+                            </label>
+                            <textarea name="descripcion" id="descripcion" class="form-control" rows="4" maxlength="300" placeholder="Describe brevemente lo ocurrido..." required></textarea>
+                            <small class="field-help">
+                                <span id="contadorDescripcion">0</span>/300 caracteres. Sé claro y evita datos personales sensibles.
+                            </small>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-calendar-days me-2"></i>
+                                Fecha
+                            </label>
+                            <input name="fecha" id="fecha" type="date" class="form-control" required>
+                        </div>
+
+                        <div class="section-box">
+                            <div class="section-title">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-location-dot me-2"></i>
+                                    Ubicación
+                                </label>
+                                <span class="badge bg-danger">Paso 2</span>
+                            </div>
+
+                            <input type="text" class="form-control mt-3" name="ubicacion" id="ubicacion" placeholder="Ejemplo: Centro, CDMX" required>
+
+                            <div class="map-actions mt-3">
+                                <button type="button" class="btn btn-primary btn-sm btn-location" onclick="obtenerUbicacion()">
+                                    <i class="fa-solid fa-location-crosshairs me-1"></i>
+                                    Usar mi ubicación
+                                </button>
+
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-location" onclick="centrarCDMX()">
+                                    <i class="fa-solid fa-map me-1"></i>
+                                    Centrar mapa
+                                </button>
+                            </div>
+
+                            <small class="field-help" id="mensajeUbicacion">
+                                Selecciona un punto en el mapa, usa tu ubicación actual o busca una dirección.
+                            </small>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-magnifying-glass-location me-2"></i>
+                                Buscar dirección
+                            </label>
+
+                            <div class="search-actions">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="buscarDireccion"
+                                    placeholder="Ejemplo: Zócalo, CDMX">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-location"
+                                    onclick="buscarDireccionMapa()">
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i>
+                                    Buscar
+                                </button>
+                            </div>
+
+                            <small class="field-help">
+                                Puedes escribir una dirección, colonia o lugar para ubicarlo automáticamente en el mapa.
+                            </small>
+                        </div>
+
+                        <div class="section-box">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-map-location-dot me-2"></i>
+                                Selecciona en el mapa
+                            </label>
+                            <div id="miniMapa"></div>
+                        </div>
+
+                        <div class="row section-box">
+                            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                                <label class="form-label fw-bold">Latitud</label>
+                                <input type="number" step="any" class="form-control" name="latitud" id="latitud" required readonly>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Longitud</label>
+                                <input type="number" step="any" class="form-control" name="longitud" id="longitud" required readonly>
+                            </div>
+                        </div>
+
+                        <div class="section-box">
+                            <div class="section-title mb-3">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-gauge-high me-2"></i>
+                                    Gravedad
+                                </label>
+                                <span class="badge bg-danger">Paso 3</span>
+                            </div>
+
+                            <div class="severity-options">
+                                <label class="severity-option">
+                                    <input type="radio" name="gravedad" id="gravedadBaja" value="Baja" checked>
+                                    <span class="severity-label sev-baja">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                        Baja
+                                    </span>
+                                </label>
+
+                                <label class="severity-option">
+                                    <input type="radio" name="gravedad" id="gravedadMedia" value="Media">
+                                    <span class="severity-label sev-media">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        Media
+                                    </span>
+                                </label>
+
+                                <label class="severity-option">
+                                    <input type="radio" name="gravedad" id="gravedadAlta" value="Alta">
+                                    <span class="severity-label sev-alta">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                        Alta
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="section-box">
+                            <div class="section-title">
+                                <label class="form-label fw-bold mb-0">
+                                    <i class="fa-solid fa-camera me-2"></i>
+                                    Fotografía del incidente
+                                </label>
+                                <span class="badge bg-danger">Paso 4</span>
+                            </div>
+
+                            <div class="photo-upload mt-3">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p class="fw-bold mb-2">Sube una imagen como evidencia</p>
+
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    name="foto_reporte"
+                                    id="foto_reporte"
+                                    accept="image/*">
+
+                                <small class="field-help">
+                                    Formatos recomendados: JPG, PNG o WEBP.
+                                </small>
+
+                                <img id="previewFoto" alt="Vista previa del incidente">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg btn-custom pulse-soft">
+                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                Guardar reporte
+                            </button>
+
+                            <a href="/dashboard" class="btn btn-secondary btn-custom">
+                                <i class="fa-solid fa-arrow-left me-2"></i>
+                                Volver
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="summary-card fade-up">
+                <h5 class="summary-title">
+                    <i class="fa-solid fa-clipboard-list text-danger me-2"></i>
+                    Resumen del reporte
+                </h5>
+
+                <hr>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-list-check"></i>
+                    <strong>Tipo:</strong> <span id="resumenTipo">Asalto</span>
+                </p>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <strong>Fecha:</strong> <span id="resumenFecha">Sin fecha</span>
+                </p>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <strong>Ubicación:</strong> <span id="resumenUbicacion">Sin ubicación</span>
+                </p>
+
+                <p class="summary-line">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <strong>Gravedad:</strong> <span id="resumenGravedad">Baja</span>
+                </p>
+
+                <hr>
+
+                <div class="floating-tip">
+                    <strong>
+                        <i class="fa-solid fa-circle-info text-danger me-1"></i>
+                        Importante
+                    </strong>
+                    <p class="mb-0 mt-2">
+                        Tu reporte quedará pendiente hasta que un administrador lo revise y apruebe para la comunidad.
+                    </p>
+                </div>
+
+                <div class="floating-tip mt-3">
+                    <strong>
+                        <i class="fa-solid fa-shield-heart text-danger me-1"></i>
+                        Recomendación
+                    </strong>
+                    <p class="mb-0 mt-2">
+                        Si el incidente representa peligro inmediato, llama al 911.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -412,8 +850,41 @@
 
     var marcador;
 
-    miniMapa.on('click', function(e){
+    const tipoInput = document.getElementById("tipo");
+    const descripcionInput = document.getElementById("descripcion");
+    const fechaInput = document.getElementById("fecha");
+    const ubicacionInput = document.getElementById("ubicacion");
+    const contadorDescripcion = document.getElementById("contadorDescripcion");
 
+    function actualizarResumen() {
+        document.getElementById("resumenTipo").innerText = tipoInput.value || "Sin tipo";
+        document.getElementById("resumenFecha").innerText = fechaInput.value || "Sin fecha";
+        document.getElementById("resumenUbicacion").innerText = ubicacionInput.value || "Sin ubicación";
+
+        const gravedadSeleccionada = document.querySelector("input[name='gravedad']:checked");
+        document.getElementById("resumenGravedad").innerText = gravedadSeleccionada ? gravedadSeleccionada.value : "Baja";
+
+        contadorDescripcion.innerText = descripcionInput.value.length;
+    }
+
+    tipoInput.addEventListener("change", actualizarResumen);
+    fechaInput.addEventListener("change", actualizarResumen);
+    ubicacionInput.addEventListener("input", actualizarResumen);
+    descripcionInput.addEventListener("input", actualizarResumen);
+
+    document.querySelectorAll("input[name='gravedad']").forEach(function(radio) {
+        radio.addEventListener("change", actualizarResumen);
+    });
+
+    const hoy = new Date().toISOString().split("T")[0];
+
+    if (fechaInput && !fechaInput.value) {
+        fechaInput.value = hoy;
+    }
+
+    actualizarResumen();
+
+    miniMapa.on('click', function(e){
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
 
@@ -421,7 +892,6 @@
     });
 
     function actualizarMarcador(lat, lng, mensajeTexto){
-
         document.getElementById("latitud").value = lat.toFixed(6);
         document.getElementById("longitud").value = lng.toFixed(6);
 
@@ -437,8 +907,12 @@
         }
     }
 
-    async function buscarDireccionMapa(){
+    function centrarCDMX() {
+        miniMapa.setView([19.4326, -99.1332], 12);
+        document.getElementById("mensajeUbicacion").innerText = "Mapa centrado en CDMX.";
+    }
 
+    async function buscarDireccionMapa(){
         const direccion = document.getElementById("buscarDireccion").value.trim();
         const mensaje = document.getElementById("mensajeUbicacion");
 
@@ -465,6 +939,7 @@
             const lng = parseFloat(datos[0].lon);
 
             document.getElementById("ubicacion").value = datos[0].display_name || direccion;
+            actualizarResumen();
 
             actualizarMarcador(lat, lng, "Dirección encontrada correctamente");
 
@@ -473,23 +948,30 @@
         }
     }
 
-    function obtenerUbicacion(){
+    document.getElementById("buscarDireccion").addEventListener("keyup", function(e) {
+        if (e.key === "Enter") {
+            buscarDireccionMapa();
+        }
+    });
 
+    function obtenerUbicacion(){
         const mensaje = document.getElementById("mensajeUbicacion");
 
         if(navigator.geolocation){
-
             mensaje.innerText = "Obteniendo ubicación...";
 
             navigator.geolocation.getCurrentPosition(function(position){
-
                 var lat = position.coords.latitude;
                 var lng = position.coords.longitude;
 
                 actualizarMarcador(lat, lng, "Ubicación obtenida correctamente");
 
-            }, function(){
+                if (!ubicacionInput.value) {
+                    ubicacionInput.value = "Ubicación actual";
+                    actualizarResumen();
+                }
 
+            }, function(){
                 mensaje.innerText = "No se pudo obtener ubicación";
             });
 
@@ -503,7 +985,6 @@
 
     if(inputFotoReporte){
         inputFotoReporte.addEventListener("change", function(){
-
             const archivo = this.files[0];
 
             if(!archivo){
