@@ -16,6 +16,8 @@ import requests
 from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
+
+# ======================
 # CONFIGURACIÓN CLOUDINARY
 # ======================
 cloudinary.config(
@@ -358,13 +360,10 @@ def registro():
         if password != confirmar:
             return render_template("registro.html", error="Las contraseñas no coinciden.")
 
-        usuarios = db.collection("usuarios").stream()
+        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
 
         for doc in usuarios:
-            usuario_existente = doc.to_dict()
-
-            if usuario_existente.get("correo", "").strip().lower() == correo:
-                return render_template("registro.html", error="Este correo ya está registrado.")
+            return render_template("registro.html", error="Este correo ya está registrado.")
 
         codigo = str(random.randint(100000, 999999))
 
@@ -377,12 +376,11 @@ def registro():
             "codigo_verificacion": codigo
         }
 
-        db.collection("usuarios").add(usuario)
-        session["correo_verificacion"] = correo
-
         demo_mode = os.environ.get("DEMO_MODE", "").strip().lower()
 
         if demo_mode in ["true", "1", "yes", "si"]:
+            db.collection("usuarios").add(usuario)
+            session["correo_verificacion"] = correo
             return render_template("verificar_codigo.html", codigo_demo=codigo)
 
         brevo_api_key = os.environ.get("BREVO_API_KEY")
@@ -392,12 +390,7 @@ def registro():
                 "name": "SafeRoute MX",
                 "email": app.config["MAIL_DEFAULT_SENDER"]
             },
-            "to": [
-                {
-                    "email": correo,
-                    "name": nombre
-                }
-            ],
+            "to": [{"email": correo, "name": nombre}],
             "subject": "Código de verificación - SafeRoute MX",
             "htmlContent": f"""
                 <h2>Hola {nombre}</h2>
@@ -425,19 +418,14 @@ def registro():
             print("BREVO RESPONSE:", respuesta.text, flush=True)
 
             if respuesta.status_code not in [200, 201, 202]:
-                return render_template(
-                    "verificar_codigo.html",
-                    codigo_demo=codigo,
-                    error="No se pudo enviar el correo. Usa este código temporalmente."
-                )
+                return render_template("registro.html", error="No se pudo enviar el correo de verificación. Intenta de nuevo.")
 
         except Exception as e:
             print("ERROR BREVO API:", e, flush=True)
-            return render_template(
-                "verificar_codigo.html",
-                codigo_demo=codigo,
-                error="No se pudo enviar el correo. Usa este código temporalmente."
-            )
+            return render_template("registro.html", error="No se pudo enviar el correo de verificación. Intenta de nuevo.")
+
+        db.collection("usuarios").add(usuario)
+        session["correo_verificacion"] = correo
 
         return redirect("/verificar")
 
