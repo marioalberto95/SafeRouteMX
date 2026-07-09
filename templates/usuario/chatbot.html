@@ -821,6 +821,7 @@
                         <h6 class="sidebar-title mt-3">Categorías</h6>
 
                         <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('reportes')">Reportes</button>
+                        <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('accion')">Crear reporte</button>
                         <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('seguridad')">Seguridad</button>
                         <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('mapa')">Mapa</button>
                         <button class="btn btn-outline-danger btn-sm category-chip" onclick="filtrarRapidas('cuenta')">Cuenta</button>
@@ -842,14 +843,20 @@
                                 <h3>Hola {{ session.get("nombre") }}.</h3>
                                 <p>
                                     Soy SafeRoute IA. Puedo ayudarte con reportes, zonas de riesgo,
-                                    recomendaciones de seguridad, mapa, perfil y estadísticas.
+                                    recomendaciones de seguridad, mapa, perfil, estadísticas y también puedo guiarte para crear un reporte desde el chat.
                                 </p>
 
                                 <div class="suggestion-grid">
+                                    <button class="suggestion-card" onclick="enviarPreguntaRapida('Crear reporte')">
+                                        <i class="fa-solid fa-file-circle-plus"></i>
+                                        <strong>Crear reporte</strong>
+                                        <small>Inicia un reporte desde el chatbot paso a paso.</small>
+                                    </button>
+
                                     <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
                                         <i class="fa-solid fa-comments"></i>
                                         <strong>Preguntas disponibles</strong>
-                                        <small>Te muestro ejemplos de lo que puedo responder.</small>
+                                        <small>Consulta todo lo que SafeRoute IA puede responder.</small>
                                     </button>
 
                                     <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame recomendaciones de seguridad')">
@@ -858,16 +865,10 @@
                                         <small>Recibe recomendaciones para moverte con mayor precaución.</small>
                                     </button>
 
-                                    <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Cómo puedo reportar un incidente?')">
-                                        <i class="fa-solid fa-file-circle-plus"></i>
-                                        <strong>Reportar incidente</strong>
-                                        <small>Te explico paso a paso cómo crear un reporte.</small>
-                                    </button>
-
                                     <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
                                         <i class="fa-solid fa-chart-line"></i>
                                         <strong>Mi actividad</strong>
-                                        <small>Consulta tus reportes y actividad dentro del sistema.</small>
+                                        <small>Consulta tus reportes, estados y seguimiento.</small>
                                     </button>
                                 </div>
                             </div>
@@ -881,11 +882,14 @@
 Hola {{ session.get("nombre") }}.
 
 Estoy listo para ayudarte. Puedes preguntarme sobre:
-- Reportes y seguimiento.
+- Crear reporte.
+- Mis reportes y seguimiento.
 - Mapa y zonas de riesgo.
 - Consejos de seguridad.
 - Perfil y contraseña.
 - Estadísticas del sistema.
+
+Para crear un reporte escribe: Crear reporte.
                                     </div>
                                     <div class="time">Ahora</div>
                                 </div>
@@ -899,6 +903,22 @@ Estoy listo para ayudarte. Puedes preguntarme sobre:
                             </div>
 
                             <span id="quickButtons">
+                                <button class="btn btn-danger btn-sm quick-btn" data-cat="reportes accion" onclick="enviarPreguntaRapida('Crear reporte')">
+                                    <i class="fa-solid fa-file-circle-plus me-1"></i> Crear reporte
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes accion" onclick="enviarPreguntaRapida('¿Cómo crear un reporte desde el chatbot?')">
+                                    <i class="fa-solid fa-robot me-1"></i> Reporte por chat
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta" onclick="enviarPreguntaRapida('¿Mi reporte lleva seguimiento?')">
+                                    <i class="fa-solid fa-route me-1"></i> Seguimiento
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta" onclick="enviarPreguntaRapida('¿Por qué no aparece mi reporte en el mapa?')">
+                                    <i class="fa-solid fa-eye-slash me-1"></i> No aparece
+                                </button>
+
                                 <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="mapa seguridad" onclick="enviarPreguntaRapida('¿Qué zona es la más peligrosa actualmente?')">
                                     <i class="fa-solid fa-location-dot me-1"></i> Zona más peligrosa
                                 </button>
@@ -1240,6 +1260,12 @@ Estoy listo para ayudarte. Puedes preguntarme sobre:
                 </p>
 
                 <div class="suggestion-grid">
+                    <button class="suggestion-card" onclick="enviarPreguntaRapida('Crear reporte')">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                        <strong>Crear reporte</strong>
+                        <small>Inicia un reporte desde el chatbot.</small>
+                    </button>
+
                     <button class="suggestion-card" onclick="enviarPreguntaRapida('¿Qué puedo preguntarte?')">
                         <i class="fa-solid fa-comments"></i>
                         <strong>Preguntas disponibles</strong>
@@ -1250,6 +1276,12 @@ Estoy listo para ayudarte. Puedes preguntarme sobre:
                         <i class="fa-solid fa-shield-halved"></i>
                         <strong>Consejos</strong>
                         <small>Recibe recomendaciones de seguridad ciudadana.</small>
+                    </button>
+
+                    <button class="suggestion-card" onclick="enviarPreguntaRapida('Dame un resumen de mi actividad')">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <strong>Mi actividad</strong>
+                        <small>Consulta tus reportes y seguimiento.</small>
                     </button>
                 </div>
             </div>
