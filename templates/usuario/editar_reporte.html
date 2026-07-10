@@ -144,6 +144,11 @@
             overflow: hidden;
         }
 
+        .section-box.search-section {
+            overflow: visible;
+            z-index: 50;
+        }
+
         .section-box::after {
             content: "";
             position: absolute;
@@ -268,8 +273,91 @@
             z-index: 2;
         }
 
+        .search-actions {
+            align-items: flex-start;
+            z-index: 20;
+        }
+
         .search-actions .form-control {
             flex: 1;
+        }
+
+        .search-box-autocomplete {
+            position: relative;
+            z-index: 5;
+            flex: 1;
+        }
+
+        .suggestions-box {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 18px 38px rgba(0,0,0,.24);
+            border: 1px solid #e6e6e6;
+            display: none;
+            max-height: 320px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 10000;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            transition: .25s ease;
+            background: white;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: #fff0f2;
+        }
+
+        .suggestion-icon {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .suggestion-text {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .suggestion-text strong {
+            display: block;
+            color: #222;
+            font-size: 14px;
+            line-height: 1.3;
+            margin-bottom: 3px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .suggestion-text small {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            line-height: 1.35;
+            white-space: normal;
+            overflow-wrap: anywhere;
         }
 
         .btn-custom {
@@ -417,6 +505,125 @@
             color: #bdbdbd !important;
         }
 
+        /* ===========================
+           CORRECCIONES MODO OSCURO
+        =========================== */
+
+        body.dark {
+            background: #121212 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .report-card,
+        body.dark .form-body,
+        body.dark .step-indicator,
+        body.dark .section-box,
+        body.dark .summary-card,
+        body.dark .floating-tip,
+        body.dark .photo-upload {
+            background: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .form-header {
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 30%),
+                #1f1f1f !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #333 !important;
+        }
+
+        body.dark .form-header::after {
+            background: rgba(220,53,69,.08) !important;
+        }
+
+        body.dark .step-pill {
+            background: #262626 !important;
+            color: #ffffff !important;
+            border: 1px solid #3d3d3d !important;
+            box-shadow: 0 5px 14px rgba(0,0,0,.24) !important;
+        }
+
+        body.dark .section-box:hover {
+            background: #252525 !important;
+            box-shadow: 0 8px 18px rgba(0,0,0,.30) !important;
+        }
+
+        body.dark .suggestions-box {
+            background: #202020 !important;
+            border-color: #4b4b4b !important;
+            box-shadow: 0 18px 38px rgba(0,0,0,.55) !important;
+        }
+
+        body.dark .suggestion-item {
+            background: #202020 !important;
+            color: #ffffff !important;
+            border-bottom-color: #3a3a3a !important;
+        }
+
+        body.dark .suggestion-item:hover {
+            background: #2d2d2d !important;
+        }
+
+        body.dark .suggestion-icon {
+            background: #3a1f25 !important;
+            color: #ff5361 !important;
+        }
+
+        body.dark .suggestion-text strong {
+            color: #ffffff !important;
+        }
+
+        body.dark .suggestion-text small {
+            color: #d0d0d0 !important;
+        }
+
+        body.dark .severity-label {
+            background: #ffffff !important;
+            color: #111111 !important;
+            border-color: #e3e3e3 !important;
+            box-shadow: 0 5px 14px rgba(0,0,0,.18) !important;
+        }
+
+        body.dark .sev-baja i {
+            color: #198754 !important;
+        }
+
+        body.dark .sev-media i {
+            color: #b88600 !important;
+        }
+
+        body.dark .sev-alta i {
+            color: #dc3545 !important;
+        }
+
+        body.dark #gravedadBaja:checked + .sev-baja {
+            color: #198754 !important;
+            border-color: #198754 !important;
+            background: #e7f7ee !important;
+        }
+
+        body.dark #gravedadMedia:checked + .sev-media {
+            color: #111111 !important;
+            border-color: #ffc107 !important;
+            background: #fff6db !important;
+        }
+
+        body.dark #gravedadAlta:checked + .sev-alta {
+            color: #111111 !important;
+            border-color: #dc3545 !important;
+            background: #ffe5e9 !important;
+        }
+
+        body.dark .photo-upload:hover {
+            background: #252525 !important;
+        }
+
+        body.dark #miniMapa {
+            border-color: #4a4a4a !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,.40) !important;
+        }
+
         @media (max-width: 992px) {
             .summary-card {
                 position: static;
@@ -458,6 +665,11 @@
             .map-actions,
             .search-actions {
                 flex-direction: column;
+            }
+
+            .search-box-autocomplete,
+            .suggestions-box {
+                width: 100%;
             }
 
             .map-actions .btn,
@@ -623,17 +835,22 @@
                             </small>
                         </div>
 
-                        <div class="section-box">
+                        <div class="section-box search-section">
                             <label class="form-label fw-bold">
                                 <i class="fa-solid fa-magnifying-glass me-2"></i>
                                 Buscar dirección
                             </label>
 
                             <div class="search-actions">
-                                <input type="text"
-                                       class="form-control"
-                                       id="buscarDireccion"
-                                       placeholder="Ejemplo: Palacio de Bellas Artes, CDMX">
+                                <div class="search-box-autocomplete">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="buscarDireccion"
+                                           placeholder="Ejemplo: Palacio de Bellas Artes, CDMX"
+                                           autocomplete="off">
+
+                                    <div id="sugerenciasDireccion" class="suggestions-box"></div>
+                                </div>
 
                                 <button type="button" class="btn btn-danger btn-location" onclick="buscarDireccionMapa()">
                                     <i class="fa-solid fa-magnifying-glass me-1"></i>
@@ -841,7 +1058,10 @@
     const descripcionInput = document.getElementById("descripcion");
     const fechaInput = document.getElementById("fecha");
     const ubicacionInput = document.getElementById("ubicacion");
+    const buscarDireccionInput = document.getElementById("buscarDireccion");
+    const sugerenciasDireccion = document.getElementById("sugerenciasDireccion");
     const contadorDescripcion = document.getElementById("contadorDescripcion");
+    let timeoutSugerencias = null;
 
     function actualizarResumen() {
         document.getElementById("resumenTipo").innerText = tipoInput.value || "Sin tipo";
@@ -867,6 +1087,7 @@
 
     miniMapa.on('click', function(e){
         actualizarMarcador(e.latlng.lat, e.latlng.lng, "Nueva ubicación seleccionada correctamente");
+        obtenerDireccionPorCoordenadas(e.latlng.lat, e.latlng.lng);
     });
 
     function actualizarMarcador(lat, lng, mensajeTexto){
@@ -885,6 +1106,126 @@
         }
     }
 
+    function limpiarHTML(texto){
+        return String(texto || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function escribirUbicacion(direccion){
+        if(direccion){
+            ubicacionInput.value = direccion;
+            actualizarResumen();
+        }
+    }
+
+    function nombreCortoLugar(lugar){
+        if(lugar && lugar.name){
+            return lugar.name;
+        }
+
+        if(lugar && lugar.display_name){
+            return lugar.display_name.split(",")[0];
+        }
+
+        return "Dirección encontrada";
+    }
+
+    async function obtenerDireccionPorCoordenadas(lat, lng){
+        const mensaje = document.getElementById("mensajeUbicacion");
+
+        try{
+            mensaje.innerText = "Obteniendo dirección seleccionada...";
+
+            const respuesta = await fetch(
+                "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
+                encodeURIComponent(lat) +
+                "&lon=" +
+                encodeURIComponent(lng) +
+                "&zoom=18&addressdetails=1"
+            );
+
+            const dato = await respuesta.json();
+            const direccion = dato.display_name || "Ubicación seleccionada en el mapa";
+
+            escribirUbicacion(direccion);
+            mensaje.innerText = "Dirección seleccionada correctamente.";
+
+        }catch(error){
+            escribirUbicacion("Ubicación seleccionada en el mapa");
+            mensaje.innerText = "Ubicación seleccionada. No se pudo obtener el nombre exacto de la dirección.";
+        }
+    }
+
+    function mostrarSugerencias(datos){
+        sugerenciasDireccion.innerHTML = "";
+
+        if(!datos || datos.length === 0){
+            sugerenciasDireccion.style.display = "none";
+            return;
+        }
+
+        datos.forEach(function(lugar){
+            const item = document.createElement("div");
+            item.className = "suggestion-item";
+
+            const nombre = nombreCortoLugar(lugar);
+            const direccion = lugar.display_name || nombre;
+
+            item.innerHTML = `
+                <div class="suggestion-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div class="suggestion-text">
+                    <strong>${limpiarHTML(nombre)}</strong>
+                    <small>${limpiarHTML(direccion)}</small>
+                </div>
+            `;
+
+            item.addEventListener("click", function(){
+                seleccionarSugerencia(lugar);
+            });
+
+            sugerenciasDireccion.appendChild(item);
+        });
+
+        sugerenciasDireccion.style.display = "block";
+    }
+
+    async function buscarSugerenciasDireccion(texto){
+        if(!texto || texto.length < 3){
+            sugerenciasDireccion.style.display = "none";
+            return;
+        }
+
+        try{
+            const respuesta = await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=7&countrycodes=mx&q=" +
+                encodeURIComponent(texto)
+            );
+
+            const datos = await respuesta.json();
+            mostrarSugerencias(datos);
+
+        }catch(error){
+            sugerenciasDireccion.style.display = "none";
+        }
+    }
+
+    function seleccionarSugerencia(lugar){
+        const lat = parseFloat(lugar.lat);
+        const lng = parseFloat(lugar.lon);
+        const direccion = lugar.display_name || buscarDireccionInput.value;
+
+        buscarDireccionInput.value = direccion;
+        escribirUbicacion(direccion);
+        actualizarMarcador(lat, lng, "Dirección seleccionada correctamente");
+        sugerenciasDireccion.style.display = "none";
+    }
+
     function centrarActual() {
         miniMapa.setView([latInicial, lngInicial], 15);
         document.getElementById("mensajeUbicacion").innerText = "Mapa centrado en la ubicación actual del reporte.";
@@ -901,11 +1242,7 @@
                 var lng = position.coords.longitude;
 
                 actualizarMarcador(lat, lng, "Ubicación actual obtenida correctamente");
-
-                if (!ubicacionInput.value) {
-                    ubicacionInput.value = "Ubicación actual";
-                    actualizarResumen();
-                }
+                obtenerDireccionPorCoordenadas(lat, lng);
 
             }, function(){
                 mensaje.innerText = "No se pudo obtener ubicación";
@@ -917,9 +1254,8 @@
     }
 
     async function buscarDireccionMapa(){
-        const inputBusqueda = document.getElementById("buscarDireccion");
+        const direccion = buscarDireccionInput.value.trim();
         const mensaje = document.getElementById("mensajeUbicacion");
-        const direccion = inputBusqueda.value.trim();
 
         if(!direccion){
             mensaje.innerText = "Escribe una dirección para buscar.";
@@ -930,32 +1266,50 @@
 
         try{
             const respuesta = await fetch(
-                "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(direccion)
+                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&countrycodes=mx&q=" +
+                encodeURIComponent(direccion)
             );
 
             const datos = await respuesta.json();
 
             if(!datos || datos.length === 0){
                 mensaje.innerText = "No se encontró la dirección. Intenta escribirla más completa.";
+                sugerenciasDireccion.style.display = "none";
                 return;
             }
 
-            const lat = parseFloat(datos[0].lat);
-            const lng = parseFloat(datos[0].lon);
-
-            document.getElementById("ubicacion").value = datos[0].display_name || direccion;
-            actualizarResumen();
-
-            actualizarMarcador(lat, lng, "Dirección encontrada correctamente");
+            seleccionarSugerencia(datos[0]);
+            mensaje.innerText = "Dirección encontrada correctamente.";
 
         }catch(error){
             mensaje.innerText = "No se pudo buscar la dirección. Intenta nuevamente.";
         }
     }
 
-    document.getElementById("buscarDireccion").addEventListener("keyup", function(e) {
+    buscarDireccionInput.addEventListener("input", function() {
+        const texto = this.value.trim();
+
+        clearTimeout(timeoutSugerencias);
+
+        timeoutSugerencias = setTimeout(function(){
+            buscarSugerenciasDireccion(texto);
+        }, 350);
+    });
+
+    buscarDireccionInput.addEventListener("keyup", function(e) {
         if (e.key === "Enter") {
+            e.preventDefault();
             buscarDireccionMapa();
+        }
+
+        if (e.key === "Escape") {
+            sugerenciasDireccion.style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", function(e){
+        if(!e.target.closest(".search-box-autocomplete")){
+            sugerenciasDireccion.style.display = "none";
         }
     });
 
