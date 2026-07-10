@@ -719,9 +719,20 @@ def actualizar_estado_reporte(id):
 
     estado = request.form.get("estado", "Pendiente")
     seguimiento = request.form.get("seguimiento", "Sin seguimiento")
-    comentario_admin = request.form.get("comentario_admin", "")
+    comentario_admin = request.form.get("comentario_admin", "").strip()
 
-    aprobado = True if estado in ["Aprobado", "En seguimiento", "Resuelto"] else False
+    estados_validos = [
+        "Pendiente",
+        "Aprobado",
+        "Rechazado",
+        "En seguimiento",
+        "Resuelto"
+    ]
+
+    if estado not in estados_validos:
+        estado = "Pendiente"
+
+    aprobado = estado in ["Aprobado", "En seguimiento", "Resuelto"]
 
     reporte_ref = db.collection("reportes").document(id)
     reporte_doc = reporte_ref.get()
@@ -731,16 +742,27 @@ def actualizar_estado_reporte(id):
 
     reporte = reporte_doc.to_dict()
 
-    reporte_ref.update({
+    datos_actualizados = {
         "estado": estado,
         "seguimiento": seguimiento,
         "comentario_admin": comentario_admin,
         "aprobado": aprobado,
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
-    })
+    }
+
+    # Cuando el administrador ya tomó una decisión,
+    # deja de aparecer como pendiente de nueva revisión.
+    if estado != "Pendiente":
+        datos_actualizados["requiere_revision"] = False
+        datos_actualizados["editado_por_usuario"] = False
+
+    reporte_ref.update(datos_actualizados)
 
     correo_usuario = reporte.get("usuario")
-    nombre_usuario = reporte.get("nombre_usuario", "Usuario SafeRoute")
+    nombre_usuario = reporte.get(
+        "nombre_usuario",
+        "Usuario SafeRoute"
+    )
 
     if correo_usuario:
         enviar_correo_estado_reporte(
@@ -767,6 +789,8 @@ def aprobar_reporte(id):
         "aprobado": True,
         "estado": "Aprobado",
         "seguimiento": "Reporte aprobado para la comunidad",
+        "requiere_revision": False,
+        "editado_por_usuario": False,
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
@@ -785,6 +809,8 @@ def rechazar_reporte(id):
         "aprobado": False,
         "estado": "Rechazado",
         "seguimiento": "Reporte no aprobado para publicación",
+        "requiere_revision": False,
+        "editado_por_usuario": False,
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
@@ -941,22 +967,72 @@ def usuario_editar_reporte(id):
         return redirect("/dashboard")
 
     if request.method == "POST":
-        doc_ref.update({
-            "tipo": request.form.get("tipo"),
-            "descripcion": request.form.get("descripcion"),
-            "fecha": request.form.get("fecha"),
-            "ubicacion": request.form.get("ubicacion"),
-            "gravedad": request.form.get("gravedad"),
-            "latitud": float(request.form.get("latitud")),
-            "longitud": float(request.form.get("longitud")),
-            "usuario": session.get("usuario")
-        })
 
-        return redirect("/dashboard")
+        latitud = request.form.get("latitud")
+        longitud = request.form.get("longitud")
+
+        if not latitud or not longitud:
+            reporte["id"] = doc.id
+
+            return render_template(
+                "usuario/editar_reporte.html",
+                reporte=reporte,
+                error="Debes seleccionar una ubicación válida en el mapa."
+            )
+
+        foto_reporte = request.files.get("foto_reporte")
+        url_foto_reporte = reporte.get("foto_reporte", "")
+
+        if foto_reporte and foto_reporte.filename != "":
+
+            if not foto_reporte.mimetype.startswith("image/"):
+                reporte["id"] = doc.id
+
+                return render_template(
+                    "usuario/editar_reporte.html",
+                    reporte=reporte,
+                    error="El archivo seleccionado debe ser una imagen."
+                )
+
+            resultado = cloudinary.uploader.upload(
+                foto_reporte,
+                folder="saferoutemx/reportes",
+                resource_type="image"
+            )
+
+            url_foto_reporte = resultado.get("secure_url")
+
+        datos_actualizados = {
+            "tipo": request.form.get("tipo", "").strip(),
+            "descripcion": request.form.get("descripcion", "").strip(),
+            "fecha": request.form.get("fecha", "").strip(),
+            "ubicacion": request.form.get("ubicacion", "").strip(),
+            "gravedad": request.form.get("gravedad", "").strip(),
+            "latitud": float(latitud),
+            "longitud": float(longitud),
+            "usuario": session.get("usuario"),
+            "foto_reporte": url_foto_reporte,
+
+            # Regresa a revisión administrativa
+            "aprobado": False,
+            "estado": "Pendiente",
+            "seguimiento": "Reporte editado y enviado nuevamente a revisión",
+            "comentario_admin": "",
+            "editado_por_usuario": True,
+            "requiere_revision": True,
+            "fecha_actualizacion": firestore.SERVER_TIMESTAMP
+        }
+
+        doc_ref.update(datos_actualizados)
+
+        return redirect("/mis-reportes")
 
     reporte["id"] = doc.id
 
-    return render_template("usuario/editar_reporte.html", reporte=reporte)
+    return render_template(
+        "usuario/editar_reporte.html",
+        reporte=reporte
+    )
 
 @app.route("/mis-reportes")
 def mis_reportes():

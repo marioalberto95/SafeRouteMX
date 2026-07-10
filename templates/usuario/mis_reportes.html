@@ -241,6 +241,28 @@
         .status-panel.seguimiento { border-left-color: #0d6efd; }
         .status-panel.resuelto { border-left-color: #198754; }
 
+        .revision-user-alert {
+            background: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+            border-left: 6px solid #ffc107;
+            border-radius: 16px;
+            padding: 14px 15px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 5px 14px rgba(0,0,0,.06);
+        }
+
+        .revision-user-alert strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .revision-user-alert i {
+            color: #b88600;
+        }
+
         .admin-comment {
             border-radius: 16px;
             border-left: 5px solid #0d6efd;
@@ -366,6 +388,16 @@
 
         body.dark .timeline::before {
             background: #555;
+        }
+
+        body.dark .revision-user-alert {
+            background: #3a2f18 !important;
+            color: #fff3cd !important;
+            border-color: #7a5d16 !important;
+        }
+
+        body.dark .revision-user-alert i {
+            color: #ffc107 !important;
         }
 
         @media (max-width: 768px) {
@@ -556,7 +588,9 @@
                  data-seguimiento="{{ reporte.seguimiento or '' }}"
                  data-comentario="{{ reporte.comentario_admin or '' }}"
                  data-gravedad="{{ reporte.gravedad or '' }}"
-                 data-estado="{{ reporte.estado or 'Pendiente' }}">
+                 data-estado="{{ reporte.estado or 'Pendiente' }}"
+                 data-editado="{{ 'si' if reporte.editado_por_usuario else 'no' }}"
+                 data-revision="{{ 'si' if reporte.requiere_revision else 'no' }}">
                 <div class="report-card
                     {% if reporte.gravedad == 'Alta' %}alta
                     {% elif reporte.gravedad == 'Media' %}media
@@ -588,9 +622,26 @@
                                 {% else %}
                                     <span class="badge bg-success badge-custom">Baja</span>
                                 {% endif %}
+
+                                {% if reporte.requiere_revision or reporte.editado_por_usuario %}
+                                    <span class="badge bg-warning text-dark badge-custom ms-1">
+                                        <i class="fa-solid fa-rotate me-1"></i>
+                                        Pendiente de nueva revisión
+                                    </span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
+
+                    {% if reporte.requiere_revision or reporte.editado_por_usuario %}
+                    <div class="revision-user-alert">
+                        <strong>
+                            <i class="fa-solid fa-pen-to-square me-1"></i>
+                            Reporte editado
+                        </strong>
+                        Tus cambios fueron guardados. El reporte volvió a estado pendiente y será revisado nuevamente por un administrador antes de aparecer en la comunidad.
+                    </div>
+                    {% endif %}
 
                     <p class="info-line">
                         <i class="fa-solid fa-location-dot"></i>
@@ -644,6 +695,9 @@
 
                         <div class="timeline">
                             <div class="timeline-item">Reporte registrado por el usuario.</div>
+                            {% if reporte.editado_por_usuario or reporte.requiere_revision %}
+                                <div class="timeline-item">El reporte fue editado y enviado nuevamente a revisión.</div>
+                            {% endif %}
                             {% if reporte.estado and reporte.estado != 'Pendiente' %}
                                 <div class="timeline-item">Estado actualizado: {{ reporte.estado }}.</div>
                             {% endif %}

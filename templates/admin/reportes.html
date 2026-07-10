@@ -114,6 +114,21 @@
         .status-box.following { border-left-color: #0d6efd; }
         .status-box.resolved { border-left-color: #198754; }
 
+        .revision-alert {
+            background: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+            border-left: 6px solid #ffc107;
+            border-radius: 14px;
+            padding: 13px 14px;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        .revision-alert i {
+            color: #b88600;
+        }
+
         .tracking-box {
             background: #f8f9fa;
             border-radius: 16px;
@@ -215,6 +230,16 @@
         body.dark .tracking-box {
             background: #2b2b2b !important;
             color: #ffffff !important;
+        }
+
+        body.dark .revision-alert {
+            background: #3a2f18 !important;
+            color: #fff3cd !important;
+            border-color: #7a5d16 !important;
+        }
+
+        body.dark .revision-alert i {
+            color: #ffc107 !important;
         }
 
         body.dark .tracking-title {
@@ -520,7 +545,9 @@
                  data-descripcion="{{ reporte.descripcion or '' }}"
                  data-comentario="{{ reporte.comentario_admin or '' }}"
                  data-gravedad="{{ reporte.gravedad or '' }}"
-                 data-estado="{{ reporte.estado or ('Aprobado' if reporte.aprobado else 'Pendiente') }}">
+                 data-estado="{{ reporte.estado or ('Aprobado' if reporte.aprobado else 'Pendiente') }}"
+                 data-editado="{{ 'si' if reporte.editado_por_usuario else 'no' }}"
+                 data-revision="{{ 'si' if reporte.requiere_revision else 'no' }}">
                 <div class="report-card
                     {% if reporte.gravedad == 'Alta' %}alta
                     {% elif reporte.gravedad == 'Media' %}media
@@ -552,9 +579,23 @@
                                 {% else %}
                                     <span class="badge bg-success badge-custom">Riesgo bajo</span>
                                 {% endif %}
+
+                                {% if reporte.requiere_revision or reporte.editado_por_usuario %}
+                                    <span class="badge bg-warning text-dark badge-custom ms-1">
+                                        <i class="fa-solid fa-rotate me-1"></i>
+                                        Revisión requerida
+                                    </span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
+
+                    {% if reporte.requiere_revision or reporte.editado_por_usuario %}
+                    <div class="revision-alert">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>
+                        Este reporte fue editado por el usuario y requiere una nueva revisión administrativa.
+                    </div>
+                    {% endif %}
 
                     <div class="status-box
                         {% if reporte.estado == 'Rechazado' %}rejected

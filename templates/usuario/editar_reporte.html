@@ -450,6 +450,39 @@
             box-shadow: 0 6px 18px rgba(0,0,0,.06);
         }
 
+        .review-warning {
+            background: #fff3cd;
+            color: #664d03;
+            border: 1px solid #ffecb5;
+            border-left: 6px solid #ffc107;
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 7px 18px rgba(0,0,0,.07);
+            animation: fadeUp .65s ease;
+        }
+
+        .review-warning strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .review-warning i {
+            color: #b88600;
+        }
+
+        .review-warning.pending-review {
+            background: #e8f1ff;
+            color: #084298;
+            border-color: #b6d4fe;
+            border-left-color: #0d6efd;
+        }
+
+        .review-warning.pending-review i {
+            color: #0d6efd;
+        }
+
         .fade-up {
             animation: fadeUp 0.8s ease;
         }
@@ -624,6 +657,27 @@
             box-shadow: 0 6px 18px rgba(0,0,0,.40) !important;
         }
 
+        body.dark .review-warning {
+            background: #3a2f18 !important;
+            color: #fff3cd !important;
+            border-color: #7a5d16 !important;
+        }
+
+        body.dark .review-warning i {
+            color: #ffc107 !important;
+        }
+
+        body.dark .review-warning.pending-review {
+            background: #18283a !important;
+            color: #cfe2ff !important;
+            border-color: #315b87 !important;
+            border-left-color: #0d6efd !important;
+        }
+
+        body.dark .review-warning.pending-review i {
+            color: #6ea8fe !important;
+        }
+
         @media (max-width: 992px) {
             .summary-card {
                 position: static;
@@ -734,6 +788,26 @@
         </div>
     </div>
 
+    {% if reporte.requiere_revision or reporte.editado_por_usuario %}
+    <div class="review-warning pending-review">
+        <strong>
+            <i class="fa-solid fa-clock-rotate-left me-2"></i>
+            Este reporte ya está pendiente de nueva revisión
+        </strong>
+        Puedes seguir modificándolo, pero cualquier cambio guardado mantendrá el reporte en estado
+        <strong class="d-inline">Pendiente</strong> hasta que un administrador lo revise nuevamente.
+    </div>
+    {% else %}
+    <div class="review-warning">
+        <strong>
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            Importante antes de guardar
+        </strong>
+        Al guardar cambios, este reporte volverá al estado
+        <strong class="d-inline">Pendiente</strong> y deberá ser revisado nuevamente por un administrador antes de aparecer en la comunidad.
+    </div>
+    {% endif %}
+
     <div class="row g-4">
         <div class="col-12 col-lg-8">
 
@@ -744,7 +818,7 @@
                         <i class="fa-solid fa-clipboard-list me-2"></i>
                         Información editable
                     </h4>
-                    <p class="mb-0">Actualiza solo los campos necesarios. Tu reporte puede volver a ser revisado por administración.</p>
+                    <p class="mb-0">Actualiza solo los campos necesarios. Al guardar, el reporte será enviado nuevamente a revisión administrativa.</p>
                 </div>
 
                 <div class="step-indicator">
@@ -960,8 +1034,8 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger btn-lg btn-custom">
-                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                Guardar cambios
+                                <i class="fa-solid fa-paper-plane me-2"></i>
+                                Guardar y enviar a revisión
                             </button>
 
                             <a href="/dashboard" class="btn btn-secondary btn-custom">
@@ -1014,7 +1088,7 @@
                         Importante
                     </strong>
                     <p class="mb-0 mt-2">
-                        Si cambias datos importantes, el reporte podría requerir revisión administrativa nuevamente.
+                        Al guardar cualquier cambio, el reporte regresará a estado Pendiente y dejará de mostrarse en la comunidad hasta que un administrador lo apruebe otra vez.
                     </p>
                 </div>
 
