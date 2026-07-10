@@ -327,6 +327,67 @@
             flex: 1;
         }
 
+        .search-box-autocomplete {
+            position: relative;
+            z-index: 5;
+            flex: 1;
+        }
+
+        .suggestions-box {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 12px 28px rgba(0,0,0,.18);
+            border: 1px solid #eee;
+            overflow: hidden;
+            display: none;
+            max-height: 285px;
+            overflow-y: auto;
+            z-index: 9999;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            transition: .25s ease;
+        }
+
+        .suggestion-item:hover {
+            background: #fff0f2;
+        }
+
+        .suggestion-icon {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 50%;
+            background: #ffe5e9;
+            color: #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .suggestion-text strong {
+            display: block;
+            color: #222;
+            font-size: 14px;
+            line-height: 1.25;
+        }
+
+        .suggestion-text small {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.25;
+        }
+
         .photo-upload {
             background: white;
             border: 2px dashed #dc3545;
@@ -427,6 +488,27 @@
 
         body.dark .form-control::placeholder {
             color: #bdbdbd !important;
+        }
+
+        body.dark .suggestions-box {
+            background: #252525 !important;
+            border-color: #444 !important;
+        }
+
+        body.dark .suggestion-item {
+            border-bottom-color: #3a3a3a !important;
+        }
+
+        body.dark .suggestion-item:hover {
+            background: #333 !important;
+        }
+
+        body.dark .suggestion-text strong {
+            color: white !important;
+        }
+
+        body.dark .suggestion-text small {
+            color: #cfcfcf !important;
         }
 
         @media (max-width: 992px) {
@@ -658,11 +740,16 @@
                             </label>
 
                             <div class="search-actions">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    id="buscarDireccion"
-                                    placeholder="Ejemplo: Zócalo, CDMX">
+                                <div class="search-box-autocomplete">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="buscarDireccion"
+                                        placeholder="Ejemplo: Zócalo, CDMX"
+                                        autocomplete="off">
+
+                                    <div id="sugerenciasDireccion" class="suggestions-box"></div>
+                                </div>
 
                                 <button
                                     type="button"
@@ -854,7 +941,10 @@
     const descripcionInput = document.getElementById("descripcion");
     const fechaInput = document.getElementById("fecha");
     const ubicacionInput = document.getElementById("ubicacion");
+    const buscarDireccionInput = document.getElementById("buscarDireccion");
+    const sugerenciasDireccion = document.getElementById("sugerenciasDireccion");
     const contadorDescripcion = document.getElementById("contadorDescripcion");
+    let timeoutSugerencias = null;
 
     function actualizarResumen() {
         document.getElementById("resumenTipo").innerText = tipoInput.value || "Sin tipo";
@@ -889,6 +979,7 @@
         var lng = e.latlng.lng;
 
         actualizarMarcador(lat, lng, "Ubicación seleccionada correctamente");
+        obtenerDireccionPorCoordenadas(lat, lng);
     });
 
     function actualizarMarcador(lat, lng, mensajeTexto){
@@ -907,13 +998,133 @@
         }
     }
 
+    function limpiarHTML(texto){
+        return String(texto || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function escribirUbicacion(direccion){
+        if(direccion){
+            ubicacionInput.value = direccion;
+            actualizarResumen();
+        }
+    }
+
+    function nombreCortoLugar(lugar){
+        if(lugar && lugar.name){
+            return lugar.name;
+        }
+
+        if(lugar && lugar.display_name){
+            return lugar.display_name.split(",")[0];
+        }
+
+        return "Dirección encontrada";
+    }
+
+    async function obtenerDireccionPorCoordenadas(lat, lng){
+        const mensaje = document.getElementById("mensajeUbicacion");
+
+        try{
+            mensaje.innerText = "Obteniendo dirección seleccionada...";
+
+            const respuesta = await fetch(
+                "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
+                encodeURIComponent(lat) +
+                "&lon=" +
+                encodeURIComponent(lng) +
+                "&zoom=18&addressdetails=1"
+            );
+
+            const dato = await respuesta.json();
+            const direccion = dato.display_name || "Ubicación seleccionada en el mapa";
+
+            escribirUbicacion(direccion);
+            mensaje.innerText = "Dirección seleccionada correctamente.";
+
+        }catch(error){
+            escribirUbicacion("Ubicación seleccionada en el mapa");
+            mensaje.innerText = "Ubicación seleccionada. No se pudo obtener el nombre exacto de la dirección.";
+        }
+    }
+
+    function mostrarSugerencias(datos){
+        sugerenciasDireccion.innerHTML = "";
+
+        if(!datos || datos.length === 0){
+            sugerenciasDireccion.style.display = "none";
+            return;
+        }
+
+        datos.forEach(function(lugar){
+            const item = document.createElement("div");
+            item.className = "suggestion-item";
+
+            const nombre = nombreCortoLugar(lugar);
+            const direccion = lugar.display_name || nombre;
+
+            item.innerHTML = `
+                <div class="suggestion-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div class="suggestion-text">
+                    <strong>${limpiarHTML(nombre)}</strong>
+                    <small>${limpiarHTML(direccion)}</small>
+                </div>
+            `;
+
+            item.addEventListener("click", function(){
+                seleccionarSugerencia(lugar);
+            });
+
+            sugerenciasDireccion.appendChild(item);
+        });
+
+        sugerenciasDireccion.style.display = "block";
+    }
+
+    async function buscarSugerenciasDireccion(texto){
+        if(!texto || texto.length < 3){
+            sugerenciasDireccion.style.display = "none";
+            return;
+        }
+
+        try{
+            const respuesta = await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=7&countrycodes=mx&q=" +
+                encodeURIComponent(texto)
+            );
+
+            const datos = await respuesta.json();
+            mostrarSugerencias(datos);
+
+        }catch(error){
+            sugerenciasDireccion.style.display = "none";
+        }
+    }
+
+    function seleccionarSugerencia(lugar){
+        const lat = parseFloat(lugar.lat);
+        const lng = parseFloat(lugar.lon);
+        const direccion = lugar.display_name || buscarDireccionInput.value;
+
+        buscarDireccionInput.value = direccion;
+        escribirUbicacion(direccion);
+        actualizarMarcador(lat, lng, "Dirección seleccionada correctamente");
+        sugerenciasDireccion.style.display = "none";
+    }
+
     function centrarCDMX() {
         miniMapa.setView([19.4326, -99.1332], 12);
         document.getElementById("mensajeUbicacion").innerText = "Mapa centrado en CDMX.";
     }
 
     async function buscarDireccionMapa(){
-        const direccion = document.getElementById("buscarDireccion").value.trim();
+        const direccion = buscarDireccionInput.value.trim();
         const mensaje = document.getElementById("mensajeUbicacion");
 
         if(!direccion){
@@ -925,32 +1136,50 @@
 
         try{
             const respuesta = await fetch(
-                "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(direccion)
+                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&countrycodes=mx&q=" +
+                encodeURIComponent(direccion)
             );
 
             const datos = await respuesta.json();
 
             if(!datos || datos.length === 0){
                 mensaje.innerText = "No se encontró la dirección. Intenta con una referencia más específica.";
+                sugerenciasDireccion.style.display = "none";
                 return;
             }
 
-            const lat = parseFloat(datos[0].lat);
-            const lng = parseFloat(datos[0].lon);
-
-            document.getElementById("ubicacion").value = datos[0].display_name || direccion;
-            actualizarResumen();
-
-            actualizarMarcador(lat, lng, "Dirección encontrada correctamente");
+            seleccionarSugerencia(datos[0]);
+            mensaje.innerText = "Dirección encontrada correctamente.";
 
         }catch(error){
             mensaje.innerText = "No se pudo buscar la dirección. Intenta nuevamente.";
         }
     }
 
-    document.getElementById("buscarDireccion").addEventListener("keyup", function(e) {
+    buscarDireccionInput.addEventListener("input", function() {
+        const texto = this.value.trim();
+
+        clearTimeout(timeoutSugerencias);
+
+        timeoutSugerencias = setTimeout(function(){
+            buscarSugerenciasDireccion(texto);
+        }, 350);
+    });
+
+    buscarDireccionInput.addEventListener("keyup", function(e) {
         if (e.key === "Enter") {
+            e.preventDefault();
             buscarDireccionMapa();
+        }
+
+        if (e.key === "Escape") {
+            sugerenciasDireccion.style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", function(e){
+        if(!e.target.closest(".search-box-autocomplete")){
+            sugerenciasDireccion.style.display = "none";
         }
     });
 
@@ -965,11 +1194,7 @@
                 var lng = position.coords.longitude;
 
                 actualizarMarcador(lat, lng, "Ubicación obtenida correctamente");
-
-                if (!ubicacionInput.value) {
-                    ubicacionInput.value = "Ubicación actual";
-                    actualizarResumen();
-                }
+                obtenerDireccionPorCoordenadas(lat, lng);
 
             }, function(){
                 mensaje.innerText = "No se pudo obtener ubicación";

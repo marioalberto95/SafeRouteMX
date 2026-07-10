@@ -36,6 +36,39 @@
             justify-content: center;
         }
 
+        .profile-admin-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: white;
+            text-decoration: none;
+            font-weight: 800;
+            padding: 5px 10px 5px 5px;
+            border: 1px solid rgba(255,255,255,.45);
+            border-radius: 22px;
+            transition: .3s ease;
+        }
+
+        .profile-admin-link:hover {
+            color: #dc3545;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,.18);
+        }
+
+        .profile-admin-img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,.18);
+        }
+
+        .profile-admin-link:hover .profile-admin-img {
+            border-color: #dc3545;
+        }
+
         .hero-card {
             background:
                 radial-gradient(circle at top right, rgba(255,255,255,.22), transparent 24%),
@@ -422,6 +455,11 @@
             .section-tools {
                 justify-content: center;
             }
+
+            .profile-admin-link {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -444,6 +482,15 @@
             <a href="/" class="btn btn-outline-light btn-sm">
                 <i class="fa-solid fa-house me-1"></i>
                 Inicio
+            </a>
+
+            <a href="/perfil" class="profile-admin-link" title="Editar perfil de administrador">
+                {% if session.get("foto_perfil") %}
+                    <img src="{{ session.get('foto_perfil') }}" class="profile-admin-img" alt="Perfil administrador">
+                {% else %}
+                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-admin-img" alt="Perfil administrador">
+                {% endif %}
+                <span>Mi perfil</span>
             </a>
 
             <a href="/logout" class="btn btn-light btn-sm text-danger fw-bold">
