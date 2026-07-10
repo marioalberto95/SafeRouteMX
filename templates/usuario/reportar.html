@@ -534,6 +534,127 @@
             color: #cfcfcf !important;
         }
 
+        /* ===========================
+           CORRECCIONES MODO OSCURO
+        =========================== */
+
+        body.dark {
+            background: #121212 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .report-card,
+        body.dark .form-body,
+        body.dark .step-indicator,
+        body.dark .section-box,
+        body.dark .summary-card,
+        body.dark .floating-tip,
+        body.dark .photo-upload {
+            background: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark .form-header {
+            background:
+                radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 30%),
+                #1f1f1f !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid #333 !important;
+        }
+
+        body.dark .form-header::after {
+            background: rgba(220,53,69,.08) !important;
+        }
+
+        body.dark .step-pill {
+            background: #262626 !important;
+            color: #ffffff !important;
+            border: 1px solid #3d3d3d !important;
+            box-shadow: 0 5px 14px rgba(0,0,0,.24) !important;
+        }
+
+        body.dark .section-box:hover {
+            background: #252525 !important;
+            box-shadow: 0 8px 18px rgba(0,0,0,.30) !important;
+        }
+
+        body.dark .suggestions-box {
+            background: #202020 !important;
+            border-color: #4b4b4b !important;
+            box-shadow: 0 18px 38px rgba(0,0,0,.55) !important;
+        }
+
+        body.dark .suggestion-item {
+            background: #202020 !important;
+            color: #ffffff !important;
+            border-bottom-color: #3a3a3a !important;
+        }
+
+        body.dark .suggestion-item:hover {
+            background: #2d2d2d !important;
+        }
+
+        body.dark .suggestion-icon {
+            background: #3a1f25 !important;
+            color: #ff5361 !important;
+        }
+
+        body.dark .suggestion-text strong {
+            color: #ffffff !important;
+        }
+
+        body.dark .suggestion-text small {
+            color: #d0d0d0 !important;
+        }
+
+        /* Mantener las tarjetas de gravedad claras y legibles,
+           igual que en modo claro */
+        body.dark .severity-label {
+            background: #ffffff !important;
+            color: #111111 !important;
+            border-color: #e3e3e3 !important;
+            box-shadow: 0 5px 14px rgba(0,0,0,.18) !important;
+        }
+
+        body.dark .sev-baja i {
+            color: #198754 !important;
+        }
+
+        body.dark .sev-media i {
+            color: #b88600 !important;
+        }
+
+        body.dark .sev-alta i {
+            color: #dc3545 !important;
+        }
+
+        body.dark #gravedadBaja:checked + .sev-baja {
+            color: #198754 !important;
+            border-color: #198754 !important;
+            background: #e7f7ee !important;
+        }
+
+        body.dark #gravedadMedia:checked + .sev-media {
+            color: #111111 !important;
+            border-color: #ffc107 !important;
+            background: #fff6db !important;
+        }
+
+        body.dark #gravedadAlta:checked + .sev-alta {
+            color: #111111 !important;
+            border-color: #dc3545 !important;
+            background: #ffe5e9 !important;
+        }
+
+        body.dark .photo-upload:hover {
+            background: #252525 !important;
+        }
+
+        body.dark #miniMapa {
+            border-color: #4a4a4a !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,.40) !important;
+        }
+
         @media (max-width: 992px) {
             .summary-card {
                 position: static;
