@@ -167,7 +167,7 @@ def verificar_sesion_unica():
 def evitar_cache_paginas(response):
 
     response.headers["Cache-Control"] = (
-        "no-store, no-cache, must-revalidate, max-age=0"
+        "no-store, no-cache, must-revalidate, private, max-age=0"
     )
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
@@ -1916,15 +1916,14 @@ def logout():
     session.clear()
 
     respuesta = redirect("/login")
+
     respuesta.headers["Cache-Control"] = (
-        "no-store, no-cache, must-revalidate, max-age=0"
+        "no-store, no-cache, must-revalidate, private, max-age=0"
     )
     respuesta.headers["Pragma"] = "no-cache"
     respuesta.headers["Expires"] = "0"
 
     return respuesta
-
-
 
 # ======================
 # RUN
