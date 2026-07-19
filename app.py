@@ -12,7 +12,9 @@ from werkzeug.utils import secure_filename
 import cloudinary
 import cloudinary.uploader
 import threading
+from flask import url_for
 import requests
+import secrets
 from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "saferoute_secret_key"
@@ -99,6 +101,79 @@ def enviar_correo_estado_reporte(correo, nombre, reporte, estado, seguimiento, c
     except Exception as e:
         print("ERROR NOTIFICANDO ESTADO REPORTE:", e, flush=True)
 # ======================
+# COMPROBACION 
+# ====================== 
+@app.before_request
+def verificar_sesion_unica():
+
+    # Permitir archivos CSS, JS e imágenes
+    if request.endpoint == "static":
+        return None
+
+    # Rutas que no necesitan iniciar sesión
+    rutas_publicas = {
+        "index",
+        "login",
+        "registro",
+        "verificar",
+        "recuperar_password",
+        "restablecer_password"
+    }
+
+    if request.endpoint in rutas_publicas:
+        return None
+
+    # Si no hay una sesión iniciada, las propias rutas
+    # seguirán controlando el acceso como hasta ahora.
+    if "usuario" not in session:
+        return None
+
+    user_id = session.get("user_id")
+    token_local = session.get("token_sesion")
+
+    if not user_id or not token_local:
+        session.clear()
+
+        return redirect(
+            url_for(
+                "login",
+                sesion="invalida"
+            )
+        )
+
+    usuario_doc = db.collection("usuarios").document(user_id).get()
+
+    if not usuario_doc.exists:
+        session.clear()
+        return redirect("/login")
+
+    usuario = usuario_doc.to_dict()
+    token_guardado = usuario.get("token_sesion_activa")
+
+    # Si otro dispositivo inició sesión, el token guardado cambia.
+    if not token_guardado or token_guardado != token_local:
+        session.clear()
+
+        return redirect(
+            url_for(
+                "login",
+                sesion="otro_dispositivo"
+            )
+        )
+
+    return None
+
+@app.after_request
+def evitar_cache_paginas(response):
+
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
+    return response
+# ======================
 # FIREBASE
 # ======================
 firebase_config = os.environ.get("FIREBASE_KEY")
@@ -146,16 +221,33 @@ def login():
             if correo_db == correo and check_password_hash(password_db, password):
 
                 if not usuario.get("verificado", False):
+                    session.clear()
                     session["correo_verificacion"] = correo_db
+
                     return render_template(
                         "verificar_codigo.html",
                         error="Debes verificar tu correo antes de iniciar sesión."
                     )
 
+                # Elimina cualquier sesión anterior del navegador actual
+                session.clear()
+
+                # Token único para esta sesión
+                token_sesion = secrets.token_urlsafe(32)
+
                 session["usuario"] = correo_db
                 session["nombre"] = usuario.get("nombre", "")
                 session["rol"] = rol_db
                 session["user_id"] = doc.id
+                session["foto_perfil"] = usuario.get("foto_perfil", "")
+                session["token_sesion"] = token_sesion
+
+                # Al guardar un token nuevo, cualquier sesión anterior
+                # de esta cuenta queda invalidada.
+                db.collection("usuarios").document(doc.id).update({
+                    "token_sesion_activa": token_sesion,
+                    "fecha_ultimo_login": firestore.SERVER_TIMESTAMP
+                })
 
                 if rol_db == "admin":
                     return redirect("/admin")
@@ -1803,8 +1895,35 @@ def cambiar_rol_usuario(user_id):
 # ======================
 @app.route("/logout")
 def logout():
+
+    user_id = session.get("user_id")
+    token_local = session.get("token_sesion")
+
+    if user_id and token_local:
+        usuario_ref = db.collection("usuarios").document(user_id)
+        usuario_doc = usuario_ref.get()
+
+        if usuario_doc.exists:
+            token_guardado = usuario_doc.to_dict().get(
+                "token_sesion_activa"
+            )
+
+            if token_guardado == token_local:
+                usuario_ref.update({
+                    "token_sesion_activa": firestore.DELETE_FIELD
+                })
+
     session.clear()
-    return redirect("/")
+
+    respuesta = redirect("/login")
+    respuesta.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
+    respuesta.headers["Pragma"] = "no-cache"
+    respuesta.headers["Expires"] = "0"
+
+    return respuesta
+
 
 
 # ======================
