@@ -316,6 +316,29 @@
             box-shadow: 0 5px 14px rgba(220,53,69,0.18);
         }
 
+        .validation-summary {
+            display: none;
+            background: #ffe5e9;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            border-left: 6px solid #dc3545;
+            border-radius: 18px;
+            padding: 15px 16px;
+            margin-bottom: 18px;
+            box-shadow: 0 7px 18px rgba(220,53,69,.14);
+            animation: shakeFade .55s ease;
+        }
+
+        .validation-summary.show { display: block; }
+        .validation-summary strong { display: block; margin-bottom: 5px; }
+        .validation-summary i { color: #dc3545; }
+
+        .field-box.invalid-field {
+            border-left-color: #dc3545;
+            background: #fff0f2;
+            box-shadow: 0 0 0 2px rgba(220,53,69,.10);
+        }
+
         .helper-links {
             background: #fff7f7;
             border-radius: 18px;
@@ -362,6 +385,18 @@
 
         body.dark .form-control::placeholder {
             color: #bdbdbd !important;
+        }
+
+        body.dark .validation-summary {
+            background: #3a1f25 !important;
+            color: #ffb3bb !important;
+            border-color: #6b2a34 !important;
+        }
+
+        body.dark .validation-summary i { color: #ff6b75 !important; }
+        body.dark .field-box.invalid-field {
+            background: #2b1f22 !important;
+            box-shadow: 0 0 0 2px rgba(255,77,90,.10) !important;
         }
 
         @keyframes fadeUp {
@@ -536,7 +571,12 @@
 
                         <form method="POST" action="/registro" onsubmit="return validarFormulario()">
 
-                            <div class="field-box">
+                            <div id="validationSummary" class="validation-summary" role="alert" aria-live="assertive">
+                                <strong><i class="fa-solid fa-circle-exclamation me-1"></i> Revisa la información</strong>
+                                <span id="validationSummaryText"></span>
+                            </div>
+
+                            <div class="field-box" id="nombreFieldBox">
                                 <label class="form-label fw-bold">
                                     <i class="fa-solid fa-user me-2"></i>
                                     Nombre completo
@@ -566,7 +606,7 @@
                                     required>
                             </div>
 
-                            <div class="field-box">
+                            <div class="field-box" id="passwordFieldBox">
                                 <label class="form-label fw-bold">
                                     <i class="fa-solid fa-key me-2"></i>
                                     Contraseña
@@ -617,7 +657,7 @@
                                 </div>
                             </div>
 
-                            <div class="field-box">
+                            <div class="field-box" id="confirmFieldBox">
                                 <label class="form-label fw-bold">
                                     <i class="fa-solid fa-lock me-2"></i>
                                     Confirmar contraseña
@@ -670,10 +710,15 @@
     const password = document.getElementById("password");
     const confirmar = document.getElementById("confirmar_password");
     const nombre = document.getElementById("nombre");
+    const validationSummary = document.getElementById("validationSummary");
+    const validationSummaryText = document.getElementById("validationSummaryText");
+    const nombreFieldBox = document.getElementById("nombreFieldBox");
+    const passwordFieldBox = document.getElementById("passwordFieldBox");
+    const confirmFieldBox = document.getElementById("confirmFieldBox");
 
-    password.addEventListener("input", evaluarPassword);
-    confirmar.addEventListener("input", verificarCoincidencia);
-    nombre.addEventListener("input", validarNombreVisual);
+    password.addEventListener("input", function(){ evaluarPassword(); ocultarErrorFormulario(); });
+    confirmar.addEventListener("input", function(){ verificarCoincidencia(); ocultarErrorFormulario(); });
+    nombre.addEventListener("input", function(){ validarNombreVisual(); ocultarErrorFormulario(); });
 
     function togglePassword(id, boton) {
         const input = document.getElementById(id);
@@ -796,11 +841,28 @@
         mensaje.style.color = "#198754";
     }
 
+    function mostrarErrorFormulario(mensaje, campo, contenedor) {
+        validationSummaryText.textContent = mensaje;
+        validationSummary.classList.add("show");
+        document.querySelectorAll(".field-box").forEach(box => box.classList.remove("invalid-field"));
+        if (contenedor) contenedor.classList.add("invalid-field");
+        if (campo) {
+            campo.focus();
+            campo.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }
+
+    function ocultarErrorFormulario() {
+        validationSummary.classList.remove("show");
+        validationSummaryText.textContent = "";
+        document.querySelectorAll(".field-box").forEach(box => box.classList.remove("invalid-field"));
+    }
+
     function validarFormulario() {
         const valorPassword = password.value;
         const valorNombre = nombre.value.trim();
 
-        const nombreValido = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{3,60}$/.test(valorNombre) && valorNombre.split(" ").length >= 2;
+        const nombreValido = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{3,60}$/.test(valorNombre) && valorNombre.split(/\s+/).length >= 2;
         const passwordValido =
             valorPassword.length >= 8 &&
             /[A-Z]/.test(valorPassword) &&
@@ -809,20 +871,21 @@
             /[@$!%*?&.#_-]/.test(valorPassword);
 
         if (!nombreValido) {
-            alert("Escribe tu nombre completo correctamente.");
+            mostrarErrorFormulario("Escribe tu nombre completo usando únicamente letras y al menos un apellido.", nombre, nombreFieldBox);
             return false;
         }
 
         if (!passwordValido) {
-            alert("La contraseña no cumple con los requisitos de seguridad.");
+            mostrarErrorFormulario("La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.", password, passwordFieldBox);
             return false;
         }
 
         if (password.value !== confirmar.value) {
-            alert("Las contraseñas no coinciden.");
+            mostrarErrorFormulario("Las contraseñas no coinciden. Escríbelas nuevamente.", confirmar, confirmFieldBox);
             return false;
         }
 
+        ocultarErrorFormulario();
         return true;
     }
 </script>
