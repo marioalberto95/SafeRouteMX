@@ -4,7 +4,7 @@ from flask_mail import Mail, Message
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, messaging
 import os
 import uuid
 import json
@@ -186,6 +186,48 @@ else:
 
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+# ======================
+# NOTIFICACIONES PUSH (Firebase Cloud Messaging)
+# ======================
+def _enviar_push_a_documento(doc, titulo, cuerpo, datos=None):
+    """Manda una notificación a todos los dispositivos guardados en usuarios/{doc}.fcm_tokens"""
+    tokens = doc.to_dict().get("fcm_tokens", []) or []
+    for token in tokens:
+        try:
+            messaging.send(messaging.Message(
+                token=token,
+                notification=messaging.Notification(title=titulo, body=cuerpo),
+                data={k: str(v) for k, v in (datos or {}).items()},
+                android=messaging.AndroidConfig(
+                    priority="high",
+                    notification=messaging.AndroidNotification(channel_id="reportes")
+                )
+            ))
+            print("PUSH ENVIADO a", doc.id, flush=True)
+        except messaging.UnregisteredError:
+            # El dispositivo ya no existe (app desinstalada): limpiar el token
+            db.collection("usuarios").document(doc.id).update({
+                "fcm_tokens": firestore.ArrayRemove([token])
+            })
+        except Exception as e:
+            print("ERROR PUSH:", e, flush=True)
+
+
+def enviar_push_a_usuario(correo, titulo, cuerpo, datos=None):
+    try:
+        for doc in db.collection("usuarios").where("correo", "==", correo).limit(1).stream():
+            _enviar_push_a_documento(doc, titulo, cuerpo, datos)
+    except Exception as e:
+        print("ERROR PUSH USUARIO:", e, flush=True)
+
+
+def enviar_push_a_admins(titulo, cuerpo, datos=None):
+    try:
+        for doc in db.collection("usuarios").where("rol", "==", "admin").stream():
+            _enviar_push_a_documento(doc, titulo, cuerpo, datos)
+    except Exception as e:
+        print("ERROR PUSH ADMINS:", e, flush=True)
 
 # ======================
 # INICIO
@@ -748,6 +790,11 @@ def reportar():
 
         db.collection("reportes").add(reporte)
 
+        enviar_push_a_admins(
+            "Nuevo reporte en SafeRoute MX",
+            f"{tipo} - {ubicacion}"
+        )
+
         return render_template("usuario/reportar.html", exito=True)
 
     return render_template("usuario/reportar.html", exito=False)
@@ -864,6 +911,12 @@ def actualizar_estado_reporte(id):
             estado,
             seguimiento,
             comentario_admin
+        )
+        enviar_push_a_usuario(
+            correo_usuario,
+            "Tu reporte fue actualizado",
+            f"Estado: {estado}",
+            {"tipo": "estado_reporte", "reporte_id": id}
         )
 
     return redirect("/admin/reportes")
@@ -1893,6 +1946,70 @@ def cambiar_rol_usuario(user_id):
 # ======================
 # LOGOUT
 # ======================
+# ======================
+# TOKEN DEL DISPOSITIVO (lo manda la app Android)
+# ======================
+@app.route("/api/token", methods=["POST"])
+def registrar_token_dispositivo():
+    if "usuario" not in session or not session.get("user_id"):
+        return jsonify({"ok": False, "error": "sin sesion"}), 401
+
+    datos = request.get_json(silent=True) or {}
+    token = str(datos.get("token", "")).strip()
+
+    if not token:
+        return jsonify({"ok": False, "error": "sin token"}), 400
+
+    db.collection("usuarios").document(session["user_id"]).update({
+        "fcm_tokens": firestore.ArrayUnion([token])
+    })
+    return jsonify({"ok": True})
+
+
+# ======================
+# REGISTRO DEL RELOJ (la app Wear OS manda correo + contraseña + token)
+# ======================
+@app.route("/api/token_reloj", methods=["POST"])
+def registrar_token_reloj():
+    datos = request.get_json(silent=True) or {}
+    correo = str(datos.get("correo", "")).strip().lower()
+    password = str(datos.get("password", "")).strip()
+    token = str(datos.get("token", "")).strip()
+
+    if not correo or not password or not token:
+        return jsonify({"ok": False, "error": "Faltan datos"}), 400
+
+    for doc in db.collection("usuarios").where("correo", "==", correo).limit(1).stream():
+        usuario = doc.to_dict()
+
+        if not check_password_hash(usuario.get("password", ""), password):
+            break
+
+        if not usuario.get("verificado", False):
+            return jsonify({"ok": False, "error": "Cuenta sin verificar"}), 403
+
+        db.collection("usuarios").document(doc.id).update({
+            "fcm_tokens": firestore.ArrayUnion([token])
+        })
+        enviar_push_a_usuario(correo, "SafeRoute MX", "Reloj conectado correctamente")
+        return jsonify({"ok": True})
+
+    return jsonify({"ok": False, "error": "Correo o contraseña incorrectos"}), 401
+
+
+@app.route("/api/probar_push")
+def probar_push():
+    if "usuario" not in session:
+        return redirect("/login")
+
+    enviar_push_a_usuario(
+        session["usuario"],
+        "SafeRoute MX",
+        "Notificación de prueba. Si la ves, todo funciona."
+    )
+    return jsonify({"ok": True, "mensaje": "Push de prueba enviado"})
+
+
 @app.route("/logout")
 def logout():
 
