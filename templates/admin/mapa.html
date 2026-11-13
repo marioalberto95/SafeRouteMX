@@ -484,6 +484,15 @@
             overflow: hidden;
         }
 
+        /* Color del detalle según la gravedad */
+        .side-detail-header.sev-media { background: linear-gradient(135deg, #ffc107, #d39e00); color: #3d2f00; }
+        .side-detail-header.sev-baja { background: linear-gradient(135deg, #198754, #0f5132); }
+        .side-detail-header.sev-media .side-detail-close { color: #3d2f00; background: rgba(0,0,0,.12); }
+        #detailRisk { font-weight: 800; }
+        #detailRisk.sev-alta { color: #dc3545; }
+        #detailRisk.sev-media { color: #d39e00; }
+        #detailRisk.sev-baja { color: #198754; }
+
         .side-detail-header h4 {
             font-weight: 900;
             margin: 0;
@@ -1412,6 +1421,14 @@
     function abrirDetalle(r) {
         reporteSeleccionado = r;
         const estado = getEstado(r);
+
+        const sev = r.gravedad === "Alta" ? "sev-alta" : (r.gravedad === "Media" ? "sev-media" : "sev-baja");
+        const cabecera = document.querySelector("#sideDetail .side-detail-header");
+        cabecera.classList.remove("sev-alta", "sev-media", "sev-baja");
+        cabecera.classList.add(sev);
+        const riesgoEl = document.getElementById("detailRisk");
+        riesgoEl.classList.remove("sev-alta", "sev-media", "sev-baja");
+        riesgoEl.classList.add(sev);
 
         document.getElementById("detailTitle").innerHTML =
             `<i class="fa-solid ${getIcon(r.gravedad)} me-2"></i>${r.tipo || "Reporte"}`;

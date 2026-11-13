@@ -833,14 +833,18 @@
                                 <span class="badge bg-danger">Paso 1</span>
                             </div>
 
-                            <select name="tipo" id="tipo" class="form-select mt-3" required>
-                                <option value="Asalto" {% if reporte.tipo == "Asalto" %}selected{% endif %}>Asalto</option>
-                                <option value="Robo" {% if reporte.tipo == "Robo" %}selected{% endif %}>Robo</option>
-                                <option value="Accidente" {% if reporte.tipo == "Accidente" %}selected{% endif %}>Accidente</option>
-                                <option value="Vandalismo" {% if reporte.tipo == "Vandalismo" %}selected{% endif %}>Vandalismo</option>
-                                <option value="Alumbrado dañado" {% if reporte.tipo == "Alumbrado dañado" %}selected{% endif %}>Alumbrado dañado</option>
-                                <option value="Zona peligrosa" {% if reporte.tipo == "Zona peligrosa" %}selected{% endif %}>Zona peligrosa</option>
-                            </select>
+                            <input type="text" name="tipo" id="tipo" class="form-control mt-3" list="tiposSugeridos" maxlength="60" required autocomplete="off" value="{{ reporte.tipo }}" placeholder="Escribe el tipo de incidente o elige uno de la lista">
+                            <datalist id="tiposSugeridos">
+                                <option value="Asalto">
+                                <option value="Robo">
+                                <option value="Accidente">
+                                <option value="Vandalismo">
+                                <option value="Alumbrado dañado">
+                                <option value="Zona peligrosa">
+                                <option value="Acoso">
+                                <option value="Bache o calle dañada">
+                                <option value="Falta de señalización">
+                            </datalist>
                         </div>
 
                         <div class="section-box">
@@ -1129,6 +1133,7 @@
         contadorDescripcion.innerText = descripcionInput.value.length;
     }
 
+    tipoInput.addEventListener("input", actualizarResumen);
     tipoInput.addEventListener("change", actualizarResumen);
     fechaInput.addEventListener("change", actualizarResumen);
     ubicacionInput.addEventListener("input", actualizarResumen);

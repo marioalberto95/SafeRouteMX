@@ -644,6 +644,25 @@
             font-weight: 900;
         }
 
+        /* Color del detalle según la gravedad: rojo = alta, amarillo = media, verde = baja */
+        .modal-content.sev-alta .modal-header { background: linear-gradient(135deg, #dc3545, #8f1d2b); color: #fff; }
+        .modal-content.sev-media .modal-header { background: linear-gradient(135deg, #ffc107, #d39e00); color: #3d2f00; }
+        .modal-content.sev-baja .modal-header { background: linear-gradient(135deg, #198754, #0f5132); color: #fff; }
+        .modal-content.sev-media .btn-close { filter: none; opacity: .7; }
+
+        .modal-content.sev-alta .detail-box { border-left-color: #dc3545; }
+        .modal-content.sev-media .detail-box { border-left-color: #ffc107; }
+        .modal-content.sev-baja .detail-box { border-left-color: #198754; }
+
+        .modal-content.sev-alta .detail-box strong i { color: #dc3545 !important; }
+        .modal-content.sev-media .detail-box strong i { color: #d39e00 !important; }
+        .modal-content.sev-baja .detail-box strong i { color: #198754 !important; }
+
+        #modalGravedad { font-weight: 800; }
+        .modal-content.sev-alta #modalGravedad { color: #dc3545; }
+        .modal-content.sev-media #modalGravedad { color: #d39e00; }
+        .modal-content.sev-baja #modalGravedad { color: #198754; }
+
         .modal-img {
             width: 100%;
             max-height: 340px;
@@ -1409,6 +1428,12 @@
 
     function abrirModalDetalle(r) {
         reporteActual = r;
+
+        const modalContenido = document.querySelector("#detalleReporteModal .modal-content");
+        modalContenido.classList.remove("sev-alta", "sev-media", "sev-baja");
+        modalContenido.classList.add(
+            r.gravedad === "Alta" ? "sev-alta" : (r.gravedad === "Media" ? "sev-media" : "sev-baja")
+        );
 
         document.getElementById("modalTitulo").innerHTML =
             `<i class="fa-solid ${getIcon(r.gravedad)} me-2"></i>${r.tipo || "Reporte"}`;

@@ -575,6 +575,77 @@ def avisar_reporte_por_correo(reporte, editado=False):
     threading.Thread(target=tarea, daemon=True).start()
 
 
+def describir_dispositivo(user_agent):
+    ua = (user_agent or "").lower()
+
+    if "iphone" in ua:
+        sistema = "iPhone (iOS)"
+    elif "ipad" in ua:
+        sistema = "iPad (iOS)"
+    elif "android" in ua:
+        sistema = "Android"
+    elif "windows" in ua:
+        sistema = "Windows"
+    elif "mac os" in ua or "macintosh" in ua:
+        sistema = "Mac"
+    elif "linux" in ua:
+        sistema = "Linux"
+    else:
+        sistema = "Dispositivo desconocido"
+
+    if "edg/" in ua or "edge" in ua:
+        navegador = "Edge"
+    elif "opr/" in ua or "opera" in ua:
+        navegador = "Opera"
+    elif "firefox" in ua:
+        navegador = "Firefox"
+    elif "chrome" in ua or "crios" in ua:
+        navegador = "Chrome"
+    elif "safari" in ua:
+        navegador = "Safari"
+    elif "wv" in ua:
+        navegador = "App SafeRoute"
+    else:
+        navegador = "Navegador desconocido"
+
+    return f"{navegador} en {sistema}"
+
+
+def avisar_inicio_otro_dispositivo(correo, nombre, dispositivo, ip):
+    """Correo de seguridad: se abrió tu cuenta en otro dispositivo. Corre en segundo plano."""
+
+    def tarea():
+        try:
+            try:
+                from zoneinfo import ZoneInfo
+                ahora = datetime.now(ZoneInfo("America/Mexico_City"))
+            except Exception:
+                ahora = datetime.utcnow()
+
+            fecha = ahora.strftime("%d/%m/%Y %H:%M")
+
+            enviar_correo_simple(
+                correo,
+                nombre,
+                "Alerta de seguridad: inicio de sesión en otro dispositivo - SafeRoute MX",
+                f"""
+                <h2>Hola {esc(nombre or 'Usuario SafeRoute')}</h2>
+                <p>Se inició sesión en tu cuenta de SafeRoute MX desde <b>otro dispositivo</b>
+                mientras tenías una sesión abierta. Por seguridad, la sesión anterior se cerró.</p>
+                <p><b>Dispositivo:</b> {esc(dispositivo)}<br>
+                <b>Fecha y hora (CDMX):</b> {esc(fecha)}<br>
+                <b>Dirección IP:</b> {esc(ip or 'No disponible')}</p>
+                <p>Si fuiste tú, no tienes que hacer nada.</p>
+                <p><b>Si no fuiste tú</b>, entra a SafeRoute MX, elige "¿Olvidaste tu contraseña?"
+                y cámbiala de inmediato.</p>
+                """
+            )
+        except Exception as e:
+            print("ERROR AVISO OTRO DISPOSITIVO:", e, flush=True)
+
+    threading.Thread(target=tarea, daemon=True).start()
+
+
 def enviar_push_a_admins(titulo, cuerpo, datos=None):
     try:
         for doc in db.collection("usuarios").where("rol", "==", "admin").stream():
@@ -675,8 +746,20 @@ def login():
 
                 # Al guardar un token nuevo, cualquier sesión anterior
                 # de esta cuenta queda invalidada.
+                user_agent = request.headers.get("User-Agent", "")[:300]
+                dispositivo = describir_dispositivo(user_agent)
+                ip_cliente = (request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+                              or request.remote_addr)
+
+                # Si había una sesión abierta en OTRO dispositivo, se avisa por correo.
+                if usuario.get("token_sesion_activa") and usuario.get("ultimo_dispositivo") != user_agent:
+                    avisar_inicio_otro_dispositivo(
+                        correo_db, usuario.get("nombre", ""), dispositivo, ip_cliente
+                    )
+
                 datos_login = {
                     "token_sesion_activa": token_sesion,
+                    "ultimo_dispositivo": user_agent,
                     "fecha_ultimo_login": firestore.SERVER_TIMESTAMP
                 }
                 if usuario.get("intentos_login") or usuario.get("bloqueo_login"):

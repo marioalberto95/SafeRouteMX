@@ -806,14 +806,18 @@
                                 <span class="badge bg-danger">Paso 1</span>
                             </div>
 
-                            <select name="tipo" id="tipo" class="form-select mt-3" required>
-                                <option value="Asalto">Asalto</option>
-                                <option value="Robo">Robo</option>
-                                <option value="Accidente">Accidente</option>
-                                <option value="Vandalismo">Vandalismo</option>
-                                <option value="Alumbrado dañado">Alumbrado dañado</option>
-                                <option value="Zona peligrosa">Zona peligrosa</option>
-                            </select>
+                            <input type="text" name="tipo" id="tipo" class="form-control mt-3" list="tiposSugeridos" maxlength="60" required autocomplete="off" value="" placeholder="Escribe el tipo de incidente o elige uno de la lista">
+                            <datalist id="tiposSugeridos">
+                                <option value="Asalto">
+                                <option value="Robo">
+                                <option value="Accidente">
+                                <option value="Vandalismo">
+                                <option value="Alumbrado dañado">
+                                <option value="Zona peligrosa">
+                                <option value="Acoso">
+                                <option value="Bache o calle dañada">
+                                <option value="Falta de señalización">
+                            </datalist>
                         </div>
 
                         <div class="section-box">
@@ -1009,7 +1013,7 @@
 
                 <p class="summary-line">
                     <i class="fa-solid fa-list-check"></i>
-                    <strong>Tipo:</strong> <span id="resumenTipo">Asalto</span>
+                    <strong>Tipo:</strong> <span id="resumenTipo">Sin tipo</span>
                 </p>
 
                 <p class="summary-line">
@@ -1087,6 +1091,7 @@
         contadorDescripcion.innerText = descripcionInput.value.length;
     }
 
+    tipoInput.addEventListener("input", actualizarResumen);
     tipoInput.addEventListener("change", actualizarResumen);
     fechaInput.addEventListener("change", actualizarResumen);
     ubicacionInput.addEventListener("input", actualizarResumen);
