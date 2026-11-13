@@ -222,6 +222,23 @@ def enviar_push_a_usuario(correo, titulo, cuerpo, datos=None):
         print("ERROR PUSH USUARIO:", e, flush=True)
 
 
+def avisar_estado_reporte_push(reporte_id, estado):
+    """Busca al dueño del reporte y le manda la notificación del nuevo estado."""
+    try:
+        doc = db.collection("reportes").document(reporte_id).get()
+        if doc.exists:
+            correo = doc.to_dict().get("usuario")
+            if correo:
+                enviar_push_a_usuario(
+                    correo,
+                    "Tu reporte fue actualizado",
+                    f"Estado: {estado}",
+                    {"tipo": "estado_reporte", "reporte_id": reporte_id}
+                )
+    except Exception as e:
+        print("ERROR AVISO ESTADO PUSH:", e, flush=True)
+
+
 def enviar_push_a_admins(titulo, cuerpo, datos=None):
     try:
         for doc in db.collection("usuarios").where("rol", "==", "admin").stream():
@@ -942,6 +959,8 @@ def aprobar_reporte(id):
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
+    avisar_estado_reporte_push(id, "Aprobado")
+
     return redirect("/admin/reportes")
 
 @app.route("/admin/reportes/rechazar/<id>", methods=["POST"])
@@ -961,6 +980,8 @@ def rechazar_reporte(id):
         "editado_por_usuario": False,
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
+
+    avisar_estado_reporte_push(id, "Rechazado")
 
     return redirect("/admin/reportes")
 
