@@ -15,13 +15,24 @@ import threading
 from flask import url_for
 import requests
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+import hmac
+from html import escape as esc
 app = Flask(__name__)
 # En Render agrega la variable SECRET_KEY con un texto largo y aleatorio.
 # Si no existe, usa el valor anterior para que nada se rompa.
 app.secret_key = os.environ.get("SECRET_KEY", "saferoute_secret_key")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+# La cookie solo viaja por HTTPS cuando corre en Render (en tu PC con http sigue funcionando).
+app.config["SESSION_COOKIE_SECURE"] = bool(os.environ.get("RENDER"))
+# La sesión se cierra sola tras 30 minutos sin actividad.
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
+# Tamaño máximo de cualquier petición (fotos incluidas): 8 MB.
+app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
+if app.secret_key == "saferoute_secret_key":
+    print("AVISO: define SECRET_KEY en Render; estás usando la clave por defecto.", flush=True)
 
 # ======================
 # CONFIGURACIÓN CLOUDINARY
@@ -45,11 +56,6 @@ app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER", app.config["MAIL_USERNAME"])
 mail = Mail(app)
-UPLOAD_FOLDER = "static/uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 # ======================
 # FUNCIÓN PARA ENVIAR CORREO DEL ESTADO DEL REPORTE
 # ======================
@@ -72,18 +78,18 @@ def enviar_correo_estado_reporte(correo, nombre, reporte, estado, seguimiento, c
         ],
         "subject": "Actualización de tu reporte - SafeRoute MX",
         "htmlContent": f"""
-            <h2>Hola {nombre or "Usuario SafeRoute"}</h2>
+            <h2>Hola {esc(nombre or "Usuario SafeRoute")}</h2>
             <p>Tu reporte ha sido actualizado por el administrador.</p>
 
             <h3>Detalles del reporte</h3>
-            <p><b>Tipo:</b> {reporte.get("tipo", "Sin tipo")}</p>
-            <p><b>Ubicación:</b> {reporte.get("ubicacion", "Sin ubicación")}</p>
-            <p><b>Gravedad:</b> {reporte.get("gravedad", "Sin gravedad")}</p>
+            <p><b>Tipo:</b> {esc(str(reporte.get("tipo", "Sin tipo")))}</p>
+            <p><b>Ubicación:</b> {esc(str(reporte.get("ubicacion", "Sin ubicación")))}</p>
+            <p><b>Gravedad:</b> {esc(str(reporte.get("gravedad", "Sin gravedad")))}</p>
 
             <h3>Estado actual</h3>
-            <p><b>Estado:</b> {estado}</p>
-            <p><b>Seguimiento:</b> {seguimiento}</p>
-            <p><b>Comentario del administrador:</b> {comentario or "Sin comentario"}</p>
+            <p><b>Estado:</b> {esc(str(estado))}</p>
+            <p><b>Seguimiento:</b> {esc(str(seguimiento))}</p>
+            <p><b>Comentario del administrador:</b> {esc(str(comentario or "Sin comentario"))}</p>
 
             <p>Gracias por contribuir a la seguridad de la comunidad.</p>
         """
@@ -104,6 +110,221 @@ def enviar_correo_estado_reporte(correo, nombre, reporte, estado, seguimiento, c
 
     except Exception as e:
         print("ERROR NOTIFICANDO ESTADO REPORTE:", e, flush=True)
+# ======================
+# SEGURIDAD: CSRF, CÓDIGOS, LÍMITE DE INTENTOS, IMÁGENES
+# ======================
+RUTAS_SIN_CSRF = {"static", "registrar_token_dispositivo", "registrar_token_reloj"}
+
+
+def obtener_csrf():
+    token = session.get("_csrf")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf"] = token
+    return token
+
+
+@app.context_processor
+def inyectar_csrf():
+    return {"csrf_token": obtener_csrf}
+
+
+@app.before_request
+def proteger_csrf():
+    if request.method in ("GET", "HEAD", "OPTIONS"):
+        return None
+
+    if request.endpoint in RUTAS_SIN_CSRF:
+        return None
+
+    enviado = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token") or ""
+    esperado = session.get("_csrf") or ""
+
+    if not esperado or not hmac.compare_digest(str(enviado), str(esperado)):
+        if request.path.startswith("/chatbot"):
+            return jsonify({"respuesta": "Tu sesión expiró. Recarga la página e inténtalo de nuevo."}), 400
+        return (
+            "<h3>La página expiró o la petición no es válida.</h3>"
+            "<p>Regresa, recarga la página e inténtalo de nuevo. "
+            "<a href='/'>Ir al inicio</a></p>",
+            400,
+        )
+    return None
+
+
+@app.errorhandler(413)
+def archivo_muy_grande(e):
+    return (
+        "<h3>El archivo es demasiado grande (máximo 5 MB por imagen).</h3>"
+        "<p><a href='javascript:history.back()'>Regresar</a></p>",
+        413,
+    )
+
+
+# ---- Códigos de 6 dígitos con caducidad y límite de intentos ----
+CODIGO_VIGENCIA_SEG = 15 * 60
+CODIGO_MAX_INTENTOS = 5
+CODIGO_BLOQUEO_SEG = 15 * 60
+CODIGO_REENVIO_SEG = 60
+
+
+def generar_codigo():
+    return str(secrets.randbelow(900000) + 100000)
+
+
+def datos_codigo_nuevo(prefijo, codigo, caduca=True):
+    datos = {
+        prefijo: codigo,
+        prefijo + "_intentos": 0,
+        prefijo + "_enviado": time.time(),
+    }
+    datos[prefijo + "_expira"] = time.time() + CODIGO_VIGENCIA_SEG if caduca else firestore.DELETE_FIELD
+    return datos
+
+
+def puede_reenviar_codigo(usuario, prefijo):
+    enviado = usuario.get(prefijo + "_enviado") or 0
+    return (time.time() - enviado) >= CODIGO_REENVIO_SEG
+
+
+def validar_codigo(doc_ref, usuario, prefijo, codigo):
+    """Devuelve (True, None) si el código es correcto, o (False, mensaje)."""
+    ahora = time.time()
+
+    bloqueo = usuario.get(prefijo + "_bloqueo") or 0
+    if bloqueo > ahora:
+        minutos = int((bloqueo - ahora) // 60) + 1
+        return False, f"Demasiados intentos. Espera {minutos} minuto(s) e inténtalo de nuevo."
+
+    guardado = usuario.get(prefijo) or ""
+    if not guardado:
+        return False, "No hay un código activo. Solicita uno nuevo."
+
+    expira = usuario.get(prefijo + "_expira")
+    if expira and ahora > expira:
+        return False, "El código expiró. Solicita uno nuevo."
+
+    if not codigo or not hmac.compare_digest(str(guardado), str(codigo)):
+        intentos = (usuario.get(prefijo + "_intentos") or 0) + 1
+
+        if intentos >= CODIGO_MAX_INTENTOS:
+            doc_ref.update({
+                prefijo + "_intentos": 0,
+                prefijo + "_bloqueo": ahora + CODIGO_BLOQUEO_SEG,
+            })
+            return False, "Demasiados intentos incorrectos. Espera 15 minutos e inténtalo de nuevo."
+
+        doc_ref.update({prefijo + "_intentos": intentos})
+        restantes = CODIGO_MAX_INTENTOS - intentos
+        return False, f"El código ingresado no es correcto. Te quedan {restantes} intento(s)."
+
+    return True, None
+
+
+def limpiar_codigo(prefijo):
+    return {
+        prefijo: "",
+        prefijo + "_intentos": 0,
+        prefijo + "_expira": firestore.DELETE_FIELD,
+        prefijo + "_bloqueo": firestore.DELETE_FIELD,
+    }
+
+
+# ---- Límite de intentos de contraseña (login y reloj) ----
+LOGIN_MAX_INTENTOS = 5
+LOGIN_BLOQUEO_SEG = 15 * 60
+
+
+def login_bloqueado(usuario):
+    return (usuario.get("bloqueo_login") or 0) > time.time()
+
+
+def registrar_fallo_login(doc_ref, usuario):
+    intentos = (usuario.get("intentos_login") or 0) + 1
+
+    if intentos >= LOGIN_MAX_INTENTOS:
+        doc_ref.update({
+            "intentos_login": 0,
+            "bloqueo_login": time.time() + LOGIN_BLOQUEO_SEG,
+        })
+    else:
+        doc_ref.update({"intentos_login": intentos})
+
+
+def limpiar_fallos_login(doc_ref, usuario):
+    if usuario.get("intentos_login") or usuario.get("bloqueo_login"):
+        doc_ref.update({
+            "intentos_login": 0,
+            "bloqueo_login": firestore.DELETE_FIELD,
+        })
+
+
+def buscar_usuarios_por_correo(correo, correo_original=None):
+    """Busca por correo con una consulta (no recorre toda la colección)."""
+    docs = list(db.collection("usuarios").where("correo", "==", correo).stream())
+
+    if not docs and correo_original and correo_original != correo:
+        docs = list(db.collection("usuarios").where("correo", "==", correo_original).stream())
+
+    return docs
+
+
+# ---- Imágenes ----
+IMAGEN_MAX_BYTES = 5 * 1024 * 1024
+
+
+def _tipo_imagen(cabecera):
+    if cabecera.startswith(b"\xff\xd8\xff"):
+        return "jpeg"
+    if cabecera.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if cabecera[:6] in (b"GIF87a", b"GIF89a"):
+        return "gif"
+    if cabecera[:4] == b"RIFF" and cabecera[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+def procesar_imagen(archivo, carpeta, public_id=None):
+    """Valida (contenido real, tamaño) y sube a Cloudinary. Devuelve (url, error)."""
+    cabecera = archivo.stream.read(12)
+    archivo.stream.seek(0, os.SEEK_END)
+    tamano = archivo.stream.tell()
+    archivo.stream.seek(0)
+
+    if _tipo_imagen(cabecera) is None:
+        return None, "El archivo debe ser una imagen válida (JPG, PNG, GIF o WEBP)."
+
+    if tamano > IMAGEN_MAX_BYTES:
+        return None, "La imagen es demasiado grande. El máximo es 5 MB."
+
+    opciones = {"folder": carpeta, "resource_type": "image"}
+    if public_id:
+        opciones["public_id"] = public_id
+        opciones["overwrite"] = True
+
+    try:
+        resultado = cloudinary.uploader.upload(archivo, **opciones)
+    except Exception as e:
+        print("ERROR CLOUDINARY:", e, flush=True)
+        return None, "No se pudo subir la imagen. Intenta de nuevo."
+
+    return resultado.get("secure_url"), None
+
+
+def leer_coordenadas(latitud, longitud):
+    try:
+        lat = float(latitud)
+        lng = float(longitud)
+    except (TypeError, ValueError):
+        return None
+
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        return None
+
+    return lat, lng
+
+
 # ======================
 # COMPROBACION 
 # ====================== 
@@ -175,6 +396,9 @@ def evitar_cache_paginas(response):
     )
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
     return response
 # ======================
@@ -300,16 +524,23 @@ def login():
                 error="Ingresa tu correo y contraseña."
             )
 
-        usuarios = db.collection("usuarios").stream()
+        correo_original = request.form.get("correo", "").strip()
 
-        for doc in usuarios:
+        for doc in buscar_usuarios_por_correo(correo, correo_original):
             usuario = doc.to_dict()
+            doc_ref = db.collection("usuarios").document(doc.id)
 
             correo_db = usuario.get("correo", "").strip().lower()
             password_db = usuario.get("password", "")
             rol_db = usuario.get("rol", "usuario").strip().lower()
 
-            if correo_db == correo and check_password_hash(password_db, password):
+            if login_bloqueado(usuario):
+                return render_template(
+                    "login.html",
+                    error="Demasiados intentos fallidos. Espera 15 minutos e inténtalo de nuevo."
+                )
+
+            if check_password_hash(password_db, password):
 
                 if not usuario.get("verificado", False):
                     session.clear()
@@ -322,6 +553,7 @@ def login():
 
                 # Elimina cualquier sesión anterior del navegador actual
                 session.clear()
+                session.permanent = True
 
                 # Token único para esta sesión
                 token_sesion = secrets.token_urlsafe(32)
@@ -335,15 +567,22 @@ def login():
 
                 # Al guardar un token nuevo, cualquier sesión anterior
                 # de esta cuenta queda invalidada.
-                db.collection("usuarios").document(doc.id).update({
+                datos_login = {
                     "token_sesion_activa": token_sesion,
                     "fecha_ultimo_login": firestore.SERVER_TIMESTAMP
-                })
+                }
+                if usuario.get("intentos_login") or usuario.get("bloqueo_login"):
+                    datos_login["intentos_login"] = 0
+                    datos_login["bloqueo_login"] = firestore.DELETE_FIELD
+
+                doc_ref.update(datos_login)
 
                 if rol_db == "admin":
                     return redirect("/admin")
 
                 return redirect("/dashboard")
+
+            registrar_fallo_login(doc_ref, usuario)
 
         return render_template(
             "login.html",
@@ -411,12 +650,10 @@ def recuperar_password():
     if request.method == "POST":
         correo = request.form.get("correo", "").strip().lower()
 
-        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
-
         usuario_doc = None
         usuario = None
 
-        for doc in usuarios:
+        for doc in buscar_usuarios_por_correo(correo):
             usuario_doc = doc
             usuario = doc.to_dict()
             break
@@ -427,11 +664,17 @@ def recuperar_password():
                 error="No existe una cuenta registrada con ese correo."
             )
 
-        codigo = str(random.randint(100000, 999999))
+        if not puede_reenviar_codigo(usuario, "codigo_recuperacion"):
+            return render_template(
+                "recuperar_password.html",
+                error="Espera un minuto antes de pedir otro código."
+            )
 
-        db.collection("usuarios").document(usuario_doc.id).update({
-            "codigo_recuperacion": codigo
-        })
+        codigo = generar_codigo()
+
+        db.collection("usuarios").document(usuario_doc.id).update(
+            datos_codigo_nuevo("codigo_recuperacion", codigo)
+        )
 
         session["correo_recuperacion"] = correo
 
@@ -479,15 +722,16 @@ def restablecer_password():
 
         patron_password = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$"
 
-        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
-
-        for doc in usuarios:
+        for doc in buscar_usuarios_por_correo(correo):
             usuario = doc.to_dict()
+            doc_ref = db.collection("usuarios").document(doc.id)
 
-            if usuario.get("codigo_recuperacion") != codigo:
+            ok, mensaje = validar_codigo(doc_ref, usuario, "codigo_recuperacion", codigo)
+
+            if not ok:
                 return render_template(
                     "restablecer_password.html",
-                    error="El código ingresado no es correcto."
+                    error=mensaje
                 )
 
             if not re.match(patron_password, password_nueva):
@@ -502,10 +746,15 @@ def restablecer_password():
                     error="Las contraseñas no coinciden."
                 )
 
-            db.collection("usuarios").document(doc.id).update({
+            cambios = {
                 "password": generate_password_hash(password_nueva),
-                "codigo_recuperacion": ""
-            })
+                # Cierra cualquier sesión que estuviera abierta con la contraseña vieja
+                "token_sesion_activa": firestore.DELETE_FIELD,
+                "intentos_login": 0,
+                "bloqueo_login": firestore.DELETE_FIELD,
+            }
+            cambios.update(limpiar_codigo("codigo_recuperacion"))
+            doc_ref.update(cambios)
 
             session.pop("correo_recuperacion", None)
 
@@ -513,6 +762,11 @@ def restablecer_password():
                 "login.html",
                 exito="Contraseña actualizada correctamente. Ya puedes iniciar sesión."
             )
+
+        return render_template(
+            "restablecer_password.html",
+            error="No se pudo validar el código. Solicita uno nuevo."
+        )
 
     return render_template("restablecer_password.html")
 
@@ -555,7 +809,7 @@ def registro():
         for doc in usuarios:
             return render_template("registro.html", error="Este correo ya está registrado.")
 
-        codigo = str(random.randint(100000, 999999))
+        codigo = generar_codigo()
 
         usuario = {
             "nombre": nombre,
@@ -563,7 +817,8 @@ def registro():
             "password": generate_password_hash(password),
             "rol": "usuario",
             "verificado": False,
-            "codigo_verificacion": codigo
+            "codigo_verificacion": codigo,
+            "codigo_verificacion_intentos": 0
         }
 
         demo_mode = os.environ.get("DEMO_MODE", "").strip().lower()
@@ -583,7 +838,7 @@ def registro():
             "to": [{"email": correo, "name": nombre}],
             "subject": "Código de verificación - SafeRoute MX",
             "htmlContent": f"""
-                <h2>Hola {nombre}</h2>
+                <h2>Hola {esc(nombre)}</h2>
                 <p>Bienvenido a SafeRoute MX.</p>
                 <p>Tu código de verificación es:</p>
                 <h1>{codigo}</h1>
@@ -633,28 +888,32 @@ def verificar():
 
         codigo = request.form.get("codigo", "").replace(" ", "").strip()
 
-        usuarios = db.collection("usuarios").where("correo", "==", correo).stream()
-
-        for doc in usuarios:
+        for doc in buscar_usuarios_por_correo(correo):
             usuario = doc.to_dict()
+            doc_ref = db.collection("usuarios").document(doc.id)
 
-            if usuario.get("codigo_verificacion") == codigo:
+            ok, mensaje = validar_codigo(doc_ref, usuario, "codigo_verificacion", codigo)
 
-                db.collection("usuarios").document(doc.id).update({
-                    "verificado": True,
-                    "codigo_verificacion": ""
-                })
-
-                session.pop("correo_verificacion", None)
-
+            if not ok:
                 return render_template(
-                    "login.html",
-                    exito="Correo verificado correctamente. Ya puedes iniciar sesión."
+                    "verificar_codigo.html",
+                    error=mensaje
                 )
+
+            cambios = {"verificado": True}
+            cambios.update(limpiar_codigo("codigo_verificacion"))
+            doc_ref.update(cambios)
+
+            session.pop("correo_verificacion", None)
+
+            return render_template(
+                "login.html",
+                exito="Correo verificado correctamente. Ya puedes iniciar sesión."
+            )
 
         return render_template(
             "verificar_codigo.html",
-            error="El código ingresado no es correcto."
+            error="No se pudo validar el código."
         )
 
     return render_template("verificar_codigo.html")
@@ -790,18 +1049,20 @@ def reportar():
         return redirect("/login")
 
     if request.method == "POST":
-        tipo = request.form.get("tipo", "").strip()
-        descripcion = request.form.get("descripcion", "").strip()
-        fecha = request.form.get("fecha", "").strip()
-        ubicacion = request.form.get("ubicacion", "").strip()
-        gravedad = request.form.get("gravedad", "").strip()
+        tipo = request.form.get("tipo", "").strip()[:60]
+        descripcion = request.form.get("descripcion", "").strip()[:1500]
+        fecha = request.form.get("fecha", "").strip()[:30]
+        ubicacion = request.form.get("ubicacion", "").strip()[:300]
+        gravedad = request.form.get("gravedad", "").strip()[:20]
         latitud = request.form.get("latitud")
         longitud = request.form.get("longitud")
 
         foto_reporte = request.files.get("foto_reporte")
         url_foto_reporte = ""
 
-        if not latitud or not longitud:
+        coords = leer_coordenadas(latitud, longitud)
+
+        if not coords:
             return render_template(
                 "usuario/reportar.html",
                 exito=False,
@@ -809,19 +1070,16 @@ def reportar():
             )
 
         if foto_reporte and foto_reporte.filename != "":
-            if not foto_reporte.mimetype.startswith("image/"):
+            url_foto_reporte, error_foto = procesar_imagen(
+                foto_reporte, "saferoutemx/reportes"
+            )
+
+            if error_foto:
                 return render_template(
                     "usuario/reportar.html",
                     exito=False,
-                    error="El archivo debe ser una imagen."
+                    error=error_foto
                 )
-
-            resultado = cloudinary.uploader.upload(
-                foto_reporte,
-                folder="saferoutemx/reportes",
-                resource_type="image"
-            )
-            url_foto_reporte = resultado.get("secure_url")
 
         reporte = {
             "tipo": tipo,
@@ -829,8 +1087,8 @@ def reportar():
             "fecha": fecha,
             "ubicacion": ubicacion,
             "gravedad": gravedad,
-            "latitud": float(latitud),
-            "longitud": float(longitud),
+            "latitud": coords[0],
+            "longitud": coords[1],
             "usuario": session.get("usuario"),
             "nombre_usuario": session.get("nombre"),
             "foto_usuario": session.get("foto_perfil", ""),
@@ -1176,7 +1434,9 @@ def usuario_editar_reporte(id):
         latitud = request.form.get("latitud")
         longitud = request.form.get("longitud")
 
-        if not latitud or not longitud:
+        coords = leer_coordenadas(latitud, longitud)
+
+        if not coords:
             reporte["id"] = doc.id
 
             return render_template(
@@ -1190,31 +1450,29 @@ def usuario_editar_reporte(id):
 
         if foto_reporte and foto_reporte.filename != "":
 
-            if not foto_reporte.mimetype.startswith("image/"):
+            nueva_url, error_foto = procesar_imagen(
+                foto_reporte, "saferoutemx/reportes"
+            )
+
+            if error_foto:
                 reporte["id"] = doc.id
 
                 return render_template(
                     "usuario/editar_reporte.html",
                     reporte=reporte,
-                    error="El archivo seleccionado debe ser una imagen."
+                    error=error_foto
                 )
 
-            resultado = cloudinary.uploader.upload(
-                foto_reporte,
-                folder="saferoutemx/reportes",
-                resource_type="image"
-            )
-
-            url_foto_reporte = resultado.get("secure_url")
+            url_foto_reporte = nueva_url
 
         datos_actualizados = {
-            "tipo": request.form.get("tipo", "").strip(),
-            "descripcion": request.form.get("descripcion", "").strip(),
-            "fecha": request.form.get("fecha", "").strip(),
-            "ubicacion": request.form.get("ubicacion", "").strip(),
-            "gravedad": request.form.get("gravedad", "").strip(),
-            "latitud": float(latitud),
-            "longitud": float(longitud),
+            "tipo": request.form.get("tipo", "").strip()[:60],
+            "descripcion": request.form.get("descripcion", "").strip()[:1500],
+            "fecha": request.form.get("fecha", "").strip()[:30],
+            "ubicacion": request.form.get("ubicacion", "").strip()[:300],
+            "gravedad": request.form.get("gravedad", "").strip()[:20],
+            "latitud": coords[0],
+            "longitud": coords[1],
             "usuario": session.get("usuario"),
             "foto_reporte": url_foto_reporte,
 
@@ -1314,35 +1572,38 @@ def perfil():
         nombre = request.form.get("nombre", "").strip()
         foto = request.files.get("foto")
 
+        if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{3,60}$", nombre):
+            return render_template(
+                "usuario/perfil.html",
+                usuario=usuario,
+                total_reportes=contar_reportes(),
+                error="El nombre solo debe contener letras y espacios (mínimo 3 caracteres)."
+            )
+
         datos_actualizados = {
             "nombre": nombre
         }
 
-        session["nombre"] = nombre
-
         if foto and foto.filename != "":
 
-            if not foto.mimetype.startswith("image/"):
+            ruta_foto, error_foto = procesar_imagen(
+                foto,
+                "saferoutemx/perfiles",
+                public_id=f"perfil_{user_id}"
+            )
+
+            if error_foto:
                 return render_template(
                     "usuario/perfil.html",
                     usuario=usuario,
                     total_reportes=contar_reportes(),
-                    error="El archivo seleccionado debe ser una imagen."
+                    error=error_foto
                 )
-
-            resultado = cloudinary.uploader.upload(
-                foto,
-                folder="saferoutemx/perfiles",
-                public_id=f"perfil_{user_id}",
-                overwrite=True,
-                resource_type="image"
-            )
-
-            ruta_foto = resultado.get("secure_url")
 
             datos_actualizados["foto_perfil"] = ruta_foto
             session["foto_perfil"] = ruta_foto
 
+        session["nombre"] = nombre
         usuario_ref.update(datos_actualizados)
 
         usuario_actualizado = usuario_ref.get().to_dict()
@@ -1430,11 +1691,18 @@ def solicitar_cambio_password():
         return redirect("/logout")
 
     usuario = usuario_doc.to_dict()
-    codigo = str(random.randint(100000, 999999))
 
-    usuario_ref.update({
-        "codigo_cambio_password": codigo
-    })
+    if not puede_reenviar_codigo(usuario, "codigo_cambio_password"):
+        return render_template(
+            "usuario/verificar_cambio_password.html",
+            error="Espera un minuto antes de pedir otro código."
+        )
+
+    codigo = generar_codigo()
+
+    usuario_ref.update(
+        datos_codigo_nuevo("codigo_cambio_password", codigo)
+    )
 
     session["cambio_password_user_id"] = user_id
 
@@ -1471,7 +1739,8 @@ def cambiar_password_perfil():
     if "usuario" not in session:
         return redirect("/login")
 
-    user_id = session.get("cambio_password_user_id") or session.get("user_id")
+    # Siempre se cambia la contraseña de la cuenta con la sesión abierta.
+    user_id = session.get("user_id")
 
     if not user_id:
         return redirect("/logout")
@@ -1490,10 +1759,12 @@ def cambiar_password_perfil():
 
     usuario = usuario_doc.to_dict()
 
-    if usuario.get("codigo_cambio_password") != codigo:
+    ok, mensaje = validar_codigo(usuario_ref, usuario, "codigo_cambio_password", codigo)
+
+    if not ok:
         return render_template(
             "usuario/verificar_cambio_password.html",
-            error="El código ingresado no es correcto."
+            error=mensaje
         )
 
     if not re.match(patron_password, password_nueva):
@@ -1508,10 +1779,9 @@ def cambiar_password_perfil():
             error="Las contraseñas no coinciden."
         )
 
-    usuario_ref.update({
-        "password": generate_password_hash(password_nueva),
-        "codigo_cambio_password": ""
-    })
+    cambios = {"password": generate_password_hash(password_nueva)}
+    cambios.update(limpiar_codigo("codigo_cambio_password"))
+    usuario_ref.update(cambios)
 
     session.pop("cambio_password_user_id", None)
 
@@ -2039,14 +2309,21 @@ def registrar_token_reloj():
     if not correo or not password or not token:
         return jsonify({"ok": False, "error": "Faltan datos"}), 400
 
-    for doc in db.collection("usuarios").where("correo", "==", correo).limit(1).stream():
+    for doc in buscar_usuarios_por_correo(correo):
         usuario = doc.to_dict()
+        doc_ref = db.collection("usuarios").document(doc.id)
+
+        if login_bloqueado(usuario):
+            return jsonify({"ok": False, "error": "Demasiados intentos. Espera 15 minutos."}), 429
 
         if not check_password_hash(usuario.get("password", ""), password):
+            registrar_fallo_login(doc_ref, usuario)
             break
 
         if not usuario.get("verificado", False):
             return jsonify({"ok": False, "error": "Cuenta sin verificar"}), 403
+
+        limpiar_fallos_login(doc_ref, usuario)
 
         db.collection("usuarios").document(doc.id).update({
             "fcm_tokens": firestore.ArrayUnion([token])
@@ -2109,4 +2386,4 @@ def logout():
 # RUN
 # ======================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=os.environ.get("FLASK_DEBUG") == "1")

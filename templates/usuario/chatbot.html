@@ -1153,6 +1153,7 @@ Para crear un reporte escribe: Crear reporte.
 
         const formData = new FormData();
         formData.append("pregunta", texto);
+        formData.append("csrf_token", "{{ csrf_token() }}");
 
         try {
             const response = await fetch("/chatbot/preguntar", {
