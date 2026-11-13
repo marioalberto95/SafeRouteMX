@@ -455,7 +455,8 @@ def avisar_estado_reporte_push(reporte_id, estado):
     try:
         doc = db.collection("reportes").document(reporte_id).get()
         if doc.exists:
-            correo = doc.to_dict().get("usuario")
+            reporte = doc.to_dict()
+            correo = reporte.get("usuario")
             if correo:
                 enviar_push_a_usuario(
                     correo,
@@ -463,8 +464,100 @@ def avisar_estado_reporte_push(reporte_id, estado):
                     f"Estado: {estado}",
                     {"tipo": "estado_reporte", "reporte_id": reporte_id}
                 )
+                enviar_correo_estado_reporte(
+                    correo,
+                    reporte.get("nombre_usuario", "Usuario SafeRoute"),
+                    reporte,
+                    estado,
+                    reporte.get("seguimiento", ""),
+                    reporte.get("comentario_admin", "")
+                )
     except Exception as e:
         print("ERROR AVISO ESTADO PUSH:", e, flush=True)
+
+
+def enviar_correo_simple(correo, nombre, asunto, html):
+    """Envía un correo por la API de Brevo. Devuelve True si salió bien."""
+    brevo_api_key = os.environ.get("BREVO_API_KEY")
+
+    if not brevo_api_key:
+        print("BREVO_API_KEY no configurada: no se envió el correo", flush=True)
+        return False
+
+    try:
+        respuesta = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            },
+            json={
+                "sender": {"name": "SafeRoute MX", "email": app.config["MAIL_DEFAULT_SENDER"]},
+                "to": [{"email": correo, "name": nombre or "SafeRoute MX"}],
+                "subject": asunto,
+                "htmlContent": html
+            },
+            timeout=10
+        )
+        print("BREVO CORREO:", asunto, "->", correo, respuesta.status_code, respuesta.text, flush=True)
+        return respuesta.status_code in [200, 201, 202]
+    except Exception as e:
+        print("ERROR CORREO:", e, flush=True)
+        return False
+
+
+def _detalle_reporte_html(reporte):
+    return f"""
+        <p><b>Tipo:</b> {esc(str(reporte.get("tipo", "")))}</p>
+        <p><b>Ubicación:</b> {esc(str(reporte.get("ubicacion", "")))}</p>
+        <p><b>Gravedad:</b> {esc(str(reporte.get("gravedad", "")))}</p>
+        <p><b>Descripción:</b> {esc(str(reporte.get("descripcion", "")))}</p>
+    """
+
+
+def avisar_reporte_por_correo(reporte, editado=False):
+    """Confirma al usuario su reporte nuevo/editado y avisa a los administradores.
+    Corre en segundo plano para no hacer lenta la página."""
+
+    def tarea():
+        try:
+            accion = "editado y enviado de nuevo a revisión" if editado else "recibido y enviado a revisión"
+            nombre = reporte.get("nombre_usuario") or "Usuario SafeRoute"
+            correo = reporte.get("usuario")
+
+            if correo:
+                enviar_correo_simple(
+                    correo,
+                    nombre,
+                    "Tu reporte fue " + ("editado" if editado else "recibido") + " - SafeRoute MX",
+                    f"""
+                    <h2>Hola {esc(nombre)}</h2>
+                    <p>Tu reporte fue {accion}. Te avisaremos por correo cuando el administrador lo revise.</p>
+                    <h3>Detalles</h3>
+                    {_detalle_reporte_html(reporte)}
+                    <p>Gracias por contribuir a la seguridad de la comunidad.</p>
+                    """
+                )
+
+            for doc in db.collection("usuarios").where("rol", "==", "admin").stream():
+                admin = doc.to_dict()
+                if admin.get("correo"):
+                    enviar_correo_simple(
+                        admin["correo"],
+                        admin.get("nombre"),
+                        ("Reporte editado" if editado else "Nuevo reporte") + " por revisar - SafeRoute MX",
+                        f"""
+                        <h2>{'Reporte editado' if editado else 'Nuevo reporte'} pendiente de revisión</h2>
+                        <p>Enviado por: {esc(str(nombre))} ({esc(str(correo or ''))})</p>
+                        {_detalle_reporte_html(reporte)}
+                        <p>Entra a SafeRoute MX → Reportes para aprobarlo o rechazarlo.</p>
+                        """
+                    )
+        except Exception as e:
+            print("ERROR AVISO REPORTE CORREO:", e, flush=True)
+
+    threading.Thread(target=tarea, daemon=True).start()
 
 
 def enviar_push_a_admins(titulo, cuerpo, datos=None):
@@ -1104,6 +1197,8 @@ def reportar():
 
         db.collection("reportes").add(reporte)
 
+        avisar_reporte_por_correo(reporte)
+
         enviar_push_a_admins(
             "Nuevo reporte en SafeRoute MX",
             f"{tipo} - {ubicacion}"
@@ -1487,6 +1582,13 @@ def usuario_editar_reporte(id):
         }
 
         doc_ref.update(datos_actualizados)
+
+        reporte_editado = dict(reporte)
+        reporte_editado.update({
+            k: v for k, v in datos_actualizados.items()
+            if k != "fecha_actualizacion"
+        })
+        avisar_reporte_por_correo(reporte_editado, editado=True)
 
         return redirect("/mis-reportes")
 
@@ -1926,6 +2028,7 @@ def chatbot_preguntar():
             }
 
             db.collection("reportes").add(reporte)
+            avisar_reporte_por_correo(reporte)
             session.pop("chatbot_reporte", None)
 
             return jsonify({
