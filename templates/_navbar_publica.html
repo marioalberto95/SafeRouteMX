@@ -1,0 +1,88 @@
+{# Barra superior de la página de inicio (pública). Mismo diseño que la barra de usuario/administrador. #}
+{% set logueado = session.get("usuario") %}
+{% set es_admin = session.get("rol") == "admin" %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+
+<header class="sr-nav sr-nav--sticky">
+    <div class="sr-nav__inner">
+
+        <a class="sr-nav__brand" href="/">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>SafeRoute MX</span>
+        </a>
+
+        <button class="sr-nav__toggle" id="srNavToggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="sr-nav__menu" id="srNavMenu">
+            <ul class="sr-nav__links">
+                <li><a href="#funciones" class="sr-nav__link"><i class="fa-solid fa-list-check"></i><span>Funciones</span></a></li>
+                <li><a href="#ia" class="sr-nav__link"><i class="fa-solid fa-robot"></i><span>IA</span></a></li>
+                <li><a href="#como-funciona" class="sr-nav__link"><i class="fa-solid fa-circle-question"></i><span>Cómo funciona</span></a></li>
+                <li><a href="#contacto" class="sr-nav__link"><i class="fa-solid fa-envelope"></i><span>Contacto</span></a></li>
+            </ul>
+
+            <div class="sr-nav__actions">
+                <button id="modoOscuro" class="sr-nav__icon-btn" type="button" title="Cambiar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+
+                {% if logueado %}
+                    <a href="{{ '/admin' if es_admin else '/dashboard' }}" class="sr-nav__ghost">
+                        <i class="fa-solid {{ 'fa-user-shield' if es_admin else 'fa-house' }}"></i>
+                        <span>{{ 'Panel admin' if es_admin else 'Mi panel' }}</span>
+                    </a>
+
+                    <a href="/perfil" class="sr-nav__avatar" title="Mi perfil">
+                        {% if session.get("foto_perfil") %}
+                            <img src="{{ session.get('foto_perfil') }}" alt="Mi perfil">
+                        {% else %}
+                            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Mi perfil">
+                        {% endif %}
+                    </a>
+
+                    <a href="/logout" class="sr-nav__logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Salir</span>
+                    </a>
+                {% else %}
+                    <a href="/login" class="sr-nav__ghost">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Iniciar sesión</span>
+                    </a>
+
+                    <a href="/registro" class="sr-nav__logout">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Registrarse</span>
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+
+    </div>
+</header>
+
+<script>
+    (function () {
+        var boton = document.getElementById("srNavToggle");
+        var menu = document.getElementById("srNavMenu");
+        if (!boton || !menu) return;
+
+        function cerrar() {
+            menu.classList.remove("is-open");
+            boton.setAttribute("aria-expanded", "false");
+        }
+
+        boton.addEventListener("click", function () {
+            var abierto = menu.classList.toggle("is-open");
+            boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+        });
+
+        // En el celular, al tocar un enlace de la página el menú se cierra
+        menu.querySelectorAll('a[href^="#"]').forEach(function (a) {
+            a.addEventListener("click", cerrar);
+        });
+    })();
+</script>

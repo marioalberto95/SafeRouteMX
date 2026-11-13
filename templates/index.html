@@ -584,64 +584,7 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
-    <div class="container nav-container">
-
-        <a class="navbar-brand fw-bold brand-logo" href="/">
-            <i class="fa-solid fa-shield-halved me-2"></i>
-            SafeRoute MX
-        </a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSafeRoute"
-            aria-controls="navbarSafeRoute" aria-expanded="false" aria-label="Abrir menú">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSafeRoute">
-            <div class="nav-actions ms-auto">
-
-                <a class="nav-link-btn" href="#funciones">Funciones</a>
-                <a class="nav-link-btn" href="#ia">IA</a>
-                <a class="nav-link-btn" href="#como-funciona">Cómo funciona</a>
-                <a class="nav-link-btn" href="#contacto">Contacto</a>
-
-                <button id="modoOscuro" class="theme-btn" title="Cambiar tema">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-
-                {% if session.get("usuario") %}
-
-                    {% if session.get("rol") == "admin" %}
-                    <a class="nav-main-btn" href="/admin">
-                        <i class="fa-solid fa-user-shield me-2"></i>Panel Admin
-                    </a>
-                    {% else %}
-                    <a class="nav-main-btn" href="/dashboard">
-                        <i class="fa-solid fa-table-columns me-2"></i>Mi Panel
-                    </a>
-                    {% endif %}
-
-                    <a class="nav-secondary-btn" href="/logout">
-                        <i class="fa-solid fa-right-from-bracket me-2"></i>Salir
-                    </a>
-
-                {% else %}
-
-                    <a class="nav-secondary-btn" href="/login">
-                        <i class="fa-solid fa-right-to-bracket me-2"></i>Iniciar sesión
-                    </a>
-
-                    <a class="nav-main-btn" href="/registro">
-                        <i class="fa-solid fa-user-plus me-2"></i>Registrarse
-                    </a>
-
-                {% endif %}
-
-            </div>
-        </div>
-
-    </div>
-</nav>
+{% include "_navbar_publica.html" %}
 
 <section class="hero">
     <div class="container text-center hero-content">

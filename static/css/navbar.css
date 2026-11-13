@@ -167,3 +167,33 @@ body.dark .sr-nav__logout { color: #8b0000; }
     .sr-nav__link span { display: inline; }
     .sr-nav__actions { justify-content: space-between; }
 }
+
+/* ===== Variante para la página de inicio (pública) ===== */
+.sr-nav--sticky {
+    position: sticky;
+    top: 0;
+}
+
+.sr-nav__ghost {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #fff;
+    font-weight: 700;
+    font-size: .9rem;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .7);
+    background: transparent;
+    transition: background .2s, transform .2s;
+    white-space: nowrap;
+}
+
+.sr-nav__ghost:hover { background: rgba(255, 255, 255, .18); color: #fff; transform: translateY(-2px); }
+
+@media (max-width: 860px) {
+    .sr-nav__actions { flex-wrap: wrap; }
+    .sr-nav__actions .sr-nav__ghost,
+    .sr-nav__actions .sr-nav__logout { flex: 1 1 140px; justify-content: center; }
+}
