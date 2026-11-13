@@ -526,6 +526,21 @@ def avisar_reporte_por_correo(reporte, editado=False):
             nombre = reporte.get("nombre_usuario") or "Usuario SafeRoute"
             correo = reporte.get("usuario")
 
+            # Notificaciones al reloj/celular: al usuario y a los administradores
+            resumen = f"{reporte.get('tipo', 'Reporte')} - {reporte.get('ubicacion', '')}"
+
+            if correo:
+                enviar_push_a_usuario(
+                    correo,
+                    "Reporte editado" if editado else "Reporte recibido",
+                    "Quedó en revisión. Te avisaremos cuando lo revise el administrador."
+                )
+
+            enviar_push_a_admins(
+                "Reporte editado por revisar" if editado else "Nuevo reporte en SafeRoute MX",
+                resumen
+            )
+
             if correo:
                 enviar_correo_simple(
                     correo,
@@ -1198,11 +1213,6 @@ def reportar():
         db.collection("reportes").add(reporte)
 
         avisar_reporte_por_correo(reporte)
-
-        enviar_push_a_admins(
-            "Nuevo reporte en SafeRoute MX",
-            f"{tipo} - {ubicacion}"
-        )
 
         return render_template("usuario/reportar.html", exito=True)
 
