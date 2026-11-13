@@ -1,0 +1,86 @@
+{# Barra superior única para TODAS las páginas de usuario y administrador. #}
+{% set es_admin = session.get("rol") == "admin" %}
+{% set ruta = request.path %}
+{% if es_admin %}
+    {% set items = [
+        ("/admin", "fa-gauge-high", "Panel"),
+        ("/admin/reportes", "fa-clipboard-list", "Reportes"),
+        ("/admin/usuarios", "fa-users", "Usuarios"),
+        ("/admin/estadisticas", "fa-chart-pie", "Estadísticas"),
+        ("/admin/mapa", "fa-map-location-dot", "Mapa"),
+        ("/chatbot", "fa-robot", "Asistente")
+    ] %}
+{% else %}
+    {% set items = [
+        ("/dashboard", "fa-house", "Mi panel"),
+        ("/mapa", "fa-map-location-dot", "Mapa"),
+        ("/reportar", "fa-triangle-exclamation", "Reportar"),
+        ("/mis-reportes", "fa-clipboard-list", "Mis reportes"),
+        ("/chatbot", "fa-robot", "Asistente")
+    ] %}
+{% endif %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+
+<header class="sr-nav">
+    <div class="sr-nav__inner">
+
+        <a class="sr-nav__brand" href="{{ '/admin' if es_admin else '/dashboard' }}">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>SafeRoute MX{% if es_admin %}<small> | Administración</small>{% endif %}</span>
+        </a>
+
+        <button class="sr-nav__toggle" id="srNavToggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="sr-nav__menu" id="srNavMenu">
+            <ul class="sr-nav__links">
+                {% for href, icono, texto in items %}
+                    {% set activo = (ruta == href) or (href != "/admin" and ruta.startswith(href + "/")) %}
+                    <li>
+                        <a href="{{ href }}" class="sr-nav__link{% if activo %} is-active{% endif %}">
+                            <i class="fa-solid {{ icono }}"></i>
+                            <span>{{ texto }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="sr-nav__actions">
+                <button id="modoOscuro" class="sr-nav__icon-btn" type="button" title="Cambiar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+
+                <a href="/perfil" class="sr-nav__avatar{% if ruta == '/perfil' %} is-active{% endif %}" title="Mi perfil">
+                    {% if session.get("foto_perfil") %}
+                        <img src="{{ session.get('foto_perfil') }}" alt="Mi perfil">
+                    {% else %}
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Mi perfil">
+                    {% endif %}
+                </a>
+
+                <a href="/logout" class="sr-nav__logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Salir</span>
+                </a>
+            </div>
+        </nav>
+
+    </div>
+</header>
+
+<script>
+    (function () {
+        var boton = document.getElementById("srNavToggle");
+        var menu = document.getElementById("srNavMenu");
+        if (!boton || !menu) return;
+        boton.addEventListener("click", function () {
+            var abierto = menu.classList.toggle("is-open");
+            boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+        });
+    })();
+</script>
+
+{# Seguridad: si el navegador muestra una página privada desde el historial, se vuelve a validar la sesión #}
+<script src="{{ url_for('static', filename='js/seguridad_sesion.js') }}"></script>

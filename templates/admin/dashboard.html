@@ -466,41 +466,7 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-
-        <a class="navbar-brand fw-bold" href="/admin">
-            <i class="fa-solid fa-shield-halved me-2"></i>
-            SafeRoute MX | Administración
-        </a>
-
-        <div class="d-flex gap-2 flex-wrap align-items-center">
-            <button id="modoOscuro" class="btn btn-outline-light btn-sm" title="Cambiar tema">
-                <i class="fa-solid fa-moon"></i>
-            </button>
-
-            <a href="/" class="btn btn-outline-light btn-sm">
-                <i class="fa-solid fa-house me-1"></i>
-                Inicio
-            </a>
-
-            <a href="/perfil" class="profile-admin-link" title="Editar perfil de administrador">
-                {% if session.get("foto_perfil") %}
-                    <img src="{{ session.get('foto_perfil') }}" class="profile-admin-img" alt="Perfil administrador">
-                {% else %}
-                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-admin-img" alt="Perfil administrador">
-                {% endif %}
-                <span>Mi perfil</span>
-            </a>
-
-            <a href="/logout" class="btn btn-light btn-sm text-danger fw-bold">
-                <i class="fa-solid fa-right-from-bracket me-1"></i>
-                Cerrar sesión
-            </a>
-        </div>
-
-    </div>
-</nav>
+{% include "_navbar.html" %}
 
 <div class="container my-4">
 

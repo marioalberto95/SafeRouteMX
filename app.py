@@ -17,7 +17,11 @@ import requests
 import secrets
 from datetime import datetime
 app = Flask(__name__)
-app.secret_key = "saferoute_secret_key"
+# En Render agrega la variable SECRET_KEY con un texto largo y aleatorio.
+# Si no existe, usa el valor anterior para que nada se rompa.
+app.secret_key = os.environ.get("SECRET_KEY", "saferoute_secret_key")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 # ======================
 # CONFIGURACIÓN CLOUDINARY
@@ -255,8 +259,36 @@ def inicio():
 # ======================
 # LOGIN
 # ======================
+def cerrar_sesion_silenciosa():
+    """Cierra la sesión actual (igual que /logout) pero sin redirigir."""
+    user_id = session.get("user_id")
+    token_local = session.get("token_sesion")
+
+    if user_id and token_local:
+        try:
+            usuario_ref = db.collection("usuarios").document(user_id)
+            usuario_doc = usuario_ref.get()
+
+            if usuario_doc.exists:
+                token_guardado = usuario_doc.to_dict().get("token_sesion_activa")
+
+                if token_guardado == token_local:
+                    usuario_ref.update({
+                        "token_sesion_activa": firestore.DELETE_FIELD
+                    })
+        except Exception as e:
+            print("ERROR CERRANDO SESION:", e, flush=True)
+
+    session.clear()
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
+    # Si alguien con la sesión abierta regresa a la pantalla de login
+    # (por ejemplo con la flecha "atrás"), la sesión se cierra.
+    if request.method == "GET" and "usuario" in session:
+        cerrar_sesion_silenciosa()
 
     if request.method == "POST":
         correo = request.form.get("correo", "").strip().lower()
@@ -489,6 +521,10 @@ def restablecer_password():
 # ======================
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
+
+    # Igual que en el login: volver aquí con la sesión abierta la cierra.
+    if request.method == "GET" and "usuario" in session:
+        cerrar_sesion_silenciosa()
 
     if request.method == "POST":
         nombre = request.form.get("nombre", "").strip()
@@ -2063,6 +2099,9 @@ def logout():
     )
     respuesta.headers["Pragma"] = "no-cache"
     respuesta.headers["Expires"] = "0"
+    # Pide al navegador borrar su caché del sitio: así la flecha "atrás"
+    # ya no puede mostrar páginas privadas guardadas.
+    respuesta.headers["Clear-Site-Data"] = '"cache"'
 
     return respuesta
 
