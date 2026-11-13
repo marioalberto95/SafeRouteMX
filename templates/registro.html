@@ -593,7 +593,7 @@
                                 </small>
                             </div>
 
-                            <div class="field-box">
+                            <div class="field-box" id="correoFieldBox">
                                 <label class="form-label fw-bold">
                                     <i class="fa-solid fa-envelope me-2"></i>
                                     Correo electrónico
@@ -601,9 +601,13 @@
                                 <input
                                     type="email"
                                     name="correo"
+                                    id="correo"
                                     class="form-control"
-                                    placeholder="ejemplo@correo.com"
+                                    placeholder="ejemplo@gmail.com"
                                     required>
+                                <small id="correoMensaje" class="text-muted">
+                                    Solo se aceptan correos de Gmail (@gmail.com).
+                                </small>
                             </div>
 
                             <div class="field-box" id="passwordFieldBox">
@@ -710,6 +714,8 @@
     const password = document.getElementById("password");
     const confirmar = document.getElementById("confirmar_password");
     const nombre = document.getElementById("nombre");
+    const correo = document.getElementById("correo");
+    const correoFieldBox = document.getElementById("correoFieldBox");
     const validationSummary = document.getElementById("validationSummary");
     const validationSummaryText = document.getElementById("validationSummaryText");
     const nombreFieldBox = document.getElementById("nombreFieldBox");
@@ -719,6 +725,7 @@
     password.addEventListener("input", function(){ evaluarPassword(); ocultarErrorFormulario(); });
     confirmar.addEventListener("input", function(){ verificarCoincidencia(); ocultarErrorFormulario(); });
     nombre.addEventListener("input", function(){ validarNombreVisual(); ocultarErrorFormulario(); });
+    correo.addEventListener("input", function(){ validarCorreoVisual(); ocultarErrorFormulario(); });
 
     function togglePassword(id, boton) {
         const input = document.getElementById(id);
@@ -841,6 +848,30 @@
         mensaje.style.color = "#198754";
     }
 
+    function esCorreoGmail(valor) {
+        return /^[A-Za-z0-9._%+\-]+@gmail\.com$/i.test(valor.trim());
+    }
+
+    function validarCorreoVisual() {
+        const mensaje = document.getElementById("correoMensaje");
+        const valor = correo.value.trim();
+
+        if (valor.length === 0) {
+            mensaje.innerText = "Solo se aceptan correos de Gmail (@gmail.com).";
+            mensaje.style.color = "#6c757d";
+            return;
+        }
+
+        if (!esCorreoGmail(valor)) {
+            mensaje.innerHTML = '<i class="fa-solid fa-circle-xmark me-1 text-danger"></i>Solo se aceptan correos que terminen en @gmail.com.';
+            mensaje.style.color = "#dc3545";
+            return;
+        }
+
+        mensaje.innerHTML = '<i class="fa-solid fa-circle-check me-1 text-success"></i>Correo de Gmail válido';
+        mensaje.style.color = "#198754";
+    }
+
     function mostrarErrorFormulario(mensaje, campo, contenedor) {
         validationSummaryText.textContent = mensaje;
         validationSummary.classList.add("show");
@@ -872,6 +903,11 @@
 
         if (!nombreValido) {
             mostrarErrorFormulario("Escribe tu nombre completo usando únicamente letras y al menos un apellido.", nombre, nombreFieldBox);
+            return false;
+        }
+
+        if (!esCorreoGmail(correo.value)) {
+            mostrarErrorFormulario("Solo se aceptan correos de Gmail. Escribe un correo que termine en @gmail.com.", correo, correoFieldBox);
             return false;
         }
 

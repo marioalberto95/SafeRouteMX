@@ -488,6 +488,9 @@ def registro():
         if len(nombre.split()) < 2:
             return render_template("registro.html", error="Escribe tu nombre completo, por ejemplo: Juan Pérez.")
 
+        if not re.match(r"^[A-Za-z0-9._%+\-]+@gmail\.com$", correo):
+            return render_template("registro.html", error="Solo se aceptan correos de Gmail. Escribe un correo que termine en @gmail.com.")
+
         if not re.match(patron_password, password):
             return render_template("registro.html", error="La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.")
 
