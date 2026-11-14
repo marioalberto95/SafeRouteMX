@@ -129,6 +129,39 @@ def inyectar_csrf():
     return {"csrf_token": obtener_csrf}
 
 
+def calcular_stats_perfil():
+    """Datos extra para la página de perfil (se llama desde la plantilla)."""
+    correo = session.get("usuario")
+    stats = {"total": 0, "aprobados": 0, "pendientes": 0, "rechazados": 0, "comentarios": 0}
+
+    if not correo:
+        return stats
+
+    try:
+        for doc in db.collection("reportes").where("usuario", "==", correo).stream():
+            estado = doc.to_dict().get("estado", "Pendiente")
+            stats["total"] += 1
+            if estado == "Rechazado":
+                stats["rechazados"] += 1
+            elif doc.to_dict().get("aprobado"):
+                stats["aprobados"] += 1
+            else:
+                stats["pendientes"] += 1
+
+        stats["comentarios"] = sum(
+            1 for _ in db.collection("comentarios").where("autor_correo", "==", correo).stream()
+        )
+    except Exception as e:
+        print("ERROR STATS PERFIL:", e, flush=True)
+
+    return stats
+
+
+@app.context_processor
+def inyectar_stats_perfil():
+    return {"perfil_stats": calcular_stats_perfil}
+
+
 @app.before_request
 def proteger_csrf():
     if request.method in ("GET", "HEAD", "OPTIONS"):
@@ -1218,6 +1251,9 @@ def mapa():
 
             reporte["foto_reporte"] = reporte.get("foto_reporte", "")
 
+            # El correo de quien reportó no se envía al navegador de los demás usuarios
+            reporte.pop("usuario", None)
+
             reportes.append(reporte)
 
         except:
@@ -1477,6 +1513,7 @@ def eliminar_reporte(id):
         return redirect("/dashboard")
 
     db.collection("reportes").document(id).delete()
+    borrar_comentarios_de_reporte(id)
 
     return redirect("/admin/reportes")
 
@@ -1531,7 +1568,10 @@ def eliminar_usuario(id):
         reportes = db.collection("reportes").where("usuario", "==", correo_usuario).stream()
 
         for reporte in reportes:
+            borrar_comentarios_de_reporte(reporte.id)
             reporte.reference.delete()
+
+        borrar_comentarios_de_usuario(correo_usuario)
 
     usuario_ref.delete()
 
@@ -1596,6 +1636,7 @@ def usuario_eliminar_reporte(id):
         return redirect("/dashboard")
 
     doc_ref.delete()
+    borrar_comentarios_de_reporte(id)
 
     return redirect("/dashboard")
 
@@ -1986,6 +2027,518 @@ def cambiar_password_perfil():
         total_reportes=len(list(db.collection("reportes").where("usuario", "==", session.get("usuario")).stream())),
         exito="Contraseña actualizada correctamente."
     )
+# ======================
+# COMENTARIOS DE LA COMUNIDAD (con aprobación del administrador)
+# ======================
+COMENTARIO_MAX = 500
+COMENTARIOS_PENDIENTES_MAX = 3
+
+
+def ahora_texto():
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Mexico_City")).strftime("%d/%m/%Y %H:%M")
+    except Exception:
+        return datetime.utcnow().strftime("%d/%m/%Y %H:%M")
+
+
+def usuario_acepta_correos(correo):
+    """Respeta la preferencia 'recibir correos de comentarios' del perfil."""
+    try:
+        for doc in buscar_usuarios_por_correo((correo or "").strip().lower()):
+            return doc.to_dict().get("notif_correo", True) is not False
+    except Exception as e:
+        print("ERROR PREFERENCIA CORREO:", e, flush=True)
+    return True
+
+
+def _bloque_comentario_html(c):
+    return f"""
+        <div style="border-left:4px solid #dc3545;padding:10px 14px;background:#f8f9fa;margin:12px 0;">
+            <b>{esc(str(c.get("autor_nombre", "")))}</b><br>
+            {esc(str(c.get("texto", "")))}
+        </div>
+        <p><b>Reporte:</b> {esc(str(c.get("reporte_tipo", "")))} - {esc(str(c.get("reporte_ubicacion", "")))}</p>
+    """
+
+
+def notificar_comentario_nuevo(c):
+    """Avisa a los administradores que hay un comentario por revisar."""
+
+    def tarea():
+        try:
+            enviar_push_a_admins(
+                "Nuevo comentario por revisar",
+                f"{c.get('autor_nombre', '')}: {str(c.get('texto', ''))[:80]}"
+            )
+
+            for doc in db.collection("usuarios").where("rol", "==", "admin").stream():
+                admin = doc.to_dict()
+                if admin.get("correo"):
+                    enviar_correo_simple(
+                        admin["correo"],
+                        admin.get("nombre"),
+                        "Nuevo comentario por revisar - SafeRoute MX",
+                        f"""
+                        <h2>Hay un comentario pendiente de aprobación</h2>
+                        {_bloque_comentario_html(c)}
+                        <p>Entra a SafeRoute MX → Comentarios para aprobarlo o rechazarlo.</p>
+                        """
+                    )
+        except Exception as e:
+            print("ERROR AVISO COMENTARIO NUEVO:", e, flush=True)
+
+    threading.Thread(target=tarea, daemon=True).start()
+
+
+def notificar_comentario_aprobado(c, avisar_autor=True):
+    """Al aprobarse: avisa al dueño del reporte ('te comentaron') y al autor ('fue aprobado')."""
+
+    def tarea():
+        try:
+            dueno = (c.get("dueno_correo") or "").strip().lower()
+            autor = (c.get("autor_correo") or "").strip().lower()
+
+            if dueno and dueno != autor:
+                enviar_push_a_usuario(
+                    dueno,
+                    "Comentaron tu reporte",
+                    f"{c.get('autor_nombre', '')}: {str(c.get('texto', ''))[:80]}",
+                    {"tipo": "comentario", "reporte_id": c.get("reporte_id", "")}
+                )
+
+                if usuario_acepta_correos(dueno):
+                    enviar_correo_simple(
+                        dueno,
+                        c.get("dueno_nombre"),
+                        "Te comentaron un reporte - SafeRoute MX",
+                        f"""
+                        <h2>Hola {esc(str(c.get("dueno_nombre") or "Usuario SafeRoute"))}</h2>
+                        <p>Alguien de la comunidad comentó tu reporte:</p>
+                        {_bloque_comentario_html(c)}
+                        <p>Puedes verlo en SafeRoute MX → Mapa, abriendo el detalle de tu reporte.</p>
+                        """
+                    )
+
+            if avisar_autor and autor:
+                enviar_push_a_usuario(
+                    autor,
+                    "Comentario aprobado",
+                    "Tu comentario ya es visible para la comunidad.",
+                    {"tipo": "comentario_aprobado", "reporte_id": c.get("reporte_id", "")}
+                )
+
+                if usuario_acepta_correos(autor):
+                    enviar_correo_simple(
+                        autor,
+                        c.get("autor_nombre"),
+                        "Tu comentario fue aprobado - SafeRoute MX",
+                        f"""
+                        <h2>Hola {esc(str(c.get("autor_nombre") or "Usuario SafeRoute"))}</h2>
+                        <p>El administrador aprobó tu comentario. Ya es visible para la comunidad.</p>
+                        {_bloque_comentario_html(c)}
+                        """
+                    )
+        except Exception as e:
+            print("ERROR AVISO COMENTARIO APROBADO:", e, flush=True)
+
+    threading.Thread(target=tarea, daemon=True).start()
+
+
+def notificar_comentario_rechazado(c):
+
+    def tarea():
+        try:
+            autor = (c.get("autor_correo") or "").strip().lower()
+            if not autor:
+                return
+
+            enviar_push_a_usuario(
+                autor,
+                "Comentario no aprobado",
+                "El administrador no aprobó tu comentario.",
+                {"tipo": "comentario_rechazado", "reporte_id": c.get("reporte_id", "")}
+            )
+
+            if usuario_acepta_correos(autor):
+                enviar_correo_simple(
+                    autor,
+                    c.get("autor_nombre"),
+                    "Tu comentario no fue aprobado - SafeRoute MX",
+                    f"""
+                    <h2>Hola {esc(str(c.get("autor_nombre") or "Usuario SafeRoute"))}</h2>
+                    <p>El administrador no aprobó tu comentario, por lo que no se publicó.
+                    Recuerda mantener un trato respetuoso y evitar datos personales.</p>
+                    {_bloque_comentario_html(c)}
+                    """
+                )
+        except Exception as e:
+            print("ERROR AVISO COMENTARIO RECHAZADO:", e, flush=True)
+
+    threading.Thread(target=tarea, daemon=True).start()
+
+
+def borrar_comentarios_de_reporte(reporte_id):
+    try:
+        for doc in db.collection("comentarios").where("reporte_id", "==", reporte_id).stream():
+            doc.reference.delete()
+    except Exception as e:
+        print("ERROR BORRANDO COMENTARIOS DEL REPORTE:", e, flush=True)
+
+
+def borrar_comentarios_de_usuario(correo):
+    try:
+        for doc in db.collection("comentarios").where("autor_correo", "==", correo).stream():
+            doc.reference.delete()
+    except Exception as e:
+        print("ERROR BORRANDO COMENTARIOS DEL USUARIO:", e, flush=True)
+
+
+@app.route("/comentarios/<reporte_id>")
+def listar_comentarios(reporte_id):
+
+    if "usuario" not in session:
+        return jsonify({"ok": False, "error": "Inicia sesión para ver los comentarios."}), 401
+
+    yo = session.get("usuario")
+    es_admin = session.get("rol") == "admin"
+    items = []
+
+    for doc in db.collection("comentarios").where("reporte_id", "==", reporte_id).stream():
+        c = doc.to_dict()
+        propio = c.get("autor_correo") == yo
+
+        # Solo se ven los aprobados; cada quien ve además los suyos pendientes o rechazados.
+        if c.get("estado") != "Aprobado" and not propio:
+            continue
+
+        items.append({
+            "id": doc.id,
+            "autor_nombre": c.get("autor_nombre", "Usuario SafeRoute"),
+            "autor_foto": c.get("autor_foto", ""),
+            "texto": c.get("texto", ""),
+            "estado": c.get("estado", "Pendiente"),
+            "fecha": c.get("fecha_texto", ""),
+            "propio": propio,
+            "puede_borrar": propio or es_admin,
+            "orden": c.get("creado_ts", 0),
+        })
+
+    items.sort(key=lambda x: x["orden"])
+    return jsonify({"ok": True, "comentarios": items})
+
+
+@app.route("/comentarios/crear/<reporte_id>", methods=["POST"])
+def crear_comentario(reporte_id):
+
+    if "usuario" not in session:
+        return jsonify({"ok": False, "error": "Inicia sesión para comentar."}), 401
+
+    texto = " ".join(request.form.get("texto", "").split())
+
+    if len(texto) < 3:
+        return jsonify({"ok": False, "error": "Escribe al menos 3 caracteres."}), 400
+
+    texto = texto[:COMENTARIO_MAX]
+
+    reporte_doc = db.collection("reportes").document(reporte_id).get()
+
+    if not reporte_doc.exists or not reporte_doc.to_dict().get("aprobado"):
+        return jsonify({"ok": False, "error": "Este reporte no está disponible para comentar."}), 404
+
+    reporte = reporte_doc.to_dict()
+    yo = session.get("usuario")
+    es_admin = session.get("rol") == "admin"
+
+    if not es_admin:
+        pendientes = sum(
+            1 for _ in db.collection("comentarios")
+            .where("autor_correo", "==", yo)
+            .where("estado", "==", "Pendiente").stream()
+        )
+
+        if pendientes >= COMENTARIOS_PENDIENTES_MAX:
+            return jsonify({
+                "ok": False,
+                "error": "Ya tienes 3 comentarios pendientes de aprobación. Espera a que el administrador los revise."
+            }), 429
+
+    dueno_correo = (reporte.get("usuario") or "").strip().lower()
+    dueno_nombre = reporte.get("nombre_usuario", "")
+
+    if dueno_correo and not dueno_nombre:
+        for d in buscar_usuarios_por_correo(dueno_correo):
+            dueno_nombre = d.to_dict().get("nombre", "")
+            break
+
+    comentario = {
+        "reporte_id": reporte_id,
+        "reporte_tipo": reporte.get("tipo", ""),
+        "reporte_ubicacion": reporte.get("ubicacion", ""),
+        "dueno_correo": dueno_correo,
+        "dueno_nombre": dueno_nombre,
+        "autor_correo": yo,
+        "autor_nombre": session.get("nombre", "Usuario SafeRoute"),
+        "autor_foto": session.get("foto_perfil", ""),
+        "texto": texto,
+        # Los comentarios del administrador se publican directamente
+        "estado": "Aprobado" if es_admin else "Pendiente",
+        "fecha_texto": ahora_texto(),
+        "creado_ts": time.time(),
+    }
+
+    db.collection("comentarios").add(comentario)
+
+    if es_admin:
+        notificar_comentario_aprobado(comentario, avisar_autor=False)
+        mensaje = "Comentario publicado."
+    else:
+        notificar_comentario_nuevo(comentario)
+        mensaje = "Comentario enviado. Se publicará cuando el administrador lo apruebe."
+
+    return jsonify({"ok": True, "mensaje": mensaje, "estado": comentario["estado"]})
+
+
+@app.route("/comentarios/eliminar/<comentario_id>", methods=["POST"])
+def eliminar_comentario(comentario_id):
+
+    if "usuario" not in session:
+        return jsonify({"ok": False, "error": "Inicia sesión."}), 401
+
+    ref = db.collection("comentarios").document(comentario_id)
+    doc = ref.get()
+
+    if not doc.exists:
+        return jsonify({"ok": False, "error": "El comentario ya no existe."}), 404
+
+    c = doc.to_dict()
+
+    if c.get("autor_correo") != session.get("usuario") and session.get("rol") != "admin":
+        return jsonify({"ok": False, "error": "No puedes eliminar este comentario."}), 403
+
+    ref.delete()
+    return jsonify({"ok": True})
+
+
+@app.route("/admin/comentarios")
+def admin_comentarios():
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    filtro = request.args.get("estado", "Pendiente")
+    if filtro not in ("Pendiente", "Aprobado", "Rechazado", "Todos"):
+        filtro = "Pendiente"
+
+    conteo = {"Pendiente": 0, "Aprobado": 0, "Rechazado": 0}
+    comentarios = []
+
+    for doc in db.collection("comentarios").stream():
+        c = doc.to_dict()
+        c["id"] = doc.id
+        estado = c.get("estado", "Pendiente")
+        conteo[estado] = conteo.get(estado, 0) + 1
+
+        if filtro == "Todos" or estado == filtro:
+            comentarios.append(c)
+
+    comentarios.sort(key=lambda x: x.get("creado_ts", 0), reverse=True)
+
+    return render_template(
+        "admin/comentarios.html",
+        comentarios=comentarios,
+        filtro=filtro,
+        conteo=conteo
+    )
+
+
+def _volver_comentarios():
+    destino = request.form.get("volver", "")
+    return destino if destino.startswith("/admin/comentarios") else "/admin/comentarios"
+
+
+def _cambiar_estado_comentario(comentario_id, nuevo_estado):
+    ref = db.collection("comentarios").document(comentario_id)
+    doc = ref.get()
+
+    if not doc.exists:
+        flash("El comentario ya no existe.", "warning")
+        return None
+
+    c = doc.to_dict()
+    ref.update({
+        "estado": nuevo_estado,
+        "revisado_por": session.get("usuario"),
+        "fecha_revision": ahora_texto(),
+    })
+    c["estado"] = nuevo_estado
+    return c
+
+
+@app.route("/admin/comentarios/aprobar/<comentario_id>", methods=["POST"])
+def aprobar_comentario(comentario_id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    c = _cambiar_estado_comentario(comentario_id, "Aprobado")
+
+    if c:
+        notificar_comentario_aprobado(c)
+        flash("Comentario aprobado. Se avisó al dueño del reporte y al autor.", "success")
+
+    return redirect(_volver_comentarios())
+
+
+@app.route("/admin/comentarios/rechazar/<comentario_id>", methods=["POST"])
+def rechazar_comentario(comentario_id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    c = _cambiar_estado_comentario(comentario_id, "Rechazado")
+
+    if c:
+        notificar_comentario_rechazado(c)
+        flash("Comentario rechazado. Se avisó al autor.", "success")
+
+    return redirect(_volver_comentarios())
+
+
+@app.route("/admin/comentarios/eliminar/<comentario_id>", methods=["POST"])
+def admin_eliminar_comentario(comentario_id):
+
+    if "usuario" not in session:
+        return redirect("/login")
+
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    db.collection("comentarios").document(comentario_id).delete()
+    flash("Comentario eliminado.", "success")
+    return redirect(_volver_comentarios())
+
+
+# ======================
+# PERFIL: preferencias, quitar foto y eliminar cuenta
+# ======================
+def _render_perfil(usuario_ref, **extra):
+    usuario = usuario_ref.get().to_dict()
+    total = len(list(db.collection("reportes").where("usuario", "==", session.get("usuario")).stream()))
+    return render_template("usuario/perfil.html", usuario=usuario, total_reportes=total, **extra)
+
+
+@app.route("/perfil/preferencias", methods=["POST"])
+def perfil_preferencias():
+
+    if "usuario" not in session or not session.get("user_id"):
+        return redirect("/login")
+
+    ref = db.collection("usuarios").document(session["user_id"])
+    ref.update({"notif_correo": request.form.get("notif_correo") == "on"})
+
+    return _render_perfil(ref, exito="Preferencias guardadas.")
+
+
+@app.route("/perfil/quitar_foto", methods=["POST"])
+def perfil_quitar_foto():
+
+    if "usuario" not in session or not session.get("user_id"):
+        return redirect("/login")
+
+    user_id = session["user_id"]
+    ref = db.collection("usuarios").document(user_id)
+
+    try:
+        cloudinary.uploader.destroy(f"saferoutemx/perfiles/perfil_{user_id}")
+    except Exception as e:
+        print("ERROR BORRANDO FOTO:", e, flush=True)
+
+    ref.update({"foto_perfil": ""})
+    session["foto_perfil"] = ""
+
+    return _render_perfil(ref, exito="Foto de perfil eliminada.")
+
+
+@app.route("/perfil/eliminar_cuenta", methods=["POST"])
+def perfil_eliminar_cuenta():
+
+    if "usuario" not in session or not session.get("user_id"):
+        return redirect("/login")
+
+    user_id = session["user_id"]
+    ref = db.collection("usuarios").document(user_id)
+    doc = ref.get()
+
+    if not doc.exists:
+        session.clear()
+        return redirect("/login")
+
+    usuario = doc.to_dict()
+    correo = (usuario.get("correo") or "").strip().lower()
+
+    if login_bloqueado(usuario):
+        return _render_perfil(ref, error="Demasiados intentos fallidos. Espera 15 minutos e inténtalo de nuevo.")
+
+    password = request.form.get("password", "")
+    confirmacion = request.form.get("confirmacion", "").strip().upper()
+
+    if confirmacion != "ELIMINAR":
+        return _render_perfil(ref, error='Para eliminar tu cuenta escribe la palabra ELIMINAR en el cuadro de confirmación.')
+
+    if not check_password_hash(usuario.get("password", ""), password):
+        registrar_fallo_login(ref, usuario)
+        return _render_perfil(ref, error="La contraseña es incorrecta. Tu cuenta no fue eliminada.")
+
+    if usuario.get("rol") == "admin":
+        admins = list(db.collection("usuarios").where("rol", "==", "admin").stream())
+        if len(admins) <= 1:
+            return _render_perfil(ref, error="Eres el único administrador. Asigna a otro administrador antes de eliminar tu cuenta.")
+
+    nombre = usuario.get("nombre", "")
+
+    # Reportes y comentarios de la cuenta
+    for reporte in db.collection("reportes").where("usuario", "==", correo).stream():
+        borrar_comentarios_de_reporte(reporte.id)
+        reporte.reference.delete()
+
+    borrar_comentarios_de_usuario(correo)
+
+    try:
+        cloudinary.uploader.destroy(f"saferoutemx/perfiles/perfil_{user_id}")
+    except Exception as e:
+        print("ERROR BORRANDO FOTO:", e, flush=True)
+
+    ref.delete()
+    session.clear()
+
+    threading.Thread(
+        target=enviar_correo_simple,
+        args=(
+            correo,
+            nombre,
+            "Tu cuenta fue eliminada - SafeRoute MX",
+            f"""
+            <h2>Hola {esc(nombre or 'Usuario SafeRoute')}</h2>
+            <p>Tu cuenta de SafeRoute MX, junto con tus reportes y comentarios, fue eliminada correctamente.</p>
+            <p>Si no fuiste tú quien lo hizo, comunícate con el administrador.</p>
+            """
+        ),
+        daemon=True
+    ).start()
+
+    return render_template("login.html", exito="Tu cuenta fue eliminada correctamente.")
+
+
 @app.route("/chatbot")
 def chatbot():
 

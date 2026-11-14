@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comentarios - SafeRoute MX</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f4f6f9, #eef1f5);
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .hero-card {
+            background: radial-gradient(circle at top right, rgba(220,53,69,.10), transparent 28%), white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            border-left: 8px solid #dc3545;
+        }
+
+        .title { font-weight: 900; color: #222; }
+
+        .filtro-btn {
+            border-radius: 30px;
+            font-weight: 800;
+            padding: 8px 18px;
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            background: transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: .2s;
+        }
+
+        .filtro-btn:hover { background: rgba(220,53,69,.1); color: #dc3545; }
+        .filtro-btn.activo { background: #dc3545; color: #fff; }
+        .filtro-btn .badge { background: rgba(0,0,0,.18) !important; }
+
+        .comentario-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 7px 20px rgba(0,0,0,.08);
+            border-left: 6px solid #ffc107;
+            margin-bottom: 18px;
+        }
+
+        .comentario-card.aprobado { border-left-color: #198754; }
+        .comentario-card.rechazado { border-left-color: #dc3545; }
+
+        .comentario-card img.avatar {
+            width: 46px; height: 46px; border-radius: 50%; object-fit: cover;
+            border: 2px solid rgba(220,53,69,.4);
+        }
+
+        .comentario-texto {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin: 12px 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .meta { font-size: .85rem; color: #666; }
+
+        .empty-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 7px 20px rgba(0,0,0,.08);
+        }
+
+        body.dark .hero-card,
+        body.dark .comentario-card,
+        body.dark .empty-card { background: #1f1f1f !important; color: #fff !important; }
+        body.dark .title { color: #fff !important; }
+        body.dark .comentario-texto { background: #2d2d2d; color: #fff; }
+        body.dark .meta { color: #cfcfcf; }
+        body.dark .modal-content { background: #1f1f1f; color: #fff; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/avisos.css') }}">
+    <script src="{{ url_for('static', filename='js/avisos.js') }}" defer></script>
+</head>
+
+<body>
+
+{% include "_navbar.html" %}
+
+<div class="container my-4">
+
+    <div class="hero-card mb-4">
+        <h2 class="title">
+            <i class="fa-solid fa-comments text-danger me-2"></i>
+            Comentarios de la comunidad
+        </h2>
+        <p class="text-muted mb-0">
+            Revisa los comentarios que los usuarios escriben en los reportes. Al aprobar uno, se publica y se avisa por correo al dueño del reporte y a quien lo escribió.
+        </p>
+    </div>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensaje in mensajes %}
+            <div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert">
+                {{ mensaje }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a class="filtro-btn {% if filtro == 'Pendiente' %}activo{% endif %}" href="/admin/comentarios?estado=Pendiente">
+            <i class="fa-solid fa-hourglass-half"></i> Pendientes <span class="badge">{{ conteo.get('Pendiente', 0) }}</span>
+        </a>
+        <a class="filtro-btn {% if filtro == 'Aprobado' %}activo{% endif %}" href="/admin/comentarios?estado=Aprobado">
+            <i class="fa-solid fa-circle-check"></i> Aprobados <span class="badge">{{ conteo.get('Aprobado', 0) }}</span>
+        </a>
+        <a class="filtro-btn {% if filtro == 'Rechazado' %}activo{% endif %}" href="/admin/comentarios?estado=Rechazado">
+            <i class="fa-solid fa-circle-xmark"></i> Rechazados <span class="badge">{{ conteo.get('Rechazado', 0) }}</span>
+        </a>
+        <a class="filtro-btn {% if filtro == 'Todos' %}activo{% endif %}" href="/admin/comentarios?estado=Todos">
+            <i class="fa-solid fa-list"></i> Todos
+        </a>
+    </div>
+
+    {% if comentarios %}
+        {% for c in comentarios %}
+            <div class="comentario-card {{ 'aprobado' if c.estado == 'Aprobado' else ('rechazado' if c.estado == 'Rechazado' else '') }}">
+                <div class="d-flex align-items-center gap-3">
+                    <img class="avatar" src="{{ c.autor_foto or 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }}" alt="">
+                    <div class="flex-grow-1">
+                        <strong>{{ c.autor_nombre }}</strong>
+                        <div class="meta">{{ c.autor_correo }} · {{ c.fecha_texto }}</div>
+                    </div>
+                    {% if c.estado == 'Aprobado' %}
+                        <span class="badge bg-success">Aprobado</span>
+                    {% elif c.estado == 'Rechazado' %}
+                        <span class="badge bg-danger">Rechazado</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                    {% endif %}
+                </div>
+
+                <div class="comentario-texto">{{ c.texto }}</div>
+
+                <div class="meta mb-3">
+                    <i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>
+                    Reporte: <strong>{{ c.reporte_tipo }}</strong> — {{ c.reporte_ubicacion }}
+                    {% if c.dueno_correo %}<br><i class="fa-solid fa-user me-1"></i> Dueño del reporte: {{ c.dueno_nombre }} ({{ c.dueno_correo }}){% endif %}
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    {% if c.estado != 'Aprobado' %}
+                    <form method="POST" action="/admin/comentarios/aprobar/{{ c.id }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="volver" value="/admin/comentarios?estado={{ filtro }}">
+                        <button class="btn btn-success fw-bold" type="submit">
+                            <i class="fa-solid fa-check me-1"></i> Aprobar
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if c.estado != 'Rechazado' %}
+                    <form method="POST" action="/admin/comentarios/rechazar/{{ c.id }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="volver" value="/admin/comentarios?estado={{ filtro }}">
+                        <button class="btn btn-outline-danger fw-bold" type="submit">
+                            <i class="fa-solid fa-xmark me-1"></i> Rechazar
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <form method="POST" action="/admin/comentarios/eliminar/{{ c.id }}" onsubmit="return pedirConfirmacion(this)">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="volver" value="/admin/comentarios?estado={{ filtro }}">
+                        <button class="btn btn-outline-secondary fw-bold" type="submit">
+                            <i class="fa-solid fa-trash me-1"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-card">
+            <i class="fa-solid fa-comment-slash text-danger" style="font-size:2.4rem;"></i>
+            <h5 class="mt-3 fw-bold">No hay comentarios en esta lista</h5>
+            <p class="text-muted mb-0">Cuando los usuarios comenten un reporte aparecerán aquí.</p>
+        </div>
+    {% endif %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
+<div class="modal fade" id="modalConfirmar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:24px;overflow:hidden;border:none;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#dc3545,#8f1d2b);color:#fff;border:none;">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-trash me-2"></i>Eliminar comentario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">¿Seguro que quieres eliminar este comentario? Esta acción no se puede deshacer.</div>
+            <div class="modal-footer" style="border:none;">
+                <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger fw-bold" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var formPendiente = null;
+
+    function pedirConfirmacion(form) {
+        formPendiente = form;
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("modalConfirmar")).show();
+        return false;
+    }
+
+    document.getElementById("btnConfirmarEliminar").addEventListener("click", function () {
+        if (formPendiente) formPendiente.submit();
+    });
+</script>
+<script src="{{ url_for('static', filename='js/seguridad_sesion.js') }}"></script>
+</body>
+</html>

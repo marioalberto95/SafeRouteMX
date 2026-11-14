@@ -658,6 +658,39 @@
         .modal-content.sev-media .detail-box strong i { color: #d39e00 !important; }
         .modal-content.sev-baja .detail-box strong i { color: #198754 !important; }
 
+        /* ---- Comentarios de la comunidad ---- */
+        .sr-comentario {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,.08);
+        }
+        .sr-comentario:last-child { border-bottom: none; }
+        .sr-comentario img {
+            width: 38px; height: 38px; border-radius: 50%;
+            object-fit: cover; flex-shrink: 0;
+            border: 2px solid rgba(220,53,69,.4);
+        }
+        .sr-comentario__cuerpo { flex: 1; min-width: 0; }
+        .sr-comentario__nombre { font-weight: 800; font-size: .92rem; }
+        .sr-comentario__fecha { font-size: .75rem; color: #888; margin-left: 6px; font-weight: 400; }
+        .sr-comentario__texto { white-space: pre-wrap; word-break: break-word; font-size: .95rem; }
+        .sr-comentario__estado {
+            display: inline-block; font-size: .7rem; font-weight: 800;
+            padding: 2px 9px; border-radius: 999px; margin-left: 6px;
+        }
+        .sr-comentario__estado.pendiente { background: rgba(255,193,7,.25); color: #8a6500; }
+        .sr-comentario__estado.rechazado { background: rgba(220,53,69,.15); color: #b02a37; }
+        .sr-comentario__borrar {
+            border: none; background: transparent; color: #999; padding: 2px 6px;
+            border-radius: 8px; align-self: flex-start;
+        }
+        .sr-comentario__borrar:hover { color: #dc3545; background: rgba(220,53,69,.1); }
+        body.dark .sr-comentario { border-bottom-color: rgba(255,255,255,.12); }
+        body.dark .sr-comentario__fecha { color: #bbb; }
+        body.dark .sr-comentario__estado.pendiente { color: #ffd45e; }
+        body.dark #textoComentario { background: #2f2f2f; color: #fff; border: 1px solid #555; }
+
         #modalGravedad { font-weight: 800; }
         .modal-content.sev-alta #modalGravedad { color: #dc3545; }
         .modal-content.sev-media #modalGravedad { color: #d39e00; }
@@ -813,6 +846,8 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/avisos.css') }}">
+    <script src="{{ url_for('static', filename='js/avisos.js') }}" defer></script>
 </head>
 
 <body>
@@ -1169,6 +1204,29 @@
                     <strong><i class="fa-solid fa-align-left text-danger me-1"></i> Descripción</strong>
                     <div id="modalDescripcion" class="mt-2">Sin descripción</div>
                 </div>
+
+                <div class="detail-box mt-3" id="seccionComentarios">
+                    <strong>
+                        <i class="fa-solid fa-comments text-danger me-1"></i>
+                        Comentarios de la comunidad
+                        <span class="badge bg-secondary ms-1" id="comentariosContador">0</span>
+                    </strong>
+
+                    <div id="listaComentarios" class="mt-2">
+                        <small class="text-muted">Cargando comentarios...</small>
+                    </div>
+
+                    <form id="formComentario" class="mt-3" autocomplete="off">
+                        <textarea id="textoComentario" class="form-control" rows="2" maxlength="500" minlength="3"
+                                  placeholder="Escribe un comentario sobre este reporte..." required></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-2 gap-2 flex-wrap">
+                            <small class="text-muted"><span id="contadorComentario">0</span>/500 · Se publicará cuando el administrador lo apruebe.</small>
+                            <button type="submit" class="btn btn-danger btn-sm fw-bold" id="btnComentar">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Comentar
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -1457,9 +1515,161 @@
             `;
         }
 
+        cargarComentarios(r.id);
+
         const modal = new bootstrap.Modal(document.getElementById("detalleReporteModal"));
         modal.show();
     }
+
+    /* ---------- Comentarios de la comunidad ---------- */
+    const CSRF_TOKEN = "{{ csrf_token() }}";
+    const FOTO_POR_DEFECTO = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    const listaComentarios = document.getElementById("listaComentarios");
+    const formComentario = document.getElementById("formComentario");
+    const textoComentario = document.getElementById("textoComentario");
+
+    textoComentario.addEventListener("input", function() {
+        document.getElementById("contadorComentario").textContent = textoComentario.value.length;
+    });
+
+    function pintarComentarios(lista) {
+        listaComentarios.innerHTML = "";
+
+        const aprobados = lista.filter(c => c.estado === "Aprobado").length;
+        document.getElementById("comentariosContador").textContent = aprobados;
+
+        if (!lista.length) {
+            const vacio = document.createElement("small");
+            vacio.className = "text-muted";
+            vacio.textContent = "Todavía no hay comentarios. ¡Sé el primero!";
+            listaComentarios.appendChild(vacio);
+            return;
+        }
+
+        lista.forEach(function(c) {
+            const fila = document.createElement("div");
+            fila.className = "sr-comentario";
+
+            const foto = document.createElement("img");
+            foto.src = c.autor_foto || FOTO_POR_DEFECTO;
+            foto.alt = "";
+            foto.onerror = function() { this.src = FOTO_POR_DEFECTO; };
+
+            const cuerpo = document.createElement("div");
+            cuerpo.className = "sr-comentario__cuerpo";
+
+            const nombre = document.createElement("div");
+            const nombreTxt = document.createElement("span");
+            nombreTxt.className = "sr-comentario__nombre";
+            nombreTxt.textContent = c.autor_nombre;
+            const fecha = document.createElement("span");
+            fecha.className = "sr-comentario__fecha";
+            fecha.textContent = c.fecha;
+            nombre.appendChild(nombreTxt);
+            nombre.appendChild(fecha);
+
+            if (c.estado === "Pendiente") {
+                const e = document.createElement("span");
+                e.className = "sr-comentario__estado pendiente";
+                e.textContent = "Pendiente de aprobación";
+                nombre.appendChild(e);
+            } else if (c.estado === "Rechazado") {
+                const e = document.createElement("span");
+                e.className = "sr-comentario__estado rechazado";
+                e.textContent = "No aprobado";
+                nombre.appendChild(e);
+            }
+
+            const texto = document.createElement("div");
+            texto.className = "sr-comentario__texto";
+            texto.textContent = c.texto;
+
+            cuerpo.appendChild(nombre);
+            cuerpo.appendChild(texto);
+
+            fila.appendChild(foto);
+            fila.appendChild(cuerpo);
+
+            if (c.puede_borrar) {
+                const borrar = document.createElement("button");
+                borrar.type = "button";
+                borrar.className = "sr-comentario__borrar";
+                borrar.title = "Eliminar comentario";
+                borrar.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                borrar.addEventListener("click", function() { eliminarComentario(c.id); });
+                fila.appendChild(borrar);
+            }
+
+            listaComentarios.appendChild(fila);
+        });
+    }
+
+    async function cargarComentarios(reporteId) {
+        listaComentarios.innerHTML = '<small class="text-muted">Cargando comentarios...</small>';
+
+        try {
+            const resp = await fetch("/comentarios/" + encodeURIComponent(reporteId));
+            const data = await resp.json();
+
+            if (!data.ok) {
+                listaComentarios.innerHTML = "";
+                const e = document.createElement("small");
+                e.className = "text-muted";
+                e.textContent = data.error || "No se pudieron cargar los comentarios.";
+                listaComentarios.appendChild(e);
+                return;
+            }
+
+            pintarComentarios(data.comentarios);
+        } catch (err) {
+            listaComentarios.innerHTML = '<small class="text-muted">No se pudieron cargar los comentarios.</small>';
+        }
+    }
+
+    async function eliminarComentario(id) {
+        const datos = new FormData();
+        datos.append("csrf_token", CSRF_TOKEN);
+
+        try {
+            const resp = await fetch("/comentarios/eliminar/" + encodeURIComponent(id), { method: "POST", body: datos });
+            const data = await resp.json();
+
+            if (!data.ok) { srAviso(data.error || "No se pudo eliminar el comentario."); return; }
+            if (reporteActual) cargarComentarios(reporteActual.id);
+        } catch (err) {
+            srAviso("No se pudo eliminar el comentario. Intenta de nuevo.");
+        }
+    }
+
+    formComentario.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        if (!reporteActual) return;
+
+        const boton = document.getElementById("btnComentar");
+        const datos = new FormData();
+        datos.append("csrf_token", CSRF_TOKEN);
+        datos.append("texto", textoComentario.value);
+
+        boton.disabled = true;
+
+        try {
+            const resp = await fetch("/comentarios/crear/" + encodeURIComponent(reporteActual.id), { method: "POST", body: datos });
+            const data = await resp.json();
+
+            if (!data.ok) {
+                srAviso(data.error || "No se pudo enviar el comentario.");
+            } else {
+                textoComentario.value = "";
+                document.getElementById("contadorComentario").textContent = "0";
+                srAviso(data.mensaje, { tipo: "exito", titulo: "Comentario enviado" });
+                cargarComentarios(reporteActual.id);
+            }
+        } catch (err) {
+            srAviso("No se pudo enviar el comentario. Intenta de nuevo.");
+        }
+
+        boton.disabled = false;
+    });
 
     function enfocarReporte(id) {
         const r = buscarReportePorId(id);
