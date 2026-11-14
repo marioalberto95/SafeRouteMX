@@ -684,21 +684,20 @@
 
         .legend { font-size: 14px; line-height: 1.7; padding: 14px 16px; }
 
+        .filtros-fila { display: flex; gap: 10px; }
+        .filtros-fila .filter-box { flex: 1 1 0; min-width: 0; }
+
+        .panel-controles .admin-list { max-height: 440px; min-height: 260px; }
+
         @media (min-width: 1200px) {
-            /* El panel de controles se queda a la vista mientras se mira el mapa */
+            /* El panel de controles se queda a la vista; si la pantalla es baja, el panel entero se desplaza */
             .panel-controles {
                 position: sticky;
                 top: 16px;
+                height: auto;
                 max-height: calc(100vh - 32px);
-                display: flex;
-                flex-direction: column;
-            }
-
-            .panel-controles .admin-list {
-                flex: 1 1 auto;
-                max-height: none;
-                min-height: 220px;
                 overflow-y: auto;
+                overflow-x: hidden;
             }
 
             #map { height: calc(100vh - 140px); min-height: 760px; }
@@ -904,10 +903,11 @@
                     Controles administrativos
                 </h5>
 
+                <div class="filtros-fila">
                 <div class="filter-box">
                     <div class="filter-label">
                         <i class="fa-solid fa-gauge-high me-1"></i>
-                        Filtrar por gravedad
+                        Gravedad
                     </div>
                     <select id="filtroGravedad" class="form-select">
                         <option value="Todos">Todos</option>
@@ -920,7 +920,7 @@
                 <div class="filter-box">
                     <div class="filter-label">
                         <i class="fa-solid fa-list-check me-1"></i>
-                        Filtrar por estado
+                        Estado
                     </div>
                     <select id="filtroEstado" class="form-select">
                         <option value="Todos">Todos</option>
@@ -930,6 +930,7 @@
                         <option value="En seguimiento">En seguimiento</option>
                         <option value="Resuelto">Resuelto</option>
                     </select>
+                </div>
                 </div>
 
                 <div class="filter-box">
