@@ -720,6 +720,8 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/avisos.css') }}">
+    <script src="{{ url_for('static', filename='js/avisos.js') }}" defer></script>
 </head>
 
 <body>
@@ -978,7 +980,7 @@ Para crear un reporte escribe: Crear reporte.
                         </div>
 
                         <div class="chat-footer">
-                            <form id="chatForm">
+                            <form id="chatForm" data-sr-skip>
                                 <div class="row g-2 align-items-center">
                                     <div class="col-9 col-md-10">
                                         <input type="text"
