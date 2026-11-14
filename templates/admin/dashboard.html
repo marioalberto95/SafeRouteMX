@@ -342,6 +342,20 @@
         .estadisticas-card { border-left-color: #0d6efd; }
         .mapa-card { border-left-color: #ffc107; }
         .ia-card { border-left-color: #6f42c1; }
+        .comentarios-card { border-left-color: #0dcaf0; }
+        .icon-comentarios-card { background: #e0f8fd; color: #0aa2c0; }
+        .icon-comentarios { background: #e0f8fd; color: #0aa2c0; }
+        .stats-box.comentarios { border-top: 6px solid #0dcaf0; color: #0aa2c0; }
+        .badge-pendientes {
+            position: absolute; top: 14px; right: 14px;
+            background: #dc3545; color: #fff; font-weight: 800;
+            border-radius: 999px; padding: 4px 11px; font-size: .8rem;
+        }
+        .comentario-mini {
+            background: #f8f9fa; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+            border-left: 4px solid #0dcaf0;
+        }
+        body.dark .comentario-mini { background: #2d2d2d; color: #fff; }
 
         .icon-reportes-card { background: #ffe5e9; color: #dc3545; }
         .icon-usuarios-card { background: #e7f7ee; color: #198754; }
@@ -525,7 +539,7 @@
 
     <div class="row g-4 mb-4 fade-up">
 
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="stats-box total">
                 <div class="stats-head">
                     <div class="stats-icon icon-reportes">
@@ -537,7 +551,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="stats-box usuarios">
                 <div class="stats-head">
                     <div class="stats-icon icon-usuarios">
@@ -549,13 +563,27 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6 col-lg-3">
+            <a href="/admin/comentarios" class="text-decoration-none">
+                <div class="stats-box comentarios">
+                    <div class="stats-head">
+                        <div class="stats-icon icon-comentarios">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                        <div class="stats-number">{{ comentarios_pendientes }}</div>
+                    </div>
+                    <div class="stats-text">Comentarios por revisar</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
             <div class="stats-box admin-mini">
                 <div class="stats-head">
                     <div class="stats-icon icon-admin">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
-                    <div class="stats-number">5</div>
+                    <div class="stats-number">6</div>
                 </div>
                 <div class="stats-text">Módulos administrativos</div>
             </div>
@@ -654,6 +682,25 @@
             </a>
         </div>
 
+        <div class="col-12 col-md-6 col-lg-4 acceso-item" data-keywords="comentarios comunidad moderar aprobar rechazar opiniones">
+            <a href="/admin/comentarios" class="text-decoration-none text-dark">
+                <div class="action-card comentarios-card" style="position:relative;">
+                    {% if comentarios_pendientes %}
+                        <span class="badge-pendientes">{{ comentarios_pendientes }} nuevo{{ 's' if comentarios_pendientes != 1 else '' }}</span>
+                    {% endif %}
+                    <div class="action-icon icon-comentarios-card">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h4>Comentarios</h4>
+                    <p>Aprobar o rechazar los comentarios que la comunidad escribe en los reportes.</p>
+                    <span class="btn btn-info btn-sm text-white">
+                        Abrir sección
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+
         <div class="col-12 col-md-6 col-lg-4 acceso-item" data-keywords="ia chatbot asistente preguntas inteligencia ayuda recomendaciones">
             <a href="/chatbot" class="text-decoration-none text-dark">
                 <div class="action-card ia-card">
@@ -670,6 +717,51 @@
             </a>
         </div>
 
+    </div>
+
+    <div class="tips-card mb-4 fade-up">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h4 class="fw-bold mb-0">
+                <i class="fa-solid fa-comments me-2" style="color:#0aa2c0;"></i>
+                Comentarios por revisar
+                <span class="badge bg-danger ms-1">{{ comentarios_pendientes }}</span>
+            </h4>
+            <a href="/admin/comentarios" class="btn btn-outline-danger btn-sm fw-bold">
+                Ver todos <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        {% if ultimos_comentarios %}
+            {% for c in ultimos_comentarios %}
+                <div class="comentario-mini">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
+                        <strong>{{ c.autor_nombre }}</strong>
+                        <small class="text-muted">{{ c.fecha_texto }}</small>
+                    </div>
+                    <div class="my-2" style="white-space:pre-wrap;word-break:break-word;">{{ c.texto }}</div>
+                    <small class="text-muted d-block mb-2">
+                        En el reporte: <strong>{{ c.reporte_tipo }}</strong> — {{ c.reporte_ubicacion }}
+                    </small>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <form method="POST" action="/admin/comentarios/aprobar/{{ c.id }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="volver" value="/admin/comentarios">
+                            <button class="btn btn-success btn-sm fw-bold" type="submit"><i class="fa-solid fa-check me-1"></i>Aprobar</button>
+                        </form>
+                        <form method="POST" action="/admin/comentarios/rechazar/{{ c.id }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="volver" value="/admin/comentarios">
+                            <button class="btn btn-outline-danger btn-sm fw-bold" type="submit"><i class="fa-solid fa-xmark me-1"></i>Rechazar</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted mb-0">
+                <i class="fa-solid fa-circle-check text-success me-1"></i>
+                No hay comentarios pendientes. ¡Todo al día!
+            </p>
+        {% endif %}
     </div>
 
     <div class="row g-4 mb-5">

@@ -1352,10 +1352,20 @@ def admin_dashboard():
     reportes = list(db.collection("reportes").stream())
     usuarios = list(db.collection("usuarios").stream())
 
+    pendientes = []
+    for doc in db.collection("comentarios").where("estado", "==", "Pendiente").stream():
+        c = doc.to_dict()
+        c["id"] = doc.id
+        pendientes.append(c)
+
+    pendientes.sort(key=lambda x: x.get("creado_ts", 0), reverse=True)
+
     return render_template(
         "admin/dashboard.html",
         total_reportes=len(reportes),
-        total_usuarios=len(usuarios)
+        total_usuarios=len(usuarios),
+        comentarios_pendientes=len(pendientes),
+        ultimos_comentarios=pendientes[:3]
     )
 
 
