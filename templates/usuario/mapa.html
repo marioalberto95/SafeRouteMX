@@ -991,6 +991,21 @@
                 Solo alto riesgo
             </button>
 
+            <button class="btn btn-outline-primary btn-sm" onclick="ubicarUsuario()">
+                <i class="fa-solid fa-location-dot me-1"></i>
+                Mi ubicación
+            </button>
+
+            <button class="btn btn-outline-dark btn-sm" onclick="cambiarCapa()">
+                <i class="fa-solid fa-layer-group me-1"></i>
+                Cambiar mapa
+            </button>
+
+            <button class="btn btn-outline-secondary btn-sm" onclick="togglePantallaCompleta()">
+                <i class="fa-solid fa-expand me-1"></i>
+                Pantalla completa
+            </button>
+
             <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
                 <i class="fa-solid fa-rotate-right me-1"></i>
                 Limpiar
@@ -1250,9 +1265,17 @@
 <script>
     var map = L.map('map').setView([19.4326, -99.1332], 12);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    var capaNormal = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
-    }).addTo(map);
+    });
+
+    var capaSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles © Esri'
+    });
+
+    var capaActual = "normal";
+    capaNormal.addTo(map);
+    var marcadorUsuario = null;
 
     var reportes = JSON.parse('{{ reportes | tojson | safe | replace("\n", "") | replace("\r", "") }}');
 
@@ -1443,6 +1466,65 @@
         aplicarFiltros();
     }
 
+    function ubicarUsuario() {
+        if (!navigator.geolocation) {
+            alert("Tu navegador no permite usar ubicación.");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            if (marcadorUsuario) {
+                map.removeLayer(marcadorUsuario);
+            }
+
+            marcadorUsuario = L.circleMarker([lat, lng], {
+                radius: 11,
+                color: "#0d6efd",
+                fillColor: "#0d6efd",
+                fillOpacity: 0.9,
+                weight: 3
+            }).addTo(map);
+
+            marcadorUsuario.bindPopup(`
+                <b><i class="fa-solid fa-location-dot text-primary"></i> Tu ubicación</b><br>
+                Estás aquí.
+            `).openPopup();
+
+            map.setView([lat, lng], 16);
+        }, function() {
+            alert("No se pudo obtener tu ubicación. Revisa que hayas dado permiso al navegador.");
+        });
+    }
+
+    function cambiarCapa() {
+        if (capaActual === "normal") {
+            map.removeLayer(capaNormal);
+            capaSatelite.addTo(map);
+            capaActual = "satelite";
+        } else {
+            map.removeLayer(capaSatelite);
+            capaNormal.addTo(map);
+            capaActual = "normal";
+        }
+    }
+
+    function togglePantallaCompleta() {
+        const mapCard = document.querySelector(".map-card");
+
+        if (!document.fullscreenElement) {
+            mapCard.requestFullscreen().then(() => {
+                setTimeout(() => map.invalidateSize(), 300);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                setTimeout(() => map.invalidateSize(), 300);
+            });
+        }
+    }
+
     function centrarMapa() {
         if (bounds.length > 0) {
             map.fitBounds(bounds, { padding: [30, 30] });
@@ -1516,6 +1598,10 @@
         }
 
         cargarComentarios(r.id);
+
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
 
         const modal = new bootstrap.Modal(document.getElementById("detalleReporteModal"));
         modal.show();

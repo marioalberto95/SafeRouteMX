@@ -681,7 +681,7 @@
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <h3>Mapa de seguridad</h3>
-                        <p class="text-muted mb-0">Consulta reportes aprobados y detecta zonas con mayor nivel de riesgo.</p>
+                        <p class="text-muted mb-0">Consulta reportes aprobados, cambia entre mapa normal y satélite y detecta zonas con mayor nivel de riesgo.</p>
                     </div>
                 </div>
             </a>
@@ -704,6 +704,84 @@
                     </div>
                 </div>
             </a>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="container mb-5 fade-up" id="novedades">
+
+    <div class="text-center mb-4">
+        <h2 class="section-title">Novedades</h2>
+        <p class="section-subtitle">Lo último que se agregó a SafeRoute MX</p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img class="feature-img"
+                         src="{{ url_for('static', filename='img/novedad_comentarios.svg') }}"
+                         alt="Comentarios de la comunidad">
+                </div>
+                <div class="feature-body">
+                    <div class="feature-icon-circle">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h3>Comentarios</h3>
+                    <p class="text-muted mb-0">Comenta los reportes de la comunidad. El administrador los aprueba y te avisamos por correo cuando alguien comenta el tuyo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img class="feature-img"
+                         src="{{ url_for('static', filename='img/novedad_reloj.svg') }}"
+                         alt="Notificaciones en el smartwatch">
+                </div>
+                <div class="feature-body">
+                    <div class="feature-icon-circle">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <h3>En tu smartwatch</h3>
+                    <p class="text-muted mb-0">Recibe en tu reloj Wear OS los avisos de tus reportes, comentarios y revisiones del administrador.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img class="feature-img"
+                         src="{{ url_for('static', filename='img/novedad_seguridad.svg') }}"
+                         alt="Cuenta protegida">
+                </div>
+                <div class="feature-body">
+                    <div class="feature-icon-circle">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3>Cuenta más segura</h3>
+                    <p class="text-muted mb-0">Alerta por correo si entran a tu cuenta desde otro dispositivo, límite de intentos y cierre de sesión por inactividad.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="feature-card">
+                <div class="feature-img-wrap">
+                    <img class="feature-img"
+                         src="{{ url_for('static', filename='img/novedad_perfil.svg') }}"
+                         alt="Perfil de usuario">
+                </div>
+                <div class="feature-body">
+                    <div class="feature-icon-circle">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <h3>Perfil completo</h3>
+                    <p class="text-muted mb-0">Revisa tu actividad, elige qué correos recibir, cambia o quita tu foto y elimina tu cuenta cuando quieras.</p>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -759,7 +837,7 @@
                                 <i class="fa-solid fa-envelope-circle-check text-primary me-2"></i>
                                 Avisos
                             </h4>
-                            <small>Notificaciones cuando tu reporte tiene seguimiento.</small>
+                            <small>Correo y notificaciones en tu reloj cuando tu reporte tiene seguimiento.</small>
                         </div>
                     </div>
 
@@ -903,7 +981,7 @@
                     <div class="col-12 col-md-4">
                         <div class="strip-item">
                             <strong><i class="fa-solid fa-lock me-1"></i> Seguridad</strong>
-                            <p class="mb-0 mt-2">La cuenta se protege con verificación por correo.</p>
+                            <p class="mb-0 mt-2">La cuenta se protege con verificación por correo y alertas de inicio de sesión.</p>
                         </div>
                     </div>
                 </div>
@@ -942,6 +1020,7 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <h5 class="fw-bold">Accesos rápidos</h5>
                 <p class="mb-2"><a href="#funciones">Funciones principales</a></p>
+                <p class="mb-2"><a href="#novedades">Novedades</a></p>
                 <p class="mb-2"><a href="#ia">SafeRoute IA</a></p>
                 <p class="mb-2"><a href="#como-funciona">Cómo funciona</a></p>
                 <p class="mb-0"><a href="/login">Iniciar sesión</a></p>

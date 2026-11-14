@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" role="img" aria-label="Notificaciones en tu smartwatch" font-family="Arial,Helvetica,sans-serif"><defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0475a"/><stop offset="1" stop-color="#7d1624"/></linearGradient>
+<radialGradient id="r" cx="0.85" cy="0.1" r="0.6"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<filter id="s" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity=".25"/></filter>
+</defs>
+<rect width="900" height="500" fill="url(#g)"/><rect width="900" height="500" fill="url(#r)"/>
+<circle cx="80" cy="440" r="120" fill="#fff" opacity=".07"/><circle cx="840" cy="60" r="90" fill="#fff" opacity=".07"/>
+<g filter="url(#s)">
+ <rect x="372" y="20" width="156" height="120" rx="30" fill="#2a2a2e"/>
+ <rect x="372" y="360" width="156" height="120" rx="30" fill="#2a2a2e"/>
+ <rect x="320" y="110" width="260" height="280" rx="70" fill="#17171a"/>
+ <rect x="334" y="124" width="232" height="252" rx="58" fill="#0b0b0d"/>
+ <rect x="352" y="150" width="196" height="150" rx="26" fill="#dc3545"/>
+ <circle cx="388" cy="188" r="20" fill="#fff"/><path d="M388 175a10 10 0 0 1 10 10v7l4 5h-28l4-5v-7a10 10 0 0 1 10-10z" fill="#dc3545"/>
+ <rect x="418" y="178" width="106" height="11" rx="5" fill="#fff"/><rect x="418" y="198" width="80" height="9" rx="4" fill="#fff" opacity=".7"/>
+ <rect x="372" y="232" width="156" height="11" rx="5" fill="#fff" opacity=".9"/><rect x="372" y="254" width="120" height="11" rx="5" fill="#fff" opacity=".7"/>
+ <rect x="372" y="318" width="156" height="34" rx="17" fill="#fff"/><rect x="398" y="331" width="104" height="9" rx="4" fill="#dc3545"/>
+</g>
+<g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7">
+ <path d="M230 210q-28 40 0 80"/><path d="M190 180q-52 70 0 140" opacity=".6"/>
+ <path d="M670 210q28 40 0 80"/><path d="M710 180q52 70 0 140" opacity=".6"/>
+</g>
+</svg>
