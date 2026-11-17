@@ -3049,9 +3049,7 @@ def registrar_token_dispositivo():
     if not token:
         return jsonify({"ok": False, "error": "sin token"}), 400
 
-    db.collection("usuarios").document(session["user_id"]).update({
-        "fcm_tokens": firestore.ArrayUnion([token])
-    })
+    asignar_token_a_usuario(session["user_id"], token)
     return jsonify({"ok": True})
 
 
@@ -3084,13 +3082,28 @@ def registrar_token_reloj():
 
         limpiar_fallos_login(doc_ref, usuario)
 
-        db.collection("usuarios").document(doc.id).update({
-            "fcm_tokens": firestore.ArrayUnion([token])
-        })
+        asignar_token_a_usuario(doc.id, token)
         enviar_push_a_usuario(correo, "SafeRoute MX", "Reloj conectado correctamente")
         return jsonify({"ok": True})
 
     return jsonify({"ok": False, "error": "Correo o contraseña incorrectos"}), 401
+
+
+def asignar_token_a_usuario(user_id, token):
+    """Guarda el token en la cuenta y lo quita de cualquier otra cuenta,
+    para que un dispositivo solo reciba los avisos del usuario que lo está usando."""
+    try:
+        for otro in db.collection("usuarios").where("fcm_tokens", "array_contains", token).stream():
+            if otro.id != user_id:
+                db.collection("usuarios").document(otro.id).update({
+                    "fcm_tokens": firestore.ArrayRemove([token])
+                })
+    except Exception as e:
+        print("ERROR LIMPIANDO TOKEN:", e, flush=True)
+
+    db.collection("usuarios").document(user_id).update({
+        "fcm_tokens": firestore.ArrayUnion([token])
+    })
 
 
 @app.route("/api/probar_push")
