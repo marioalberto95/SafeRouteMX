@@ -745,6 +745,14 @@
                                     class="form-control"
                                     rows="3"
                                     placeholder="Escribe una observación o explicación para el usuario...">{{ reporte.comentario_admin or "" }}</textarea>
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    <small class="text-muted w-100">Respuestas rápidas:</small>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm plantilla-respuesta" data-texto="Gracias por tu reporte. Ya fue revisado y publicado en el mapa para la comunidad.">Aprobado</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm plantilla-respuesta" data-texto="Estamos dando seguimiento a tu reporte. Te avisaremos cuando haya novedades.">En seguimiento</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm plantilla-respuesta" data-texto="Tu reporte fue marcado como resuelto. Gracias por ayudar a mantener segura a la comunidad.">Resuelto</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm plantilla-respuesta" data-texto="No pudimos publicar tu reporte porque la información está incompleta o no es clara. Puedes editarlo y enviarlo de nuevo.">Información incompleta</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm plantilla-respuesta" data-texto="Este incidente ya fue reportado por otro usuario, por lo que lo unificamos con el reporte existente.">Duplicado</button>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary btn-sm btn-custom">
@@ -976,6 +984,14 @@
 
 </script>
 <script src="{{ url_for('static', filename='js/seguridad_sesion.js') }}"></script>
+<script>
+    document.addEventListener("click", function (e) {
+        var b = e.target.closest(".plantilla-respuesta");
+        if (!b) return;
+        var area = b.closest(".mb-3").querySelector("textarea[name='comentario_admin']");
+        if (area) { area.value = b.getAttribute("data-texto"); area.focus(); }
+    });
+</script>
 </body>
 
 </html>

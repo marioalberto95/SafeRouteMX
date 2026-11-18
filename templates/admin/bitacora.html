@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora - SafeRoute MX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/darkmode.css') }}">
+    <style>
+        body { background: linear-gradient(135deg, #f4f6f9, #eef1f5); font-family: Arial, sans-serif; }
+        .hero { background: linear-gradient(135deg, #dc3545, #8f1d2b); color: #fff; border-radius: 28px; padding: 30px; box-shadow: 0 12px 32px rgba(220,53,69,.28); }
+        .hero h2 { font-weight: 900; }
+        .panel-card { background: #fff; border-radius: 24px; padding: 20px; box-shadow: 0 8px 22px rgba(0,0,0,.08); }
+        body.dark { background: #121212 !important; }
+        body.dark .panel-card { background: #1e1e1e; color: #eee; }
+        body.dark .table { --bs-table-bg: transparent; --bs-table-color: #eee; }
+    </style>
+</head>
+<body>
+{% include "_navbar.html" %}
+<div class="container-fluid px-3 px-lg-4 my-4">
+    <div class="hero mb-4">
+        <h2><i class="fa-solid fa-clock-rotate-left me-2"></i> Bitácora de administración</h2>
+        <p class="mb-0">Registro de las acciones hechas por los administradores (últimas 200).</p>
+    </div>
+    <div class="panel-card">
+        {% if registros %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Fecha</th><th>Administrador</th><th>Acción</th><th>Detalle</th></tr></thead>
+                <tbody>
+                {% for r in registros %}
+                    <tr>
+                        <td class="text-nowrap">{{ r.fecha_texto }}</td>
+                        <td>{{ r.admin }}</td>
+                        <td><span class="badge bg-danger">{{ r.accion }}</span></td>
+                        <td>{{ r.detalle }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="alert alert-secondary mb-0">Todavía no hay acciones registradas.</div>
+        {% endif %}
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/darkmode.js') }}"></script>
+</body>
+</html>

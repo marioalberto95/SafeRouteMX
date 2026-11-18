@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, jsonify, flash
+from flask import Flask, render_template, request, redirect, session, jsonify, flash, Response
 import re
 from flask_mail import Mail, Message
 import random
@@ -18,6 +18,9 @@ import secrets
 from datetime import datetime, timedelta
 import time
 import hmac
+import csv
+import io
+from collections import Counter
 from html import escape as esc
 app = Flask(__name__)
 # En Render agrega la variable SECRET_KEY con un texto largo y aleatorio.
@@ -406,6 +409,11 @@ def verificar_sesion_unica():
         return redirect("/login")
 
     usuario = usuario_doc.to_dict()
+
+    if usuario.get("suspendido"):
+        session.clear()
+        return redirect(url_for("login", sesion="suspendida"))
+
     token_guardado = usuario.get("token_sesion_activa")
 
     # Si otro dispositivo inició sesión, el token guardado cambia.
@@ -475,7 +483,58 @@ def _enviar_push_a_documento(doc, titulo, cuerpo, datos=None):
             print("ERROR PUSH:", e, flush=True)
 
 
+def registrar_notificacion(correo, titulo, cuerpo, enlace=""):
+    """Guarda el aviso para la campana de la página (además del push al reloj/celular)."""
+    try:
+        db.collection("notificaciones").add({
+            "usuario": (correo or "").strip().lower(),
+            "titulo": titulo,
+            "cuerpo": cuerpo,
+            "enlace": enlace,
+            "leida": False,
+            "creado_ts": time.time(),
+            "fecha_texto": ahora_texto(),
+        })
+    except Exception as e:
+        print("ERROR GUARDANDO NOTIFICACION:", e, flush=True)
+
+
+def _enlace_de_aviso(datos, es_admin=False):
+    tipo = str((datos or {}).get("tipo", ""))
+    if tipo.startswith("comentario"):
+        return "/admin/comentarios" if es_admin else "/mapa"
+    if tipo == "estado_reporte":
+        return "/mis-reportes"
+    return "/admin/reportes" if es_admin else "/dashboard"
+
+
+def registrar_bitacora(accion, detalle=""):
+    """Deja constancia de lo que hace un administrador."""
+    try:
+        db.collection("bitacora").add({
+            "admin": session.get("usuario", ""),
+            "accion": accion,
+            "detalle": str(detalle)[:300],
+            "creado_ts": time.time(),
+            "fecha_texto": ahora_texto(),
+        })
+    except Exception as e:
+        print("ERROR BITACORA:", e, flush=True)
+
+
+def marcar_revisado(reporte_id):
+    """Guarda cuándo el admin atendió por primera vez un reporte (tiempo de respuesta)."""
+    try:
+        ref = db.collection("reportes").document(reporte_id)
+        doc = ref.get()
+        if doc.exists and not doc.to_dict().get("revisado_ts"):
+            ref.update({"revisado_ts": time.time()})
+    except Exception as e:
+        print("ERROR REVISADO_TS:", e, flush=True)
+
+
 def enviar_push_a_usuario(correo, titulo, cuerpo, datos=None):
+    registrar_notificacion(correo, titulo, cuerpo, _enlace_de_aviso(datos))
     try:
         for doc in db.collection("usuarios").where("correo", "==", correo).limit(1).stream():
             _enviar_push_a_documento(doc, titulo, cuerpo, datos)
@@ -682,6 +741,7 @@ def avisar_inicio_otro_dispositivo(correo, nombre, dispositivo, ip):
 def enviar_push_a_admins(titulo, cuerpo, datos=None):
     try:
         for doc in db.collection("usuarios").where("rol", "==", "admin").stream():
+            registrar_notificacion(doc.to_dict().get("correo"), titulo, cuerpo, _enlace_de_aviso(datos, True))
             _enviar_push_a_documento(doc, titulo, cuerpo, datos)
     except Exception as e:
         print("ERROR PUSH ADMINS:", e, flush=True)
@@ -763,6 +823,12 @@ def login():
                         error="Debes verificar tu correo antes de iniciar sesión."
                     )
 
+                if usuario.get("suspendido"):
+                    return render_template(
+                        "login.html",
+                        error="Tu cuenta está suspendida. Contacta al administrador de SafeRoute MX."
+                    )
+
                 # Elimina cualquier sesión anterior del navegador actual
                 session.clear()
                 session.permanent = True
@@ -811,6 +877,12 @@ def login():
         return render_template(
             "login.html",
             error="Correo o contraseña incorrectos. Verifica tus datos."
+        )
+
+    if request.args.get("sesion") == "suspendida":
+        return render_template(
+            "login.html",
+            error="Tu cuenta está suspendida. Contacta al administrador de SafeRoute MX."
         )
 
     return render_template("login.html")
@@ -1225,6 +1297,7 @@ def mapa():
         }
 
     reportes = []
+    yo = (session.get("usuario") or "").strip().lower()
 
     docs = (
         db.collection("reportes")
@@ -1250,6 +1323,11 @@ def mapa():
             reporte["foto_usuario"] = datos.get("foto_perfil", "")
 
             reporte["foto_reporte"] = reporte.get("foto_reporte", "")
+
+            confirmaciones = [str(c).strip().lower() for c in (reporte.pop("confirmaciones", None) or [])]
+            reporte["total_confirmaciones"] = len(confirmaciones)
+            reporte["yo_confirme"] = bool(yo) and yo in confirmaciones
+            reporte["es_mio"] = bool(yo) and correo == yo
 
             # El correo de quien reportó no se envía al navegador de los demás usuarios
             reporte.pop("usuario", None)
@@ -1326,6 +1404,7 @@ def reportar():
             "seguimiento": "Sin seguimiento",
             "comentario_admin": "",
             "fecha_actualizacion": "",
+            "creado_ts": time.time(),
             "creado_desde": "formulario"
         }
 
@@ -1443,7 +1522,11 @@ def actualizar_estado_reporte(id):
         datos_actualizados["requiere_revision"] = False
         datos_actualizados["editado_por_usuario"] = False
 
+    if estado != "Pendiente" and not reporte.get("revisado_ts"):
+        datos_actualizados["revisado_ts"] = time.time()
+
     reporte_ref.update(datos_actualizados)
+    registrar_bitacora("Cambió estado de reporte", f"{id} → {estado} ({reporte.get('tipo', '')})")
 
     correo_usuario = reporte.get("usuario")
     nombre_usuario = reporte.get(
@@ -1487,6 +1570,8 @@ def aprobar_reporte(id):
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
+    marcar_revisado(id)
+    registrar_bitacora("Aprobó reporte", id)
     avisar_estado_reporte_push(id, "Aprobado")
 
     return redirect("/admin/reportes")
@@ -1509,6 +1594,8 @@ def rechazar_reporte(id):
         "fecha_actualizacion": firestore.SERVER_TIMESTAMP
     })
 
+    marcar_revisado(id)
+    registrar_bitacora("Rechazó reporte", id)
     avisar_estado_reporte_push(id, "Rechazado")
 
     return redirect("/admin/reportes")
@@ -1524,6 +1611,7 @@ def eliminar_reporte(id):
 
     db.collection("reportes").document(id).delete()
     borrar_comentarios_de_reporte(id)
+    registrar_bitacora("Eliminó reporte", id)
 
     return redirect("/admin/reportes")
 
@@ -1584,6 +1672,7 @@ def eliminar_usuario(id):
         borrar_comentarios_de_usuario(correo_usuario)
 
     usuario_ref.delete()
+    registrar_bitacora("Eliminó usuario", correo_usuario)
 
     flash("Usuario eliminado correctamente.", "success")
     return redirect("/admin/usuarios")
@@ -1591,6 +1680,63 @@ def eliminar_usuario(id):
 # ======================
 # ESTADÍSTICAS ADMIN
 # ======================
+def _hora_mexico(ts):
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.fromtimestamp(float(ts), ZoneInfo("America/Mexico_City")).hour
+    except Exception:
+        return datetime.utcfromtimestamp(float(ts)).hour
+
+
+def calcular_estadisticas_extra(reportes):
+    tipos = Counter()
+    meses = Counter()
+    horas = [0] * 24
+    hay_horas = False
+    zonas = {}
+    estados = Counter()
+    tiempos = []
+
+    for r in reportes:
+        tipo = str(r.get("tipo", "")).strip()
+        if tipo:
+            tipos[tipo[:1].upper() + tipo[1:].lower()] += 1
+
+        fecha = str(r.get("fecha", ""))[:7]
+        if re.match(r"^\d{4}-\d{2}$", fecha):
+            meses[fecha] += 1
+
+        estados[r.get("estado", "Pendiente") or "Pendiente"] += 1
+
+        ts = r.get("creado_ts")
+        if isinstance(ts, (int, float)):
+            horas[_hora_mexico(ts)] += 1
+            hay_horas = True
+            rev = r.get("revisado_ts")
+            if isinstance(rev, (int, float)) and rev >= ts:
+                tiempos.append((rev - ts) / 3600.0)
+
+        try:
+            clave = (round(float(r.get("latitud")), 2), round(float(r.get("longitud")), 2))
+            z = zonas.setdefault(clave, {"total": 0, "lugar": str(r.get("ubicacion", ""))[:60]})
+            z["total"] += 1
+        except (TypeError, ValueError):
+            pass
+
+    top_zonas = sorted(zonas.values(), key=lambda z: z["total"], reverse=True)[:5]
+    meses_ordenados = sorted(meses.items())[-6:]
+
+    return {
+        "tipos": tipos.most_common(8),
+        "meses": meses_ordenados,
+        "horas": horas if hay_horas else None,
+        "zonas": top_zonas,
+        "estados": list(estados.items()),
+        "promedio_respuesta_horas": round(sum(tiempos) / len(tiempos), 1) if tiempos else None,
+        "respondidos": len(tiempos),
+    }
+
+
 @app.route("/admin/estadisticas")
 def admin_estadisticas():
 
@@ -1620,12 +1766,15 @@ def admin_estadisticas():
         elif gravedad == "Baja":
             riesgo_bajo += 1
 
+    extra = calcular_estadisticas_extra(reportes)
+
     return render_template(
         "admin/estadisticas.html",
         total_reportes=len(reportes),
         riesgo_alto=riesgo_alto,
         riesgo_medio=riesgo_medio,
-        riesgo_bajo=riesgo_bajo
+        riesgo_bajo=riesgo_bajo,
+        extra=extra
     )
 
 @app.route("/usuario/reporte/eliminar/<id>", methods=["POST"])
@@ -2679,6 +2828,7 @@ def chatbot_preguntar():
                 "seguimiento": "Sin seguimiento",
                 "comentario_admin": "",
                 "fecha_actualizacion": "",
+                "creado_ts": time.time(),
                 "creado_desde": "chatbot",
                 "requiere_ubicacion_mapa": True
             }
@@ -3023,6 +3173,7 @@ def cambiar_rol_usuario(user_id):
     db.collection("usuarios").document(user_id).update({
         "rol": nuevo_rol
     })
+    registrar_bitacora("Cambió rol de usuario", f"{user_id} → {nuevo_rol}")
 
     # Si cambiaste tu propio rol, actualiza la sesión
     if user_id == session.get("user_id"):
@@ -3032,6 +3183,305 @@ def cambiar_rol_usuario(user_id):
             return redirect("/dashboard")
 
     return redirect("/admin/usuarios")
+
+
+# ======================
+# CAMPANA DE NOTIFICACIONES (dentro de la página)
+# ======================
+@app.route("/api/notificaciones")
+def api_notificaciones():
+    if "usuario" not in session:
+        return jsonify({"ok": False}), 401
+
+    correo = session["usuario"].strip().lower()
+    items = []
+
+    try:
+        docs = list(db.collection("notificaciones").where("usuario", "==", correo).stream())
+        docs.sort(key=lambda d: d.to_dict().get("creado_ts", 0), reverse=True)
+
+        # Se conservan solo las 50 más recientes
+        for viejo in docs[50:]:
+            try:
+                viejo.reference.delete()
+            except Exception:
+                pass
+
+        for d in docs[:20]:
+            n = d.to_dict()
+            items.append({
+                "titulo": n.get("titulo", ""),
+                "cuerpo": n.get("cuerpo", ""),
+                "enlace": n.get("enlace", ""),
+                "leida": bool(n.get("leida")),
+                "fecha": n.get("fecha_texto", ""),
+            })
+    except Exception as e:
+        print("ERROR LEYENDO NOTIFICACIONES:", e, flush=True)
+
+    return jsonify({
+        "ok": True,
+        "no_leidas": sum(1 for i in items if not i["leida"]),
+        "items": items
+    })
+
+
+@app.route("/api/notificaciones/leer", methods=["POST"])
+def api_notificaciones_leer():
+    if "usuario" not in session:
+        return jsonify({"ok": False}), 401
+
+    correo = session["usuario"].strip().lower()
+    try:
+        for d in db.collection("notificaciones").where("usuario", "==", correo).stream():
+            if not d.to_dict().get("leida"):
+                d.reference.update({"leida": True})
+    except Exception as e:
+        print("ERROR MARCANDO NOTIFICACIONES:", e, flush=True)
+        return jsonify({"ok": False}), 500
+
+    return jsonify({"ok": True})
+
+
+# ======================
+# "YO TAMBIÉN LO VI" (confirmar un reporte de la comunidad)
+# ======================
+@app.route("/reportes/confirmar/<id>", methods=["POST"])
+def confirmar_reporte(id):
+    if "usuario" not in session:
+        return jsonify({"ok": False, "error": "Inicia sesión para confirmar."}), 401
+
+    ref = db.collection("reportes").document(id)
+    doc = ref.get()
+
+    if not doc.exists or not doc.to_dict().get("aprobado"):
+        return jsonify({"ok": False, "error": "Reporte no disponible."}), 404
+
+    reporte = doc.to_dict()
+    yo = session["usuario"].strip().lower()
+
+    if str(reporte.get("usuario", "")).strip().lower() == yo:
+        return jsonify({"ok": False, "error": "No puedes confirmar tu propio reporte."}), 400
+
+    lista = [str(c).strip().lower() for c in (reporte.get("confirmaciones") or [])]
+
+    if yo in lista:
+        lista.remove(yo)
+        confirmado = False
+    else:
+        lista.append(yo)
+        confirmado = True
+
+    ref.update({"confirmaciones": lista})
+
+    if confirmado and reporte.get("usuario"):
+        registrar_notificacion(
+            reporte.get("usuario"),
+            "Alguien más vio lo mismo",
+            f"Un usuario confirmó tu reporte de {reporte.get('tipo', 'incidente')}. Ya son {len(lista)}.",
+            "/mis-reportes"
+        )
+
+    return jsonify({"ok": True, "confirmado": confirmado, "total": len(lista)})
+
+
+# ======================
+# EMERGENCIA Y CONTACTO DE CONFIANZA
+# ======================
+def _normalizar_telefono(texto):
+    digitos = re.sub(r"\D", "", texto or "")
+    if len(digitos) == 10:
+        digitos = "52" + digitos
+    return digitos if 10 <= len(digitos) <= 15 else ""
+
+
+@app.route("/emergencia")
+def emergencia():
+    if "usuario" not in session:
+        return redirect("/login")
+
+    contacto = {"nombre": "", "telefono": "", "wa": ""}
+    try:
+        for doc in buscar_usuarios_por_correo(session["usuario"].strip().lower()):
+            u = doc.to_dict()
+            contacto["nombre"] = u.get("contacto_emergencia_nombre", "")
+            contacto["telefono"] = u.get("contacto_emergencia_tel", "")
+            contacto["wa"] = _normalizar_telefono(contacto["telefono"])
+            break
+    except Exception as e:
+        print("ERROR CONTACTO EMERGENCIA:", e, flush=True)
+
+    return render_template("usuario/emergencia.html", contacto=contacto)
+
+
+@app.route("/perfil/contacto", methods=["POST"])
+def perfil_contacto():
+    if "usuario" not in session or not session.get("user_id"):
+        return redirect("/login")
+
+    nombre = request.form.get("contacto_nombre", "").strip()[:60]
+    telefono = request.form.get("contacto_tel", "").strip()[:25]
+    ref = db.collection("usuarios").document(session["user_id"])
+
+    if not nombre and not telefono:
+        ref.update({
+            "contacto_emergencia_nombre": firestore.DELETE_FIELD,
+            "contacto_emergencia_tel": firestore.DELETE_FIELD,
+        })
+        flash("Contacto de confianza eliminado.", "success")
+    elif not nombre or not _normalizar_telefono(telefono):
+        flash("Escribe el nombre y un teléfono válido (10 dígitos).", "danger")
+    else:
+        ref.update({
+            "contacto_emergencia_nombre": nombre,
+            "contacto_emergencia_tel": telefono,
+        })
+        flash("Contacto de confianza guardado.", "success")
+
+    return redirect("/emergencia")
+
+
+# ======================
+# ADMIN: EXPORTAR, RESUMEN MENSUAL Y BITÁCORA
+# ======================
+def _celda_csv(valor):
+    """Evita que Excel interprete texto como fórmula."""
+    if isinstance(valor, (int, float)):
+        return valor
+    texto = "" if valor is None else str(valor).replace("\r", " ").replace("\n", " ")
+    if texto[:1] in ("=", "+", "-", "@"):
+        texto = "'" + texto
+    return texto
+
+
+def _reportes_filtrados(desde="", hasta="", estado="", gravedad=""):
+    salida = []
+    for doc in db.collection("reportes").stream():
+        r = doc.to_dict()
+        r["id"] = doc.id
+        f = str(r.get("fecha", ""))[:10]
+        if desde and (not f or f < desde):
+            continue
+        if hasta and (not f or f > hasta):
+            continue
+        if estado and r.get("estado", "Pendiente") != estado:
+            continue
+        if gravedad and r.get("gravedad", "") != gravedad:
+            continue
+        salida.append(r)
+    salida.sort(key=lambda r: str(r.get("fecha", "")), reverse=True)
+    return salida
+
+
+@app.route("/admin/exportar")
+def admin_exportar():
+    if "usuario" not in session:
+        return redirect("/login")
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    desde = request.args.get("desde", "").strip()[:10]
+    hasta = request.args.get("hasta", "").strip()[:10]
+    estado = request.args.get("estado", "").strip()
+    gravedad = request.args.get("gravedad", "").strip()
+
+    reportes = _reportes_filtrados(desde, hasta, estado, gravedad)
+
+    salida = io.StringIO()
+    escritor = csv.writer(salida)
+    escritor.writerow([
+        "ID", "Fecha", "Tipo", "Gravedad", "Estado", "Seguimiento", "Ubicación",
+        "Latitud", "Longitud", "Reportó", "Confirmaciones", "Descripción", "Comentario del administrador"
+    ])
+    for r in reportes:
+        escritor.writerow([_celda_csv(x) for x in [
+            r["id"], r.get("fecha", ""), r.get("tipo", ""), r.get("gravedad", ""),
+            r.get("estado", "Pendiente"), r.get("seguimiento", ""), r.get("ubicacion", ""),
+            r.get("latitud", ""), r.get("longitud", ""), r.get("usuario", ""),
+            len(r.get("confirmaciones") or []), r.get("descripcion", ""), r.get("comentario_admin", "")
+        ]])
+
+    registrar_bitacora("Exportó reportes (CSV)", f"{len(reportes)} filas")
+
+    nombre = "saferoute_reportes_" + datetime.utcnow().strftime("%Y%m%d") + ".csv"
+    return Response(
+        "\ufeff" + salida.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={nombre}"}
+    )
+
+
+@app.route("/admin/resumen")
+def admin_resumen():
+    if "usuario" not in session:
+        return redirect("/login")
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    mes = request.args.get("mes", "").strip()
+    if not re.match(r"^\d{4}-\d{2}$", mes):
+        mes = datetime.utcnow().strftime("%Y-%m")
+
+    reportes = _reportes_filtrados(mes + "-01", mes + "-31")
+    extra = calcular_estadisticas_extra(reportes)
+
+    return render_template(
+        "admin/resumen.html",
+        mes=mes,
+        reportes=reportes,
+        total=len(reportes),
+        alta=sum(1 for r in reportes if r.get("gravedad") == "Alta"),
+        media=sum(1 for r in reportes if r.get("gravedad") == "Media"),
+        baja=sum(1 for r in reportes if r.get("gravedad") == "Baja"),
+        extra=extra,
+        generado=ahora_texto()
+    )
+
+
+@app.route("/admin/bitacora")
+def admin_bitacora():
+    if "usuario" not in session:
+        return redirect("/login")
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    registros = [d.to_dict() for d in db.collection("bitacora").stream()]
+    registros.sort(key=lambda x: x.get("creado_ts", 0), reverse=True)
+
+    return render_template("admin/bitacora.html", registros=registros[:200])
+
+
+@app.route("/admin/usuarios/suspender/<user_id>", methods=["POST"])
+def suspender_usuario(user_id):
+    if "usuario" not in session:
+        return redirect("/login")
+    if session.get("rol") != "admin":
+        return redirect("/dashboard")
+
+    ref = db.collection("usuarios").document(user_id)
+    doc = ref.get()
+
+    if not doc.exists:
+        flash("El usuario no existe.", "warning")
+        return redirect("/admin/usuarios")
+
+    u = doc.to_dict()
+
+    if u.get("rol") == "admin" or user_id == session.get("user_id"):
+        flash("No puedes suspender a un administrador.", "danger")
+        return redirect("/admin/usuarios")
+
+    if u.get("suspendido"):
+        ref.update({"suspendido": False})
+        registrar_bitacora("Reactivó usuario", u.get("correo", ""))
+        flash("Usuario reactivado.", "success")
+    else:
+        ref.update({"suspendido": True, "token_sesion_activa": firestore.DELETE_FIELD})
+        registrar_bitacora("Suspendió usuario", u.get("correo", ""))
+        flash("Usuario suspendido. Su sesión se cerró.", "success")
+
+    return redirect("/admin/usuarios")
+
 # ======================
 # LOGOUT
 # ======================
@@ -3079,6 +3529,9 @@ def registrar_token_reloj():
 
         if not usuario.get("verificado", False):
             return jsonify({"ok": False, "error": "Cuenta sin verificar"}), 403
+
+        if usuario.get("suspendido"):
+            return jsonify({"ok": False, "error": "Cuenta suspendida"}), 403
 
         limpiar_fallos_login(doc_ref, usuario)
 

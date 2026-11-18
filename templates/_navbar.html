@@ -7,6 +7,7 @@
         ("/admin/reportes", "fa-clipboard-list", "Reportes"),
         ("/admin/usuarios", "fa-users", "Usuarios"),
         ("/admin/comentarios", "fa-comments", "Comentarios"),
+        ("/admin/bitacora", "fa-clock-rotate-left", "Bitácora"),
         ("/admin/estadisticas", "fa-chart-pie", "Estadísticas"),
         ("/admin/mapa", "fa-map-location-dot", "Mapa"),
         ("/chatbot", "fa-robot", "Asistente")
@@ -17,7 +18,8 @@
         ("/mapa", "fa-map-location-dot", "Mapa"),
         ("/reportar", "fa-triangle-exclamation", "Reportar"),
         ("/mis-reportes", "fa-clipboard-list", "Mis reportes"),
-        ("/chatbot", "fa-robot", "Asistente")
+        ("/chatbot", "fa-robot", "Asistente"),
+        ("/emergencia", "fa-phone-volume", "Emergencia")
     ] %}
 {% endif %}
 
@@ -49,6 +51,20 @@
             </ul>
 
             <div class="sr-nav__actions">
+                <div class="sr-bell" id="srBell">
+                    <button class="sr-nav__icon-btn sr-bell__btn" id="srBellBtn" type="button" title="Avisos" aria-label="Avisos">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="sr-bell__badge" id="srBellBadge">0</span>
+                    </button>
+                    <div class="sr-bell__panel" id="srBellPanel">
+                        <div class="sr-bell__head">
+                            <span><i class="fa-solid fa-bell me-1"></i> Avisos</span>
+                            <button type="button" id="srBellLeer">Marcar como leídos</button>
+                        </div>
+                        <div class="sr-bell__list" id="srBellList"><div class="sr-bell__empty">Cargando...</div></div>
+                    </div>
+                </div>
+
                 <button id="modoOscuro" class="sr-nav__icon-btn" type="button" title="Cambiar tema">
                     <i class="fa-solid fa-moon"></i>
                 </button>
@@ -80,6 +96,64 @@
             var abierto = menu.classList.toggle("is-open");
             boton.setAttribute("aria-expanded", abierto ? "true" : "false");
         });
+    })();
+</script>
+
+<script>
+    (function () {
+        var btn = document.getElementById("srBellBtn");
+        var panel = document.getElementById("srBellPanel");
+        var lista = document.getElementById("srBellList");
+        var badge = document.getElementById("srBellBadge");
+        var leer = document.getElementById("srBellLeer");
+        if (!btn || !panel) return;
+
+        function esc(t) {
+            var d = document.createElement("div");
+            d.textContent = t == null ? "" : String(t);
+            return d.innerHTML;
+        }
+
+        function cargar() {
+            fetch("/api/notificaciones", { credentials: "same-origin" })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (d) {
+                    if (!d || !d.ok) return;
+                    if (d.no_leidas > 0) {
+                        badge.textContent = d.no_leidas > 9 ? "9+" : d.no_leidas;
+                        badge.style.display = "block";
+                    } else {
+                        badge.style.display = "none";
+                    }
+                    if (!d.items.length) {
+                        lista.innerHTML = '<div class="sr-bell__empty">No tienes avisos todavía.</div>';
+                        return;
+                    }
+                    lista.innerHTML = d.items.map(function (n) {
+                        return '<a class="sr-bell__item' + (n.leida ? '' : ' is-new') + '" href="' + esc(n.enlace || "#") + '">' +
+                               '<strong>' + esc(n.titulo) + '</strong><span>' + esc(n.cuerpo) + '</span><small>' + esc(n.fecha) + '</small></a>';
+                    }).join("");
+                })
+                .catch(function () {});
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            panel.classList.toggle("is-open");
+            if (panel.classList.contains("is-open")) cargar();
+        });
+        document.addEventListener("click", function (e) {
+            if (!panel.contains(e.target)) panel.classList.remove("is-open");
+        });
+        leer.addEventListener("click", function () {
+            fetch("/api/notificaciones/leer", {
+                method: "POST", credentials: "same-origin",
+                headers: { "X-CSRF-Token": "{{ csrf_token() }}" }
+            }).then(cargar).catch(function () {});
+        });
+
+        cargar();
+        setInterval(cargar, 60000);
     })();
 </script>
 

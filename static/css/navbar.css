@@ -197,3 +197,40 @@ body.dark .sr-nav__logout { color: #8b0000; }
     .sr-nav__actions .sr-nav__ghost,
     .sr-nav__actions .sr-nav__logout { flex: 1 1 140px; justify-content: center; }
 }
+
+/* ===== Campana de avisos ===== */
+.sr-bell { position: relative; }
+.sr-nav .sr-bell__btn { position: relative; }
+.sr-nav .sr-bell__btn:hover { transform: scale(1.06); }
+.sr-bell__badge {
+    position: absolute; top: -4px; right: -4px;
+    min-width: 19px; height: 19px; padding: 0 5px;
+    border-radius: 10px; background: #fff; color: #dc3545;
+    font-size: 11px; font-weight: 800; line-height: 19px; text-align: center;
+    display: none; box-shadow: 0 0 0 2px #dc3545;
+}
+.sr-bell__panel {
+    position: absolute; right: 0; top: 52px; width: 340px; max-width: 92vw;
+    background: #fff; color: #222; border-radius: 16px;
+    box-shadow: 0 14px 38px rgba(0,0,0,.28); overflow: hidden; display: none; z-index: 2000;
+}
+.sr-bell__panel.is-open { display: block; }
+.sr-bell__head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; font-weight: 800; border-bottom: 1px solid #eee; }
+.sr-bell__head button { border: 0; background: none; color: #dc3545; font-weight: 700; font-size: 13px; cursor: pointer; }
+.sr-bell__list { max-height: 360px; overflow-y: auto; }
+.sr-bell__item { display: block; padding: 11px 14px; border-bottom: 1px solid #f1f1f1; text-decoration: none; color: inherit; }
+.sr-bell__item:hover { background: #f8f9fa; color: inherit; }
+.sr-bell__item.is-new { background: #fff4f4; border-left: 4px solid #dc3545; }
+.sr-bell__item strong { display: block; font-size: 14px; }
+.sr-bell__item span { display: block; font-size: 13px; color: #555; }
+.sr-bell__item small { color: #999; font-size: 11px; }
+.sr-bell__empty { padding: 22px 14px; text-align: center; color: #888; font-size: 14px; }
+body.dark .sr-bell__panel { background: #1e1e1e; color: #eee; }
+body.dark .sr-bell__head { border-color: #333; }
+body.dark .sr-bell__item { border-color: #2a2a2a; }
+body.dark .sr-bell__item:hover { background: #262626; }
+body.dark .sr-bell__item.is-new { background: #2b1a1a; }
+body.dark .sr-bell__item span { color: #bbb; }
+@media (max-width: 860px) {
+    .sr-bell__panel { position: fixed; left: 4vw; right: 4vw; top: 76px; width: auto; max-width: none; }
+}
