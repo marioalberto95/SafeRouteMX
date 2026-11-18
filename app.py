@@ -2915,14 +2915,17 @@ def chatbot_preguntar():
     mis_seguimiento = sum(1 for r in mis_reportes if r.get("estado") == "En seguimiento")
     mis_resueltos = sum(1 for r in mis_reportes if r.get("estado") == "Resuelto")
 
-    zonas = contar(reportes, "ubicacion")
-    tipos = contar(reportes, "tipo")
+    # Los usuarios solo ven datos de reportes aprobados; el administrador ve todo.
+    base_publica = reportes if rol == "admin" else [r for r in reportes if r.get("aprobado")]
+
+    zonas = contar(base_publica, "ubicacion")
+    tipos = contar(base_publica, "tipo")
     mis_zonas = contar(mis_reportes, "ubicacion")
     mis_tipos = contar(mis_reportes, "tipo")
     usuarios_reportes = contar(reportes, "usuario")
 
     zonas_alto = {}
-    for r in reportes:
+    for r in base_publica:
         if r.get("gravedad") == "Alta":
             ubicacion = r.get("ubicacion", "Sin ubicación") or "Sin ubicación"
             zonas_alto[ubicacion] = zonas_alto.get(ubicacion, 0) + 1
@@ -2936,6 +2939,12 @@ def chatbot_preguntar():
 
     ultimo_reporte = mis_reportes[-1] if mis_reportes else None
 
+    mis_confirmaciones = sum(len(r.get("confirmaciones") or []) for r in mis_reportes)
+    pendientes_revision = sum(
+        1 for r in reportes
+        if r.get("estado", "Pendiente") == "Pendiente" or r.get("requiere_revision")
+    )
+
     respuesta = (
         "Puedo ayudarte con SafeRoute MX.\n\n"
         "Puedes preguntarme:\n"
@@ -2945,7 +2954,10 @@ def chatbot_preguntar():
         "• ¿Mi reporte lleva seguimiento?\n"
         "• ¿Qué zonas debo evitar?\n"
         "• Dame recomendaciones de seguridad\n"
-        "• ¿Cómo funciona el mapa?"
+        "• ¿Cómo funciona el mapa?\n"
+        "• ¿Qué es el mapa de calor?\n"
+        "• ¿Cómo funciona el botón de emergencia?\n"
+        "• ¿Cuántas personas confirmaron mis reportes?"
     )
 
     # ======================================================
@@ -2969,7 +2981,12 @@ def chatbot_preguntar():
             "• ¿Cómo funciona el mapa?\n"
             "• Dame recomendaciones de seguridad\n"
             "• ¿Cómo puedo editar o eliminar un reporte?\n"
-            "• ¿Cómo protege mis datos SafeRoute MX?"
+            "• ¿Cómo protege mis datos SafeRoute MX?\n"
+            "• ¿Qué es el mapa de calor?\n"
+            "• ¿Qué significa 'Yo también lo vi'?\n"
+            "• ¿Cómo funciona la campana de avisos?\n"
+            "• ¿Cómo guardo mi contacto de confianza?\n"
+            "• ¿Cuáles son los teléfonos de emergencia?"
         )
 
     elif contiene("gracias"):
@@ -2987,6 +3004,66 @@ def chatbot_preguntar():
             "1. Desde el botón Reportar, seleccionando ubicación exacta en el mapa.\n"
             "2. Desde este chatbot escribiendo: crear reporte.\n\n"
             "Recomendación: para que aparezca bien en el mapa, usa el formulario de Reportar porque permite seleccionar coordenadas exactas."
+        )
+
+    elif contiene("mapa de calor", "calor"):
+        respuesta = (
+            "El mapa de calor muestra dónde se concentran los reportes aprobados.\n\n"
+            "Entre más intenso el color, más reportes (y de mayor gravedad) hay en esa zona.\n"
+            "Lo activas en el Mapa con el botón 'Mapa de calor'."
+        )
+
+    elif contiene("cerca de mi", "riesgo cerca", "a mi alrededor"):
+        respuesta = (
+            "En el Mapa pulsa 'Riesgo cerca de ti'. Usa tu ubicación y cuenta los reportes aprobados "
+            "en 1 km a tu alrededor, separados por riesgo alto, medio y bajo.\n\n"
+            "Tu ubicación solo se usa en tu navegador para ese cálculo."
+        )
+
+    elif contiene("yo tambien lo vi", "tambien lo vi", "confirmar reporte", "confirmar un reporte"):
+        respuesta = (
+            "'Yo también lo vi' sirve para confirmar un reporte de la comunidad que tú también presenciaste.\n\n"
+            "Lo encuentras dentro del detalle de cada reporte del mapa. No puedes confirmar tus propios reportes "
+            "y puedes quitar tu confirmación cuando quieras."
+        )
+
+    elif contiene("confirmaron", "confirmaciones", "personas lo vieron"):
+        respuesta = (
+            f"Tus reportes suman {mis_confirmaciones} confirmaciones de otras personas."
+            if total_mis_reportes else
+            "Todavía no tienes reportes, así que aún no hay confirmaciones."
+        )
+
+    elif contiene("campana", "notificaciones", "avisos"):
+        respuesta = (
+            "La campana de la barra superior guarda tus avisos: cambios de estado de tus reportes, "
+            "comentarios aprobados y confirmaciones de otras personas.\n\n"
+            "Puedes marcarlos como leídos desde el mismo panel. Si usas la app del celular o el reloj, "
+            "también te llegan como notificación."
+        )
+
+    elif contiene("contacto de confianza", "contacto de emergencia", "avisar a mi contacto"):
+        tiene_contacto = False
+        try:
+            for doc in buscar_usuarios_por_correo((usuario_actual or "").strip().lower()):
+                tiene_contacto = bool(doc.to_dict().get("contacto_emergencia_tel"))
+                break
+        except Exception:
+            pass
+
+        respuesta = (
+            "En la sección Emergencia puedes guardar un contacto de confianza (nombre y teléfono). "
+            "Con un toque se abre WhatsApp con un mensaje y el enlace a tu ubicación; tú decides si lo envías.\n\n"
+            + ("Ya tienes un contacto guardado." if tiene_contacto else "Aún no tienes un contacto guardado.")
+        )
+
+    elif contiene("telefonos", "numeros de emergencia", "numero de emergencia", "denuncia anonima"):
+        respuesta = (
+            "Teléfonos útiles en México:\n\n"
+            "• 911: emergencias\n"
+            "• 089: denuncia anónima\n"
+            "• 065: Cruz Roja\n\n"
+            "Pueden variar según tu estado o municipio. Los encuentras en la sección Emergencia."
         )
 
     elif contiene("mapa", "como funciona el mapa"):
@@ -3083,6 +3160,8 @@ def chatbot_preguntar():
     elif contiene("emergencia", "911", "peligro", "me asaltan", "accidente"):
         respuesta = (
             "Si estás en una emergencia real, llama al 911.\n\n"
+            "En la sección Emergencia tienes el botón de llamada y puedes avisar a tu contacto de confianza "
+            "con tu ubicación.\n\n"
             "Después, si estás seguro, puedes registrar el incidente en SafeRoute MX para alertar a la comunidad."
         )
 
@@ -3144,6 +3223,38 @@ def chatbot_preguntar():
             else:
                 respuesta = "Aún no hay reportes suficientes para identificar al usuario más activo."
 
+        elif contiene("pendientes", "por revisar", "sin revisar"):
+            respuesta = f"Hay {pendientes_revision} reportes pendientes de revisión. Puedes atenderlos en Reportes."
+
+        elif contiene("tiempo de respuesta", "cuanto tardamos", "cuanto tardo"):
+            tiempos = []
+            for r in reportes:
+                ts, rev = r.get("creado_ts"), r.get("revisado_ts")
+                if isinstance(ts, (int, float)) and isinstance(rev, (int, float)) and rev >= ts:
+                    tiempos.append((rev - ts) / 3600.0)
+            if tiempos:
+                respuesta = (
+                    f"El tiempo promedio de respuesta es de {round(sum(tiempos) / len(tiempos), 1)} horas "
+                    f"({len(tiempos)} reportes atendidos)."
+                )
+            else:
+                respuesta = "Aún no hay reportes atendidos con tiempo registrado."
+
+        elif contiene("exportar", "excel", "csv", "descargar reportes"):
+            respuesta = (
+                "En Estadísticas hay un bloque 'Exportar reportes': eliges fechas, estado y gravedad "
+                "y descargas un CSV que abre Excel. También hay un Resumen mensual imprimible."
+            )
+
+        elif contiene("bitacora", "historial de acciones"):
+            respuesta = "La Bitácora (menú superior) registra quién aprobó, rechazó, eliminó o suspendió y cuándo."
+
+        elif contiene("suspender", "suspension"):
+            respuesta = (
+                "En Usuarios puedes suspender o reactivar cuentas de usuarios. "
+                "Al suspender, su sesión se cierra y no pueden volver a entrar hasta reactivarlos."
+            )
+
         elif contiene("que puedo hacer como admin", "panel admin"):
             respuesta = (
                 "Como administrador puedes:\n\n"
@@ -3151,8 +3262,9 @@ def chatbot_preguntar():
                 "• Dar seguimiento a reportes.\n"
                 "• Actualizar estados.\n"
                 "• Revisar usuarios registrados.\n"
-                "• Ver estadísticas.\n"
-                "• Consultar el mapa administrativo."
+                "• Ver estadísticas y exportar reportes.\n"
+                "• Suspender o reactivar usuarios.\n"
+                "• Consultar la bitácora y el mapa administrativo."
             )
 
     return jsonify({"respuesta": respuesta})

@@ -951,6 +951,26 @@ Para crear un reporte escribe: Crear reporte.
                                     <i class="fa-solid fa-lock me-1"></i> Privacidad
                                 </button>
 
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="mapa seguridad" onclick="enviarPreguntaRapida('¿Qué es el mapa de calor?')">
+                                    <i class="fa-solid fa-fire me-1"></i> Mapa de calor
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="seguridad ayuda" onclick="enviarPreguntaRapida('¿Cómo funciona el botón de emergencia?')">
+                                    <i class="fa-solid fa-phone-volume me-1"></i> Emergencia
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes mapa" onclick="enviarPreguntaRapida('¿Qué significa Yo también lo vi?')">
+                                    <i class="fa-solid fa-eye me-1"></i> Yo también lo vi
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="reportes cuenta" onclick="enviarPreguntaRapida('¿Cuántas personas confirmaron mis reportes?')">
+                                    <i class="fa-solid fa-hand me-1"></i> Mis confirmaciones
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="cuenta ayuda" onclick="enviarPreguntaRapida('¿Cómo funciona la campana de avisos?')">
+                                    <i class="fa-solid fa-bell me-1"></i> Campana de avisos
+                                </button>
+
                                 {% if session.get("rol") == "admin" %}
                                 <button class="btn btn-outline-danger btn-sm quick-btn" data-cat="admin" onclick="enviarPreguntaRapida('¿Cuántos usuarios están registrados en el sistema?')">
                                     <i class="fa-solid fa-users me-1"></i> Usuarios registrados
